@@ -25,8 +25,7 @@
         finally (return freq)))
 
 (defun circular (list)
-  (setf (cdr (last list)) list)
-  list)
+  (setf (cdr (last list)) list))
 
 (defun part1 (input)
   (reduce #'+ (numbers (aoc:lines input))))
