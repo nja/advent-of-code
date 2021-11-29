@@ -2,15 +2,9 @@
 
 (in-package #:aoc2018.day13)
 
-(defparameter *test* (aoc:strip-cr "/->-\\
-|   |  /----\\
-| /-+--+-\\  |
-| | |  | v  |
-\\-+-/  \\-+--/
-  \\------/   "))
-
 (defvar *tracks* nil)
 (defvar *state* nil)
+(defvar *carts* nil)
 
 (defun to-array (lines)
   (loop with rows = (length lines)
@@ -26,10 +20,9 @@
 (defparameter *dirs* "^>v<")
 (defparameter *turns* (alexandria:circular-list 'left 'straight 'right))
 
-(defstruct cart dir y x (turn *turns*))
+(defstruct cart dir y x (turn *turns*) (live t))
 
 (defun cart-char? (ch) (find ch *dirs*))
-(defun cart (ch y x) (list ch y x *turns*))
 
 (defun right (cart) (aref *dirs* (mod (1+ (position (cart-dir cart) *dirs*)) 4)))
 (defun left (cart) (aref *dirs* (mod (1- (position (cart-dir cart) *dirs*)) 4)))
@@ -83,17 +76,31 @@
                             (t ch))))
         finally (return new-tracks)))
 
+(defun cart-at (pos)
+  (destructuring-bind (y x) pos
+    (find-if (lambda (c)
+               (and (= y (cart-y c))
+                    (= x (cart-x c))))
+             *carts*)))
+
+(defun kill (cart)
+  (setf (cart-live cart) nil))
+
 (defun move (cart)
   (setf (aref *state* (cart-y cart) (cart-x cart)) (under cart))
   (let* ((pos (next-pos cart))
          (there (apply #'aref *state* pos)))
-    (setf (apply #'aref *state* pos) (if (cart-char? there)
-                                         #\X
-                                         (cart-dir cart)))
-    (setf (cart-y cart) (car pos))
-    (setf (cart-x cart) (cadr pos))
-    (when (cart-char? there)
-      pos)))
+    (cond ((cart-char? there)
+           (kill cart)
+           (setf (apply #'aref *state* pos)
+                 (apply #'aref *tracks* pos))
+           (kill (cart-at pos))
+           pos)
+          (t
+           (setf (cart-y cart) (car pos))
+           (setf (cart-x cart) (cadr pos))
+           (setf (apply #'aref *state* pos) (cart-dir cart))
+           nil))))
 
 (defun sort-carts (carts)
   (sort (copy-seq carts)
@@ -105,11 +112,18 @@
 (defun part1 (input)
   (let* ((*state* (to-array (aoc:lines input)))
          (*tracks* (copy-tracks *state*))
-         (carts (collect-carts *state*)))
-    (loop for x = (loop for cart in (sort-carts carts)
-                        for c = (corner cart)
-                        for tt = (turn c)
-                        for m = (move tt)
-                        when m return it)
-          ;do (print-array *state*)
-          when x return it)))
+         (*carts* (collect-carts *state*)))
+    (loop when (loop for cart in (sort-carts *carts*)
+                     when (move (turn (corner cart))) return it)
+            return it)))
+
+(defun part2 (input)
+  (let* ((*state* (to-array (aoc:lines input)))
+         (*tracks* (copy-tracks *state*))
+         (*carts* (collect-carts *state*)))
+    (loop while (< 1 (count-if #'cart-live *carts*)) do
+      (loop for cart in (sort-carts *carts*)
+            when (cart-live cart)
+              do (move (turn (corner cart)))))
+    (let ((last-cart (find-if #'cart-live *carts*)))
+      (list (cart-y last-cart) (cart-x last-cart)))))
