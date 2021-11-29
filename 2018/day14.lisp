@@ -9,14 +9,15 @@
 
 (defparameter *input* "633601")
 
-(defstruct lab first second head tail length)
+(defstruct lab first second head tail length trailer)
 
 (defun setup (digits)
   (let ((lab (make-lab :first digits
                        :second (cdr digits)
                        :head digits
                        :tail (last digits)
-                       :length (length digits))))
+                       :length (length digits)
+                       :trailer digits)))
     (setf (cdr (lab-tail lab)) digits)
     lab))
 
@@ -36,6 +37,8 @@
   (setf (cdr (lab-tail lab)) (lab-head lab)))
 
 (defun advance (lab)
+  (when (and *head-start* (> (lab-length lab) *head-start*))
+    (setf (lab-trailer lab) (cdr (lab-trailer lab))))
   (setf (lab-first lab) (nthcdr (1+ (car (lab-first lab)))
                                 (lab-first lab)))
   (setf (lab-second lab) (nthcdr (1+ (car (lab-second lab)))
@@ -50,10 +53,10 @@
              (when print (print-lab lab)))
     (subseq (lab-head lab) target limit)))
 
-(defun part1 (input)
+(defun part1 ()
   (parse-integer
    (map 'string #'digit-char
-        (work (list 3 7) (parse-integer input)))))
+        (work (list 3 7) (parse-integer *input*)))))
 
 (defun print-lab (lab)
   (loop repeat (lab-length lab)
@@ -67,3 +70,26 @@
                          ((eq d (lab-second lab)) #\])
                          (t #\Space))))
   (terpri))
+
+(defvar *head-start*)
+
+(defun locate (digits target)
+  (let ((lab (setup digits))
+        (*head-start* (length target)))
+    (flet ((match ()
+             (loop for i from 0
+                   for a in target
+                   for b in (lab-trailer lab)
+                   always (= a b)))
+           (trailer-position ()
+             (loop for i from 0
+                   for x on (lab-head lab)
+                   when (eq x (lab-trailer lab))
+                     do (return i))))
+      (loop until (match)
+            do (add lab (apply #'combine (score lab)))
+               (advance lab)
+            finally (return (trailer-position))))))
+
+(defun part2 ()
+  (locate (list 3 7) (digits *input*)))
