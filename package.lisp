@@ -2,7 +2,8 @@
 
 (defpackage #:aoc
   (:use #:cl)
-  (:export #:input-for #:lines #:trim-lf #:strip-cr))
+  (:export #:input-for #:lines #:trim-lf #:strip-cr #:tr #:print-array)
+  (:local-nicknames (#:a #:alexandria)))
 
 (defpackage #:aoc2018.day01 (:use #:cl))
 (defpackage #:aoc2018.day02 (:use #:cl))

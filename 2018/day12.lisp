@@ -2,13 +2,7 @@
 
 (in-package #:aoc2018.day12)
 
-(defun tr (old new seq)
-  (loop for o across old
-        for n across new
-        for s = (substitute n o (or s seq))
-        finally (return s)))
-
-(defun tr-binary (str) (tr ".#" "01" str))
+(defun tr-binary (str) (aoc:tr ".#" "01" str))
 (defun parse-binary (str) (parse-integer str :radix 2))
 
 (defun parse-rules (input)

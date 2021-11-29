@@ -69,3 +69,6 @@
 (deftest day12 ()
   (is (= 2736 (aoc2018.day12::part1 (input-for 2018 12))))
   (is (= 3150000000905 (aoc2018.day12::part2 (input-for 2018 12)))))
+
+(deftest day13 ()
+  (is (equal '(10 116) (aoc2018.day13::part1 (input-for 2018 13)))))
