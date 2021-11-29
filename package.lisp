@@ -18,6 +18,7 @@
 (defpackage #:aoc2018.day11 (:use #:cl))
 (defpackage #:aoc2018.day12 (:use #:cl))
 (defpackage #:aoc2018.day13 (:use #:cl))
+(defpackage #:aoc2018.day14 (:use #:cl))
 
 (fiasco:define-test-package #:aoc2018.tests
   (:use #:aoc))
