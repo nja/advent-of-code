@@ -2,8 +2,10 @@
 
 (defpackage #:aoc
   (:use #:cl)
-  (:export #:input-for #:lines #:trim-lf #:strip-cr #:tr #:print-array)
+  (:export #:input-for #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array)
   (:local-nicknames (#:a #:alexandria)))
+
+(defpackage #:aoc2021.day01 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 
 (defpackage #:aoc2018.day01 (:use #:cl))
 (defpackage #:aoc2018.day02 (:use #:cl))
@@ -20,5 +22,5 @@
 (defpackage #:aoc2018.day13 (:use #:cl))
 (defpackage #:aoc2018.day14 (:use #:cl))
 
-(fiasco:define-test-package #:aoc2018.tests
-  (:use #:aoc))
+(fiasco:define-test-package #:aoc2018.tests (:use #:aoc))
+(fiasco:define-test-package #:aoc2021.tests (:use #:aoc))

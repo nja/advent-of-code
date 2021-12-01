@@ -22,5 +22,9 @@
                  (:file "day11")
                  (:file "day12")
                  (:file "day13")
+                 (:file "tests")))
+               (:module "2021"
+                :components
+                ((:file "day01")
                  (:file "tests"))))
   :depends-on (#:alexandria #:fiasco #:cl-ppcre))
