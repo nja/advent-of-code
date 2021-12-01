@@ -6,17 +6,6 @@
 (defvar *state* nil)
 (defvar *carts* nil)
 
-(defun to-array (lines)
-  (loop with rows = (length lines)
-        with cols = (reduce #'max (mapcar #'length lines))
-        with array = (make-array (list rows cols) :initial-element #\Space)
-        for y from 0
-        for line in lines
-        do (loop for x from 0
-                 for ch across line
-                 do (setf (aref array y x) ch))
-        finally (return array)))
-
 (defparameter *dirs* "^>v<")
 (defparameter *turns* (alexandria:circular-list 'left 'straight 'right))
 
@@ -110,7 +99,7 @@
                 ((< (cart-x a) (cart-x b)) t)))))
 
 (defun part1 (input)
-  (let* ((*state* (to-array (aoc:lines input)))
+  (let* ((*state* (aoc:to-array (aoc:lines input)))
          (*tracks* (copy-tracks *state*))
          (*carts* (collect-carts *state*)))
     (loop when (loop for cart in (sort-carts *carts*)
@@ -118,7 +107,7 @@
             return it)))
 
 (defun part2 (input)
-  (let* ((*state* (to-array (aoc:lines input)))
+  (let* ((*state* (aoc:to-array (aoc:lines input)))
          (*tracks* (copy-tracks *state*))
          (*carts* (collect-carts *state*)))
     (loop while (< 1 (count-if #'cart-live *carts*)) do

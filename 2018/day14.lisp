@@ -71,7 +71,7 @@
                          (t #\Space))))
   (terpri))
 
-(defvar *head-start*)
+(defvar *head-start* nil)
 
 (defun locate (digits target)
   (let ((lab (setup digits))
@@ -93,3 +93,7 @@
 
 (defun part2 ()
   (locate (list 3 7) (digits *input*)))
+
+;;; take trailer out of lab
+;;; when two new recipes, do match, if no match, incf trailer again
+;;; and match again.
