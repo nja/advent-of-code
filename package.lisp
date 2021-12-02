@@ -3,7 +3,7 @@
 (defpackage #:aoc
   (:use #:cl)
   (:export #:input-for #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array
-           #:symbols)
+           #:symbols #:get-input #:save-input)
   (:local-nicknames (#:a #:alexandria)))
 
 (defpackage #:aoc2021.day01 (:use #:cl) (:local-nicknames (#:a #:alexandria)))

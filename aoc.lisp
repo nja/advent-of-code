@@ -2,11 +2,13 @@
 
 (in-package #:aoc)
 
+(defun input-path (year day)
+  (asdf:system-relative-pathname
+   :advent-of-code
+   (format nil "~4,'0d/day~2,'0d.input.txt" year day)))
+
 (defun input-for (year day)
-  (let ((pathname (asdf:system-relative-pathname
-                   :advent-of-code
-                   (format nil "~4,'0d/day~2,'0d.input.txt" year day))))
-    (alexandria:read-file-into-string pathname)))
+  (alexandria:read-file-into-string (input-path year day)))
 
 (defun lines (string)
   (with-input-from-string (in string)
@@ -55,3 +57,31 @@
             do (format t "~&")
                (format t fmt y)
                (loop for x below cols do (princ (aref array y x)))))))
+
+(defun session-cookie ()
+  (let* ((pathname (asdf:system-relative-pathname
+                    :advent-of-code
+                    "session.txt"))
+         (session (alexandria:read-file-into-string pathname)))
+    (make-instance 'drakma:cookie
+                   :name "session"
+                   :value session
+                   :expires (+ (get-universal-time) (* 365 24 60 60))
+                   :domain ".adventofcode.com"
+                   :http-only-p t
+                   :securep t)))
+
+(defun cookie-jar ()
+  (make-instance 'drakma:cookie-jar :cookies (list (session-cookie))))
+
+(defun get-input (year day)
+  (let* ((base "https://adventofcode.com")
+         (path (format nil "/~d/day/~d/input" year day))
+         (uri (format nil "~a~a" base path)))
+    (drakma:http-request uri :cookie-jar (cookie-jar))))
+
+(defun save-input (year day)
+  (alexandria:write-string-into-file
+   (get-input year day)
+   (input-path year day)
+   :if-exists :supersede))
