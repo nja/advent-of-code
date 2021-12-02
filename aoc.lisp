@@ -29,6 +29,9 @@
                x)))
        seq))
 
+(defun symbols (symbols)
+  (lambda (s) (find s symbols :key #'symbol-name :test #'string-equal)))
+
 (defun print-array (array)
   (labels
       ((top-row (rows cols i)
