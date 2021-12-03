@@ -74,14 +74,16 @@
 (defun cookie-jar ()
   (make-instance 'drakma:cookie-jar :cookies (list (session-cookie))))
 
+(defun get-aoc-webpage (path)
+  (drakma:http-request (format nil "https://adventofcode.com/~a" path)
+                       :cookie-jar (cookie-jar)))
+
 (defun get-input (year day)
-  (let* ((base "https://adventofcode.com")
-         (path (format nil "/~d/day/~d/input" year day))
-         (uri (format nil "~a~a" base path)))
-    (drakma:http-request uri :cookie-jar (cookie-jar))))
+  (get-aoc-webpage (format nil "~d/day/~d/input" year day)))
 
 (defun save-input (year day)
   (alexandria:write-string-into-file
    (get-input year day)
    (input-path year day)
    :if-exists :supersede))
+
