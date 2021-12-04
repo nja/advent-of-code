@@ -3,12 +3,13 @@
 (defpackage #:aoc
   (:use #:cl)
   (:export #:input-for #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array
-           #:symbols #:get-input #:save-input)
+           #:symbols #:get-input #:save-input #:sections)
   (:local-nicknames (#:a #:alexandria)))
 
 (defpackage #:aoc2021.day01 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2021.day02 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2021.day03 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
+(defpackage #:aoc2021.day04 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 
 (defpackage #:aoc2018.day01 (:use #:cl))
 (defpackage #:aoc2018.day02 (:use #:cl))

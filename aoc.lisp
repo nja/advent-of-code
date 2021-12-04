@@ -11,10 +11,10 @@
   (alexandria:read-file-into-string (input-path year day)))
 
 (defun lines (string)
-  (with-input-from-string (in string)
-    (loop for line = (read-line in nil nil)
-          while line
-          collect line)))
+  (ppcre:split "\\n" string))
+
+(defun sections (string)
+  (ppcre:split "\\n\\n" string))
 
 (defun trim-lf (string)
   (string-right-trim '(#\Linefeed) string))
