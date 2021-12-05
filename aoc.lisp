@@ -34,58 +34,34 @@
 (defun symbols (symbols)
   (lambda (s) (find s symbols :key #'symbol-name :test #'string-equal)))
 
+(defun digits (n)
+  (length (format nil "~d" n)))
+
+(defun getfmt (n)
+  (format nil "~~~d,d" (digits n)))
+
+(defun getspc (n)
+  (format nil "~{~a~}"
+          (make-list (digits n) :initial-element #\Space)))
+
+(defun top-row (rows cols i &optional (from 0))
+  (with-output-to-string (str)
+    (format str "~&~a" (getspc rows))
+    (loop with fmt = (getfmt cols)
+          for n below cols
+          for s = (format nil fmt (+ from n))
+          for c = (aref s i)
+          do (princ c str))))
+
 (defun print-array (array)
-  (labels
-      ((top-row (rows cols i)
-         (format t "~&~a" (getspc rows))
-         (loop with fmt = (getfmt cols)
-               for n below cols
-               for s = (format nil fmt n)
-               for c = (aref s i)
-               do (princ c)))
-       (digits (n)
-         (length (format nil "~d" n)))
-       (getfmt (n)
-         (format nil "~~~d,d" (digits n)))
-       (getspc (n)
-         (format nil "~{~a~}"
-                 (make-list (digits n) :initial-element #\Space))))
-    (destructuring-bind (rows cols) (array-dimensions array)
-      (loop for i from 0 below (digits cols) do (top-row rows cols i))
-      (loop with fmt = (getfmt rows)
-            for y below rows
-            do (format t "~&")
-               (format t fmt y)
-               (loop for x below cols do (princ (aref array y x)))))))
-
-(defun session-cookie ()
-  (let* ((pathname (asdf:system-relative-pathname
-                    :advent-of-code
-                    "session.txt"))
-         (session (alexandria:read-file-into-string pathname)))
-    (make-instance 'drakma:cookie
-                   :name "session"
-                   :value session
-                   :expires (+ (get-universal-time) (* 365 24 60 60))
-                   :domain ".adventofcode.com"
-                   :http-only-p t
-                   :securep t)))
-
-(defun cookie-jar ()
-  (make-instance 'drakma:cookie-jar :cookies (list (session-cookie))))
-
-(defun get-aoc-webpage (path)
-  (drakma:http-request (format nil "https://adventofcode.com/~a" path)
-                       :cookie-jar (cookie-jar)))
-
-(defun get-input (year day)
-  (get-aoc-webpage (format nil "~d/day/~d/input" year day)))
-
-(defun save-input (year day)
-  (alexandria:write-string-into-file
-   (get-input year day)
-   (input-path year day)
-   :if-exists :supersede))
+  (destructuring-bind (rows cols) (array-dimensions array)
+    (loop for i from 0 below (digits cols) do
+      (princ (top-row rows cols i)) (terpri))
+    (loop with fmt = (getfmt rows)
+          for y below rows
+          do (format t "~&")
+             (format t fmt y)
+             (loop for x below cols do (princ (aref array y x))))))
 
 (defun in-line? (p from to)
   (destructuring-bind (px py) p

@@ -7,6 +7,8 @@
   :serial t
   :components ((:file "package")
                (:file "aoc")
+               (:file "web")
+               (:file "leaderboard")
                (:module "2018"
                 :components
                 ((:file "day01")
@@ -31,4 +33,4 @@
                  (:file "day04")
                  (:file "day05")
                  (:file "tests"))))
-  :depends-on (#:alexandria #:fiasco #:cl-ppcre #:drakma))
+  :depends-on (#:alexandria #:fiasco #:cl-ppcre #:drakma #:jsown))
