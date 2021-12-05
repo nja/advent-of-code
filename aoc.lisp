@@ -87,3 +87,16 @@
    (input-path year day)
    :if-exists :supersede))
 
+(defun in-line? (p from to)
+  (destructuring-bind (px py) p
+    (destructuring-bind (fx fy) from
+      (destructuring-bind (tx ty) to
+        (cond ((= fx tx)
+               (and (= fx px) (<= (min fy ty) py (max fy ty))))
+              ((= fy ty)
+               (and (= fy py) (<= (min fx tx) px (max fx tx))))
+              ((= (abs (- fx tx)) (abs (- fy ty)))
+               (and (= (abs (- fx px)) (abs (- fy py)))
+                    (= (abs (- tx px)) (abs (- ty py)))
+                    (<= (min fx tx) px (max fx tx))
+                    (<= (min fy ty) py (max fy ty)))))))))
