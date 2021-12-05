@@ -8,4 +8,5 @@
 *.lx64fsl
 *.DS_Store
 scratch.lisp
-session.txt
+config.txt
+cache.txt
