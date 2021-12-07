@@ -30,7 +30,7 @@
                               for d = (jsown:val-safe obj (i i))
                               collect (cond ((jsown:keyp d (i 2)) #\⁑)
                                             ((jsown:keyp d (i 1)) #\⁎)
-                                            (t #\Space)))))
+                                            (t #\.)))))
     (list (v "local_score") (stars (v "completion_day_level")) (v "name"))))
 
 (defun print-members (obj)
