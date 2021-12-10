@@ -15,6 +15,7 @@
 (defpackage #:aoc2021.day07 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2021.day08 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2021.day09 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
+(defpackage #:aoc2021.day10 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 
 (defpackage #:aoc2018.day01 (:use #:cl))
 (defpackage #:aoc2018.day02 (:use #:cl))
