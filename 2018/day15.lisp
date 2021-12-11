@@ -2,8 +2,20 @@
 
 (in-package #:aoc2018.day15)
 
-(defparameter *input* (aoc:to-array (aoc:lines (aoc:input-for 2018 15))))
-(defparameter *test* (aoc:to-array (aoc:lines
+(defun to-array (lines)
+  (loop with rows = (length lines)
+        with cols = (reduce #'max (mapcar #'length lines))
+        with array = (make-array (list rows cols) :initial-element #\Space)
+        for y from 0
+        for line in lines
+        do (loop for x from 0
+                 for ch across line
+                 do (setf (aref array y x) ch))
+        finally (return array)))
+
+(defparameter *input* (to-array (aoc:lines (aoc:input-for 2018 15))))
+(defparameter *test* (to-array (aoc:lines
+
 "#########
 #G..G..G#
 #.......#
