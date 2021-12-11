@@ -7,6 +7,19 @@
   :serial t
   :components ((:file "package")
                (:file "aoc")
+               (:module "2016"
+                :components
+                ((:file "day01")
+                 (:file "day02")
+                 (:file "day03")
+                 (:file "day04")
+                 (:file "day05")
+                 (:file "day06")
+                 (:file "day07")
+                 (:file "day08")
+                 (:file "day09")
+                 (:file "day10")
+                 (:file "tests")))
                (:module "2017"
                 :components
                 ((:file "day01")
@@ -36,4 +49,5 @@
                  (:file "day24")
                  (:file "day25")
                  (:file "tests"))))
-  :depends-on (#:alexandria #:fiasco #:cl-ppcre #:queues.simple-queue))
+  :depends-on (#:alexandria #:fiasco #:ironclad #:cl-ppcre #:queues.simple-queue))
+
