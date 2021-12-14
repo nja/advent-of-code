@@ -11,6 +11,7 @@
 
 (defvar *tracks* nil)
 (defvar *state* nil)
+(defvar *carts* nil)
 
 (defun to-array (lines)
   (loop with rows = (length lines)
@@ -83,6 +84,16 @@
                             (t ch))))
         finally (return new-tracks)))
 
+(defun cart-at (pos)
+  (destructuring-bind (y x) pos
+    (find-if (lambda (c)
+               (and (= (cart-y c) y)
+                    (= (cart-x c) x)))
+             *carts*)))
+
+(defun kill-cart (cart)
+  (setf (cart-dir cart) nil))
+
 (defun move (cart)
   (setf (aref *state* (cart-y cart) (cart-x cart)) (under cart))
   (let* ((pos (next-pos cart))
@@ -105,11 +116,36 @@
 (defun part1 (input)
   (let* ((*state* (to-array (aoc:lines input)))
          (*tracks* (copy-tracks *state*))
-         (carts (collect-carts *state*)))
-    (loop for x = (loop for cart in (sort-carts carts)
-                        for c = (corner cart)
-                        for tt = (turn c)
-                        for m = (move tt)
-                        when m return it)
-          ;do (print-array *state*)
+         (*carts* (collect-carts *state*)))
+    (loop for x = (loop for sorted = (sort-carts *carts*)
+                                  for cart in sorted
+                                  do (corner cart)
+                                     (turn cart)
+                                  when (move cart) return it)
+          ;do (aoc:print-array *state*)
           when x return it)))
+
+(defun no-dead-carts (carts)
+  (remove-if-not #'cart-dir carts))
+
+(defun part2 (input)
+  (let* ((*state* (to-array (aoc:lines input)))
+         (*tracks* (copy-tracks *state*))
+         (*carts* (collect-carts *state*)))
+    (loop repeat 10
+          for x = (loop for alive = (no-dead-carts (sort-carts *carts*))
+                        for cart in alive
+                        when (= 1 (length alive))
+                          return cart
+                        when (cart-dir cart)
+                          do (move (turn (corner cart))))
+          ;do (aoc:print-array *state*)
+          when x return it)))
+
+(defparameter *test2* (aoc:strip-cr "/>-<\\  
+|   |  
+| /<+-\\
+| | | v
+\\>+</ |
+  |   ^
+  \\<->/"))
