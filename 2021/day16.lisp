@@ -75,11 +75,8 @@
             (quote (first args))
             (t (cons op args) ))))))
 
-(defun lambdify (form)
-  `(lambda () ,form))
-
 (defun part1 (input)
   (sum-versions (parse-packet (to-bit-stream (str:trim input)))))
 
 (defun part2 (input)
-  (funcall (compile nil (lambdify (transform (parse-packet (to-bit-stream (str:trim input))))))))
+  (eval (transform (parse-packet (to-bit-stream (str:trim input))))))
