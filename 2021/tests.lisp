@@ -89,3 +89,7 @@
 (deftest day20 ()
   (is (= 5379 (aoc2021.day20::part1 (aoc:input-for 2021 20))))
   (is (= 17917 (aoc2021.day20::part2 (aoc:input-for 2021 20)))))
+
+(deftest day21 ()
+  (is (= 711480 (aoc2021.day21::part1 (aoc:input-for 2021 21))))
+  (is (= 265845890886828 (aoc2021.day21::part2 (aoc:input-for 2021 21)))))

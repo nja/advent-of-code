@@ -119,6 +119,7 @@
                  (:file "day18")
                  (:file "day19")
                  (:file "day20")
+                 (:file "day21")
                  (:file "tests"))))
   :depends-on (#:alexandria
                #:cl-ppcre
