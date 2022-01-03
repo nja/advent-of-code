@@ -121,6 +121,7 @@
                  (:file "day20")
                  (:file "day21")
                  (:file "day22")
+                 (:file "day23")
                  (:file "tests"))))
   :depends-on (#:alexandria
                #:cl-ppcre
@@ -129,6 +130,7 @@
                #:fiasco
                #:ironclad
                #:jsown
+               #:pettomato-indexed-priority-queue
                #:queues.simple-queue
                #:queues.priority-queue
                #:str))
