@@ -111,6 +111,7 @@
 (defpackage #:aoc2021.day23 (:use #:cl)
             (:local-nicknames (#:a #:alexandria) (#:q #:pettomato-indexed-priority-queue)))
 (defpackage #:aoc2021.day24 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
+(defpackage #:aoc2021.day25 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 
 (fiasco:define-test-package #:aoc2016.tests (:use #:aoc))
 (fiasco:define-test-package #:aoc2017.tests (:export #:input-for #:lines))

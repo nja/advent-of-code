@@ -105,3 +105,6 @@
 (deftest day24 ()
   (is (equalp #(6 5 9 8 4 9 1 9 9 9 7 9 3 9) (aoc2021.day24::part1 (aoc:input-for 2021 24))))
   (is (equalp #(1 1 2 1 1 6 1 9 5 4 1 7 1 3) (aoc2021.day24::part2 (aoc:input-for 2021 24)))))
+
+(deftest day25 ()
+  (is (= 400 (aoc2021.day25::part1 (aoc:input-for 2021 25)))))

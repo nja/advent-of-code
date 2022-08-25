@@ -123,6 +123,7 @@
                  (:file "day22")
                  (:file "day23")
                  (:file "day24")
+                 (:file "day25")
                  (:file "tests"))))
   :depends-on (#:alexandria
                #:cl-ppcre
