@@ -28,8 +28,8 @@
            (i (i) (format nil "~d" i))
            (stars (obj) (loop for i from 1 upto 25
                               for d = (jsown:val-safe obj (i i))
-                              collect (cond ((jsown:keyp d (i 2)) #\⁑)
-                                            ((jsown:keyp d (i 1)) #\⁎)
+                              collect (cond ((jsown:keyp d (i 2)) #\*)
+                                            ((jsown:keyp d (i 1)) #\')
                                             (t #\.)))))
     (list (v "local_score") (stars (v "completion_day_level")) (v "name"))))
 
