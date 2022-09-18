@@ -5,7 +5,7 @@
 (defun parse (input)
   (let ((contents (mapcar #'parse-integer (ppcre:split "," input))))
     (make-array (length contents) :initial-contents contents
-                                  :adjustable t)))
+                                  :adjustable t :fill-pointer t)))
 
 (defun simulate (fish)
   (loop for i below (length fish)
