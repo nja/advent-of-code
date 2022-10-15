@@ -7,6 +7,7 @@
   :serial t
   :components ((:file "package")
                (:file "aoc")
+               (:file "dijkstra")
                (:file "web")
                (:file "leaderboard")
                (:module "2016"

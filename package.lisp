@@ -3,8 +3,14 @@
 (defpackage #:aoc
   (:use #:cl)
   (:export #:input-for #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array
-           #:symbols #:get-input #:save-input #:sections #:set-config #:leaderboard)
+           #:symbols #:get-input #:save-input #:sections #:set-config #:leaderboard
+           #:print-indexed-lines)
   (:local-nicknames (#:a #:alexandria)))
+
+(defpackage #:dijkstra
+  (:use #:cl)
+  (:export #:search* #:item #:previous #:distance)
+  (:local-nicknames (#:a #:alexandria) (#:q #:pettomato-indexed-priority-queue)))
 
 (defpackage #:aoc2016.day01 (:use #:cl) (:shadow #:step))
 (defpackage #:aoc2016.day02 (:use #:cl) (:import-from #:alexandria #:clamp))
@@ -58,7 +64,8 @@
 (defpackage #:aoc2018.day12 (:use #:cl))
 (defpackage #:aoc2018.day13 (:use #:cl))
 (defpackage #:aoc2018.day14 (:use #:cl))
-(defpackage #:aoc2018.day15 (:use #:cl))
+(defpackage #:aoc2018.day15 (:use #:cl)
+            (:local-nicknames (#:a #:alexandria) (#:d #:dijkstra)))
 
 (defpackage #:aoc2020.day01 (:use #:cl) (:import-from #:alexandria #:curry))
 (defpackage #:aoc2020.day02 (:use #:cl))
