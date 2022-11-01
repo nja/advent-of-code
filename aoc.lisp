@@ -53,26 +53,27 @@
           for c = (aref s i)
           do (princ c str))))
 
-(defun print-indexed-lines (lines &optional cols)
+(defun print-indexed-lines (lines &key cols (row+ 0) (col+ 0))
   (let ((rows (length lines)))
     (unless cols
       (setf cols (reduce #'max (mapcar #'length lines))))
-    (loop for i from 0 below (digits cols) do
-      (princ (top-row rows cols i)) (terpri))
-    (loop with fmt = (getfmt rows)
+    (loop for i from 0 below (digits (+ cols col+)) do
+      (princ (top-row (+ rows row+) cols i col+)) (terpri))
+    (loop with fmt = (getfmt (+ rows row+))
           for l in lines
-          for n from 0
+          for n from row+
           do (format t "~&")
              (format t fmt n)
              (princ l))))
 
-(defun print-array (array)
+(defun print-array (array &key (row+ 0) (col+ 0))
   (print-indexed-lines
    (loop for y below (array-dimension array 0)
          collect (with-output-to-string (s)
                    (loop for x below (array-dimension array 1)
                          do (princ (aref array y x) s))))
-   (array-dimension array 1)))
+   :cols (array-dimension array 1)
+   :row+ row+ :col+ col+))
 
 (defun in-line? (p from to)
   (destructuring-bind (px py) p

@@ -85,3 +85,7 @@
 (deftest day16 ()
   (is (= 590 (aoc2018.day16::part1 (input-for 2018 16))))
   (is (= 475 (aoc2018.day16::part2 (input-for 2018 16)))))
+
+(deftest day17 ()
+  (is (= 36787 (aoc2018.day17::part1 (input-for 2018 17))))
+  (is (= 29662 (aoc2018.day17::part2 (input-for 2018 17)))))

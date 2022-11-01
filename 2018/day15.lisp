@@ -39,7 +39,7 @@
                      (when units
                        (format s "   ~{~a~^, ~}" (nreverse units)))
                      (terpri s)))
-     (array-dimension array 1))))
+     :cols (array-dimension array 1))))
 
 (defstruct (pos (:conc-name) (:constructor pos (row col))) row col)
 
