@@ -93,3 +93,7 @@
 (deftest day18 ()
   (is (= 427961 (aoc2018.day18::part1 (input-for 2018 18))))
   (is (= 103970 (aoc2018.day18::part2 (input-for 2018 18)))))
+
+(deftest day19 ()
+  (is (= 912 (aoc2018.day19::part1 (input-for 2018 19))))
+  (is (= 10576224 (aoc2018.day19::part2 (input-for 2018 19)))))
