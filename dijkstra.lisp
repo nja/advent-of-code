@@ -25,7 +25,7 @@
              (eql (distance x) (distance y))
              (funcall compare-items (item x) (item y))))))
 
-(defun search* (start neighbours &key donep distancef comparef max-distance)
+(defun search* (start neighbours &key donep distancef comparef max-distance pathsp)
   (let ((queue (make-queue comparef))
         (entries (make-hash-table :test 'equalp)))
     (flet ((%donep (node)
@@ -42,21 +42,24 @@
                                          (make-search-node :item item
                                                            :distance distance))))))
       (q:queue-insert queue (get-entry start 0))
-      (loop until (q:queue-empty-p queue)
-            for entry = (q:queue-pop queue)
-            for current = (node entry)
-            when (%donep current)
-              do (return current)
-            until (and max-distance (>= (distance current) max-distance))
-            do (loop for neighbour-item in (funcall neighbours (item current))
-                     for neighbour-entry = (get-entry neighbour-item)
-                     for neighbour-node = (node neighbour-entry)
-                     for alt = (+ (distance current)
-                                  (%distance current (item neighbour-node)))
-                     when (compare alt (distance neighbour-node))
-                       do (setf (distance neighbour-node) alt
-                                (previous neighbour-node) current)
-                          (requeue queue neighbour-entry))))))
+      (or (loop until (q:queue-empty-p queue)
+             for entry = (q:queue-pop queue)
+             for current = (node entry)
+             when (%donep current)
+               do (return current)
+             until (and max-distance (>= (distance current) max-distance))
+             do (loop for neighbour-item in (funcall neighbours (item current))
+                      for neighbour-entry = (get-entry neighbour-item)
+                      for neighbour-node = (node neighbour-entry)
+                      for alt = (+ (distance current)
+                                   (%distance current (item neighbour-node)))
+                      when (compare alt (distance neighbour-node))
+                        do (setf (distance neighbour-node) alt
+                                 (previous neighbour-node) current)
+                           (requeue queue neighbour-entry)))
+          (values nil
+                  (when pathsp
+                    (mapcar #'node (a:hash-table-values entries))))))))
 
 (defun requeue (queue entry)
   (if (and (index entry) (q:queue-find queue entry))

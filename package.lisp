@@ -70,6 +70,8 @@
 (defpackage #:aoc2018.day17 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2018.day18 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2018.day19 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
+(defpackage #:aoc2018.day20 (:use #:cl)
+            (:local-nicknames (#:a #:alexandria) (#:d #:dijkstra)))
 
 (defpackage #:aoc2020.day01 (:use #:cl) (:import-from #:alexandria #:curry))
 (defpackage #:aoc2020.day02 (:use #:cl))

@@ -73,6 +73,7 @@
                  (:file "day17")
                  (:file "day18")
                  (:file "day19")
+                 (:file "day20")
                  (:file "tests")))
                (:module "2020"
                 :components
