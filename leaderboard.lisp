@@ -2,8 +2,8 @@
 
 (in-package #:aoc)
 
-(defun leaderboard ()
-  (multiple-value-bind (board at) (get-leaderboard (get-config :leaderboard))
+(defun leaderboard (&optional (year (nth-value 5 (get-decoded-time))))
+  (multiple-value-bind (board at) (get-leaderboard (get-config :leaderboard) year)
     (when board
       (print-members (jsown:val (jsown:parse board) "members"))
       (print-time at))))
@@ -14,8 +14,8 @@
     (format t "~4,'0d-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d"
             year month date hour minute second)))
 
-(defun get-leaderboard (id)
-  (let ((path (format nil "2021/leaderboard/private/view/~d.json" id)))
+(defun get-leaderboard (id year)
+  (let ((path (format nil "~d/leaderboard/private/view/~d.json" year id)))
     (multiple-value-bind (cached at) (get-cached path)
       (if cached
           (values cached at)
