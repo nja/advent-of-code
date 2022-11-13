@@ -8,10 +8,10 @@
       (print-members (jsown:val (jsown:parse board) "members"))
       (print-time at))))
 
-(defun print-time (utc)
+(defun print-time (utc &optional (stream t))
   (multiple-value-bind (second minute hour date month year)
       (decode-universal-time utc (or (get-config :timezone) 0))
-    (format t "~4,'0d-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d"
+    (format stream "~4,'0d-~2,'0d-~2,'0d ~2,'0d:~2,'0d:~2,'0d"
             year month date hour minute second)))
 
 (defun get-leaderboard (id year)

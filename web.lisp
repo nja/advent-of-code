@@ -41,6 +41,12 @@
   (drakma:http-request (format nil "https://adventofcode.com/~a" path)
                        :cookie-jar (cookie-jar)))
 
+(defun post-aoc-webpage (path parameters)
+  (drakma:http-request (format nil "https://adventofcode.com/~a" path)
+                       :cookie-jar (cookie-jar)
+                       :method :post
+                       :parameters parameters))
+
 (defun get-input (year day)
   (get-aoc-webpage (format nil "~d/day/~d/input" year day)))
 
@@ -56,11 +62,11 @@
 (defun read-cache ()
   (read-when-exists (cache-pathname)))
 
-(defun get-cached (path)
+(defun get-cached (path &optional (seconds 900))
   (a:when-let* ((cache (read-cache))
-                (cached (cdr (find path cache :key #'car :test #'equal))))
+                (cached (cdr (find path cache :key #'car :test #'equalp))))
     (destructuring-bind (at what) cached
-      (when (< (get-universal-time) (+ at 900))
+      (when (< (get-universal-time) (+ at seconds))
         (values what at)))))
 
 (defun write-cache (cache)
@@ -69,7 +75,34 @@
     (fresh-line file)))
 
 (defun set-cached (path what)
-  (let ((cache (remove path (read-cache) :key #'car :test #'equal))
-        (at (get-universal-time)))
-    (write-cache (cons (list path at what) cache))
+  (let* ((cache (remove path (read-cache) :key #'car :test #'equalp))
+         (clean (clean-cache cache))
+         (at (get-universal-time))
+         (new (cons (list path at what) clean)))
+    (write-cache new)
     (values what at)))
+
+(defun clean-cache (cache &optional (grace-seconds (* 60 60)))
+  (remove-if (let ((now (get-universal-time)))
+               (lambda (at)
+                 (< (+ at grace-seconds) now)))
+             cache
+             :key #'cadr))
+
+(defun submit (year day part answer)
+  (declare (integer year day part) ((or integer string) answer))
+  (flet ((to-string (x)
+           (etypecase x
+             (string x)
+             (integer (format nil "~d" x)))))
+    (let* ((path (format nil "~d/day/~d/answer" year day))
+           (cache-key (cons path part))
+           (parameters (list (cons "level" (to-string part))
+                             (cons "answer" (to-string answer)))))
+      (multiple-value-bind (response at)
+          (multiple-value-bind (cached at) (get-cached cache-key 60)
+            (if cached
+                (values cached at)
+                (set-cached cache-key (post-aoc-webpage path parameters))))
+        (format t "~&~a~%(Cached until ~a)~%"
+                response (print-time at nil))))))

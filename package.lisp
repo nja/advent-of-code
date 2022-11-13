@@ -4,7 +4,7 @@
   (:use #:cl)
   (:export #:input-for #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array
            #:symbols #:get-input #:save-input #:sections #:set-config #:leaderboard
-           #:print-indexed-lines)
+           #:print-indexed-lines #:submit)
   (:local-nicknames (#:a #:alexandria)))
 
 (defpackage #:dijkstra
