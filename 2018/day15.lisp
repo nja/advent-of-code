@@ -81,9 +81,7 @@
   (and (unit-p x) (equal target (unit-type x))))
 
 (defun compare-pos (x y)
-  (or (< (row x) (row y))
-      (and (eql (row x) (row y))
-           (< (col x) (col y)))))
+  (aoc:comparisons x y (<) row col))
 
 (defun find-target-pos (array source target)
   (a:when-let (found (d:search*

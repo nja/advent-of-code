@@ -4,7 +4,7 @@
   (:use #:cl)
   (:export #:input-for #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array
            #:symbols #:get-input #:save-input #:sections #:set-config #:leaderboard
-           #:print-indexed-lines #:submit)
+           #:print-indexed-lines #:submit #:comparisons)
   (:local-nicknames (#:a #:alexandria)))
 
 (defpackage #:dijkstra
@@ -76,6 +76,7 @@
 (defpackage #:aoc2018.day22 (:use #:cl)
             (:local-nicknames (#:a #:alexandria) (#:d #:dijkstra)))
 (defpackage #:aoc2018.day23 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
+(defpackage #:aoc2018.day24 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 
 (defpackage #:aoc2020.day01 (:use #:cl) (:import-from #:alexandria #:curry))
 (defpackage #:aoc2020.day02 (:use #:cl))

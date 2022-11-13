@@ -88,3 +88,14 @@
                     (= (abs (- tx px)) (abs (- ty py)))
                     (<= (min fx tx) px (max fx tx))
                     (<= (min fy ty) py (max fy ty)))))))))
+
+(defmacro comparisons (a b (&optional (predicate '<) (test 'eql)) &rest keys)
+  (labels ((cmp (a b keys)
+             (when keys
+               `(let ((x (,(car keys) ,a))
+                      (y (,(car keys) ,b)))
+                  (or (,predicate x y)
+                      (and (,test x y)
+                           ,(cmp a b (rest keys))))))))
+    (a:once-only (a b)
+      (cmp a b keys))))
