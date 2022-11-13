@@ -17,11 +17,10 @@
         (disasm (make-array 0 :element-type 'character :fill-pointer 0 :adjustable t)))
     (setf (elt registers ip-reg-ix) 'ip)
     (labels ((disasm (tag instruction op)
-               (with-output-to-string (s disasm)
-                 (format s "~(~&~32a;~2,'0d ~a~)~%"
-                         (format nil "~{~a~^ ~}" instruction)
-                         tag
-                         op)))
+               (format disasm "~(~&~32a;~2,'0d ~a~)~%"
+                       (format nil "~{~a~^ ~}" instruction)
+                       tag
+                       op))
              (asm (tag opcode a b output)
                (flet ((a () (elt registers a))
                       (b () (elt registers b)))
@@ -57,7 +56,7 @@
                                       last ,r)
                                op '(go next)))
                        (list tag op '(go next)))))))
-      (with-output-to-string (s disasm) (format s "#ip ~d" ip-reg-ix))
+      (format disasm "#ip ~d" ip-reg-ix)
       (values
        `(lambda (r0 &key first)
           (declare (optimize (speed 3) (space 0) (safety 0) (debug 0)))
