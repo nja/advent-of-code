@@ -5,7 +5,7 @@
 (defun leaderboard (&optional (year (nth-value 5 (get-decoded-time))))
   (multiple-value-bind (board at) (get-leaderboard (get-config :leaderboard) year)
     (when board
-      (print-members (jsown:val (jsown:parse board) "members"))
+      (print-members board)
       (print-time at))))
 
 (defun print-time (utc &optional (stream t))
@@ -19,9 +19,13 @@
     (multiple-value-bind (cached at) (get-cached path)
       (if cached
           (values cached at)
-          (set-cached path (flexi-streams:octets-to-string
-                            (get-aoc-webpage path)
-                            :external-format :utf-8))))))
+          (set-cached path
+                      (parse-members (flexi-streams:octets-to-string
+                                      (get-aoc-webpage path)
+                                      :external-format :utf-8)))))))
+
+(defun parse-members (board)
+  (jsown:val (jsown:parse board) "members"))
 
 (defun parse-member (obj)
   (labels ((v (key) (jsown:val obj key))
