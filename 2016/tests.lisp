@@ -63,3 +63,7 @@
 (deftest day13 ()
   (is (= 86 (aoc2016.day13::part1 (input-for 2016 13))))
   (is (= 127 (aoc2016.day13::part2 (input-for 2016 13)))))
+
+(deftest day14 ()
+  (is (= 15168 (aoc2016.day14::part1 (input-for 2016 14))))
+  (is (= 20864 (aoc2016.day14::part2 (input-for 2016 14)))))
