@@ -27,6 +27,7 @@
                  (:file "day13")
                  (:file "day14")
                  (:file "day15")
+                 (:file "day16")
                  (:file "tests")))
                (:module "2017"
                 :components

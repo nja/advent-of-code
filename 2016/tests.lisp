@@ -71,3 +71,7 @@
 (deftest day15 ()
   (is (= 203660 (aoc2016.day15::part1 (input-for 2016 15))))
   (is (= 2408135 (aoc2016.day15::part2 (input-for 2016 15)))))
+
+(deftest day16 ()
+  (is (string= "10111110010110110" (aoc2016.day16::part1 (input-for 2016 16))))
+  (is (string= "01101100001100100" (aoc2016.day16::part2 (input-for 2016 16)))))
