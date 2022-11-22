@@ -31,6 +31,8 @@
             (:local-nicknames (#:a #:alexandria) (#:i #:ironclad)))
 (defpackage #:aoc2016.day15 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2016.day16 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
+(defpackage #:aoc2016.day17 (:use #:cl)
+            (:local-nicknames (#:a #:alexandria) (#:i #:ironclad) (#:d #:dijkstra)))
 
 (defpackage #:aoc2017.day01 (:use #:cl))
 (defpackage #:aoc2017.day02 (:use #:cl))
