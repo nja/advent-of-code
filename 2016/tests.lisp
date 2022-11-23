@@ -79,3 +79,7 @@
 (deftest day17 ()
   (is (string= "DUDRDLRRRD" (aoc2016.day17::part1 (input-for 2016 17))))
   (is (= 502 (aoc2016.day17::part2 (input-for 2016 17)))))
+
+(deftest day18 ()
+  (is (= 1956 (aoc2016.day18::part1 (input-for 2016 18))))
+  (is (= 19995121 (aoc2016.day18::part2 (input-for 2016 18)))))
