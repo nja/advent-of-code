@@ -152,6 +152,7 @@
                 ((:file "day01")
                  (:file "tests"))))
   :depends-on (#:alexandria
+               #:arrow-macros
                #:cl-ppcre
                #:drakma
                #:fare-memoization

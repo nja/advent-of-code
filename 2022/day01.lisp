@@ -5,8 +5,25 @@
 (defun parse (input)
   (mapcar (a:compose (a:curry #'mapcar #'parse-integer) #'aoc:lines) (aoc:sections input)))
 
+(defun sum (list)
+  (reduce #'+ list))
+
 (defun part1 (input)
-  (reduce #'max (mapcar (a:curry #'reduce #'+) (parse input))))
+  (->> input
+    (parse)
+    (mapcar #'sum)
+    (reduce #'max)))
+
+(defun sorted (list)
+  (sort list #'>))
+
+(defun take (n list)
+  (loop for x in list repeat n collect x))
 
 (defun part2 (input)
-  (reduce #'+ (subseq (sort (mapcar (a:curry #'reduce #'+) (parse input)) #'>) 0 3)))
+  (->> input
+    (parse)
+    (mapcar #'sum)
+    (sorted)
+    (take 3)
+    (sum)))
