@@ -146,6 +146,10 @@
                  (:file "day23")
                  (:file "day24")
                  (:file "day25")
+                 (:file "tests")))
+               (:module "2022"
+                :components
+                ((:file "day01")
                  (:file "tests"))))
   :depends-on (#:alexandria
                #:cl-ppcre

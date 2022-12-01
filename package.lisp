@@ -147,8 +147,11 @@
 (defpackage #:aoc2021.day24 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2021.day25 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 
+(defpackage #:aoc2022.day01 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
+
 (fiasco:define-test-package #:aoc2016.tests (:use #:aoc))
 (fiasco:define-test-package #:aoc2017.tests (:export #:input-for #:lines))
 (fiasco:define-test-package #:aoc2018.tests (:use #:aoc))
 (fiasco:define-test-package #:aoc2020.tests (:use #:aoc))
 (fiasco:define-test-package #:aoc2021.tests (:use #:aoc))
+(fiasco:define-test-package #:aoc2022.tests (:use #:aoc))
