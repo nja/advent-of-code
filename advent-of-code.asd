@@ -151,6 +151,7 @@
                 :components
                 ((:file "day01")
                  (:file "day02")
+                 (:file "day03")
                  (:file "tests"))))
   :depends-on (#:alexandria
                #:arrow-macros
