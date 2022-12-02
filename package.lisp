@@ -149,6 +149,8 @@
 
 (defpackage #:aoc2022.day01 (:use #:cl #:arrow-macros)
             (:local-nicknames (#:a #:alexandria)))
+(defpackage #:aoc2022.day02 (:use #:cl #:arrow-macros)
+            (:local-nicknames (#:a #:alexandria)))
 
 (fiasco:define-test-package #:aoc2016.tests (:use #:aoc))
 (fiasco:define-test-package #:aoc2017.tests (:export #:input-for #:lines))
