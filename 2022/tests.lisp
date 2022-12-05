@@ -17,3 +17,7 @@
 (deftest day04 ()
   (is (= 526 (aoc2022.day04::part1 (input-for 2022 4))))
   (is (= 886 (aoc2022.day04::part2 (input-for 2022 4)))))
+
+(deftest day05 ()
+  (is (string= "NTWZZWHFV" (aoc2022.day05::part1 (aoc:input-for 2022 5))))
+  (is (string= "BRZGFVBTJ" (aoc2022.day05::part2 (aoc:input-for 2022 5)))))
