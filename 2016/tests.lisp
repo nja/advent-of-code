@@ -99,3 +99,7 @@
 (deftest day22 ()
   (is (= 1045 (aoc2016.day22::part1 (input-for 2016 22))))
   (is (= 265 (aoc2016.day22::part2 (input-for 2016 22)))))
+
+(deftest day23 ()
+  (is (= 14065 (aoc2016.day23::part1 (input-for 2016 23))))
+  (is (= 479010625 (aoc2016.day23::part2 (input-for 2016 23)))))
