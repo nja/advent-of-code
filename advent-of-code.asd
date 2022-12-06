@@ -147,8 +147,18 @@
                  (:file "day23")
                  (:file "day24")
                  (:file "day25")
+                 (:file "tests")))
+               (:module "2022"
+                :components
+                ((:file "day01")
+                 (:file "day02")
+                 (:file "day03")
+                 (:file "day04")
+                 (:file "day05")
+                 (:file "day06")
                  (:file "tests"))))
   :depends-on (#:alexandria
+               #:arrow-macros
                #:cl-ppcre
                #:drakma
                #:fare-memoization
