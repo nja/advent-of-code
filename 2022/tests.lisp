@@ -29,3 +29,7 @@
 (deftest day07 ()
   (is (= 1423358 (aoc2022.day07::part1 (aoc:input-for 2022 7))))
   (is (= 545729 (aoc2022.day07::part2 (aoc:input-for 2022 7)))))
+
+(deftest day08 ()
+  (is (= 1543 (aoc2022.day08::part1 (aoc:input-for 2022 8))))
+  (is (= 595080 (aoc2022.day08::part2 (aoc:input-for 2022 8)))))
