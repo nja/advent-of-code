@@ -2,7 +2,19 @@
 
 (in-package #:aoc)
 
-(defun leaderboard (&optional (year (nth-value 5 (get-decoded-time))))
+(defun scan-package-name ()
+  (map 'list #'parse-integer
+       (nth-value 1 (ppcre:scan-to-strings "^AOC(\\d{4})\\.DAY(\\d{2})$"
+                                           (package-name *package*)))))
+
+(defun default-year ()
+  (or (first (scan-package-name)) (nth-value 5 (get-decoded-time))))
+
+(defun default-day ()
+  (a:clamp (or (second (scan-package-name)) (nth-value 3 (get-decoded-time)))
+           1 25))
+
+(defun leaderboard (&optional (year (default-year)))
   (multiple-value-bind (board at) (get-leaderboard (get-config :leaderboard) year)
     (when board
       (print-members board)
@@ -54,9 +66,7 @@
                        scorefmt (list (first m))
                        "~{~a~^~} ~a" (rest m)))))
 
-(defun timeline (&optional
-                   (day (nth-value 3 (get-decoded-time)))
-                   (year (nth-value 5 (get-decoded-time))))
+(defun timeline (&optional (day (default-day)) (year (default-year)))
   (multiple-value-bind (board at) (get-leaderboard (get-config :leaderboard) year)
     (when board
       (format t "~d-~2,'0d~%" year day)
