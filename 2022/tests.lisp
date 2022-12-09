@@ -33,3 +33,7 @@
 (deftest day08 ()
   (is (= 1543 (aoc2022.day08::part1 (aoc:input-for 2022 8))))
   (is (= 595080 (aoc2022.day08::part2 (aoc:input-for 2022 8)))))
+
+(deftest day09 ()
+  (is (= 6175 (aoc2022.day09::part1 (input-for 2022 9))))
+  (is (= 2578 (aoc2022.day09::part2 (input-for 2022 9)))))
