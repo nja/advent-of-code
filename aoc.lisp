@@ -24,7 +24,8 @@
     `(fiasco:deftest ,(a:symbolicate suffix)
          ()
        ,@(mapcar (lambda (answer part)
-                   `(fiasco:is ,(append (if (consp answer)
+                   `(fiasco:is ,(append (if (and (consp answer)
+                                                 (not (eq 'quote (car answer))))
                                             answer
                                             `(equal ,answer))
                                         `((answer ',(find-symbol part package))))))
