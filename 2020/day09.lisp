@@ -36,5 +36,6 @@
 (defun sum-min-max (list)
   (+ (reduce #'min list) (reduce #'max list)))
 
-(defun part2 (input target)
-  (sum-min-max (first (remove nil (maplist (ranger target) (parse input))))))
+(defun part2 (input)
+  (let ((target (part1 input)))
+    (sum-min-max (first (remove nil (maplist (ranger target) (parse input)))))))
