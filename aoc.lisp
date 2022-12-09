@@ -12,6 +12,25 @@
     (save-input year day))
   (alexandria:read-file-into-string (input-path year day)))
 
+(defun answer (function)
+  (funcall function
+           (apply #'input-for (scan-package-name
+                               (symbol-package function)))))
+
+(defmacro defanswer (day &rest answers)
+  (let* ((prefix (print (first (str:split #\. (package-name *package*)))))
+         (suffix (symbol-name day))
+         (package (find-package (concatenate 'string prefix "." suffix))))
+    `(fiasco:deftest ,(a:symbolicate suffix)
+         ()
+       ,@(mapcar (lambda (answer part)
+                   `(fiasco:is ,(append (if (consp answer)
+                                            answer
+                                            `(equal ,answer))
+                                        `((answer ',(find-symbol part package))))))
+                 answers
+                 '("PART1" "PART2")))))
+
 (defun lines (string)
   (ppcre:split "\\n" string))
 

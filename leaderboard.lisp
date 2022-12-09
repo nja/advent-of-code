@@ -2,10 +2,10 @@
 
 (in-package #:aoc)
 
-(defun scan-package-name ()
+(defun scan-package-name (&optional (package *package*))
   (map 'list #'parse-integer
        (nth-value 1 (ppcre:scan-to-strings "^AOC(\\d{4})\\.DAY(\\d{2})$"
-                                           (package-name *package*)))))
+                                           (package-name package)))))
 
 (defun default-year ()
   (or (first (scan-package-name)) (nth-value 5 (get-decoded-time))))
