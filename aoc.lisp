@@ -18,7 +18,7 @@
                                (symbol-package function)))))
 
 (defmacro defanswer (day &rest answers)
-  (let* ((prefix (print (first (str:split #\. (package-name *package*)))))
+  (let* ((prefix (first (str:split #\. (package-name *package*))))
          (suffix (symbol-name day))
          (package (find-package (concatenate 'string prefix "." suffix))))
     `(fiasco:deftest ,(a:symbolicate suffix)

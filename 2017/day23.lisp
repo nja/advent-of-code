@@ -51,7 +51,8 @@
   (loop for i from 2 upto (sqrt x)
           thereis (zerop (mod x i))))
 
-(defun part2 ()
+(defun part2 (input)
+  (declare (ignore input))
   (let* ((b (- (* 67 100) -100000))
          (c (- b -17000)))
     (loop for i from b upto c by 17
