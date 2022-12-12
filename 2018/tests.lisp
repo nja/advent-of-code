@@ -14,7 +14,7 @@
 
 (deftest day10 ()
   (multiple-value-bind (message seconds)
-      (aoc2018.day10::part1&2 (input-for 2018 10))
+      (aoc2018.day10::part1&2 (input 10 2018))
     (is (string= message (strip-cr "
 #.......#####....####...#####...#####...#....#..######..######
 #.......#....#..#....#..#....#..#....#..#....#..#............#

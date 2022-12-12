@@ -11,8 +11,8 @@
 (defanswer day07 115 231)
 
 (deftest day08 ()
-  (is (= 116 (aoc2016.day08::part1 (input-for 2016 8))))
-  (is (equal (aoc:lines (aoc2016.day08::part2 (input-for 2016 8))) '(""
+  (is (= 116 (aoc2016.day08::part1 (input 8 2016))))
+  (is (equal (aoc:lines (aoc2016.day08::part2 (input 8 2016))) '(""
 "X  X XXX   XX    XX XXXX X    XXX   XX  XXXX XXXX "
 "X  X X  X X  X    X X    X    X  X X  X X       X "
 "X  X X  X X  X    X XXX  X    XXX  X    XXX    X  "

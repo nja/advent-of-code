@@ -8,17 +8,13 @@
    (format nil "~4,'0d/day~2,'0d.input.txt" year day)))
 
 (defun input (&optional (day (default-day)) (year (default-year)))
-  (input-for year day))
-
-(defun input-for (year day)
   (unless (probe-file (input-path year day))
     (save-input year day))
   (alexandria:read-file-into-string (input-path year day)))
 
 (defun answer (function)
-  (funcall function
-           (apply #'input-for (scan-package-name
-                               (symbol-package function)))))
+  (destructuring-bind (year day) (scan-package-name (symbol-package function))
+    (funcall function (input day year))))
 
 (defmacro defanswer (day &rest answers)
   (let* ((prefix (first (str:split #\. (package-name *package*))))

@@ -2,7 +2,7 @@
 
 (defpackage #:aoc
   (:use #:cl)
-  (:export #:input-for #:input #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array
+  (:export #:input #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array
            #:symbols #:get-input #:save-input #:sections #:set-config #:leaderboard
            #:print-indexed-lines #:submit #:comparisons #:timeline #:defanswer)
   (:local-nicknames (#:a #:alexandria)))
