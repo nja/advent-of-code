@@ -7,6 +7,9 @@
    :advent-of-code
    (format nil "~4,'0d/day~2,'0d.input.txt" year day)))
 
+(defun input (&optional (day (default-day)) (year (default-year)))
+  (input-for year day))
+
 (defun input-for (year day)
   (unless (probe-file (input-path year day))
     (save-input year day))

@@ -2,7 +2,7 @@
 
 (defpackage #:aoc
   (:use #:cl)
-  (:export #:input-for #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array
+  (:export #:input-for #:input #:lines #:trim-lf #:strip-cr #:tr #:print-array #:to-array
            #:symbols #:get-input #:save-input #:sections #:set-config #:leaderboard
            #:print-indexed-lines #:submit #:comparisons #:timeline #:defanswer)
   (:local-nicknames (#:a #:alexandria)))
@@ -159,6 +159,7 @@
 (defpackage #:aoc2022.day09 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2022.day10 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
 (defpackage #:aoc2022.day11 (:use #:cl) (:local-nicknames (#:a #:alexandria)))
+(defpackage #:aoc2022.day12 (:use #:cl) (:local-nicknames (#:a #:alexandria) (:d :dijkstra)))
 
 (fiasco:define-test-package #:aoc2016.tests (:use #:aoc))
 (fiasco:define-test-package #:aoc2017.tests (:use #:aoc))

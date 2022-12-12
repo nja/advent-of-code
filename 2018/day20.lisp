@@ -88,7 +88,7 @@
     (loop for d across "NSEW" when (door? d) collect (walk d))))
 
 (defun find-paths (hash-table)
-  (nth-value 1 (d:search* (pos 0 0) (a:curry #'neighbours hash-table) :pathsp t)))
+  (d:search* (pos 0 0) (a:curry #'neighbours hash-table)))
 
 (defun max-doors (search-nodes)
   (reduce #'max (mapcar #'d:distance search-nodes)))
