@@ -14,8 +14,8 @@
   (a:clamp (or (second (scan-package-name)) (nth-value 3 (get-decoded-time)))
            1 25))
 
-(defun leaderboard (&optional (year (default-year)))
-  (multiple-value-bind (board at) (get-leaderboard (get-config :leaderboard) year)
+(defun leaderboard (&key (year (default-year)) (leaderboard :leaderboard))
+  (multiple-value-bind (board at) (get-leaderboard (get-config leaderboard) year)
     (when board
       (print-members board)
       (print-time at))))
@@ -66,8 +66,8 @@
                        scorefmt (list (first m))
                        "~{~a~^~} ~a" (rest m)))))
 
-(defun timeline (&optional (day (default-day)) (year (default-year)))
-  (multiple-value-bind (board at) (get-leaderboard (get-config :leaderboard) year)
+(defun timeline (&key (day (default-day)) (year (default-year)) (leaderboard :leaderboard))
+  (multiple-value-bind (board at) (get-leaderboard (get-config leaderboard) year)
     (when board
       (format t "~d-~2,'0d~%" year day)
       (let* ((ts (member-ts day (cdr board)))
