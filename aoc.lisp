@@ -2,10 +2,11 @@
 
 (in-package #:aoc)
 
+(defun system-pathname (name &key type)
+  (asdf:system-relative-pathname :advent-of-code name :type type))
+
 (defun input-path (year day)
-  (asdf:system-relative-pathname
-   :advent-of-code
-   (format nil "~4,'0d/day~2,'0d.input.txt" year day)))
+  (system-pathname (format nil "~4,'0d/day~2,'0d.input.txt" year day)))
 
 (defun input (&optional (day (default-day)) (year (default-year)))
   (unless (probe-file (input-path year day))
