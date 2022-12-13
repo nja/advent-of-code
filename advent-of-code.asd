@@ -161,6 +161,7 @@
                  (:file "day10")
                  (:file "day11")
                  (:file "day12")
+                 (:file "day13")
                  (:file "tests"))))
   :depends-on (#:alexandria
                #:arrow-macros
