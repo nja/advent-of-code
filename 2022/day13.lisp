@@ -53,7 +53,7 @@
   (sum-ordered-indices (parse input)))
 
 (defun dividers (&rest list)
-  (mapcar #'list list))
+  (mapcar (a:compose #'list #'list) list))
 
 (defun order (packets)
   (sort (append packets (dividers 2 6)) #'ordered?))
