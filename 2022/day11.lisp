@@ -4,9 +4,6 @@
 
 (defstruct (monkey) id items operation divisor destinations inspections)
 
-(defun skip (char string)
-  (subseq string (1+ (position char string))))
-
 (defun read-as-list (string)
   (let ((*package* (symbol-package 'read-as-list)))
     (read-from-string (format nil "(~a)" string))))
@@ -16,10 +13,11 @@
 
 (defun parse-monkey (section)
   (with-input-from-string (in section)
-    (flet ((line () (read-line in)))
+    (flet ((line (&optional c) (when c (peek-char c in) (read-char in))
+             (read-line in)))
       (make-monkey :id (first (integers (line)))
-                   :items (reverse (integers (skip #\: (line))))
-                   :operation (apply #'operation (read-as-list (skip #\= (line))))
+                   :items (reverse (integers (line #\:)))
+                   :operation (apply #'operation (read-as-list (line #\=)))
                    :divisor (first (integers (line)))
                    :destinations (append (integers (line)) (integers (line)))
                    :inspections 0))))
