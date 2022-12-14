@@ -20,3 +20,4 @@
 (defanswer day11 117640 30616425600)
 (defanswer day12 350 349)
 (defanswer day13 5292 23868)
+(defanswer day14 644 27324)
