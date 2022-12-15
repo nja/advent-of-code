@@ -30,6 +30,17 @@
   (:export :distance :item :previous :search*)
   (:local-nicknames (:a :alexandria) (:q :pettomato-indexed-priority-queue)))
 
+(defpackage :aoc2015.day01 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2015.day02 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2015.day03 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2015.day04 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2015.day05 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2015.day06 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2015.day07 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2015.day08 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2015.day09 (:use :cl) (:local-nicknames (:a :alexandria)))
+(fiasco:define-test-package :aoc2015.tests (:use :aoc))
+
 (defpackage :aoc2016.day01 (:use :cl) (:shadow :step))
 (defpackage :aoc2016.day02 (:use :cl) (:import-from :alexandria :clamp))
 (defpackage :aoc2016.day03 (:use :cl) (:import-from :alexandria :curry))
