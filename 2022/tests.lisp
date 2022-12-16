@@ -21,4 +21,5 @@
 (defanswer day12 350 349)
 (defanswer day13 5292 23868)
 (defanswer day14 644 27324)
-(defanswer day14 5525990 11756174628223)
+(defanswer day15 5525990 11756174628223)
+(defanswer day16 1857 2536)
