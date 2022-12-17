@@ -71,7 +71,7 @@
     (format str "~&~a" (getspc rows))
     (loop with fmt = (getfmt cols)
           for n below cols
-          for s = (format nil fmt (+ from n))
+          for s = (format nil fmt (abs (+ from n)))
           for c = (aref s i)
           do (princ c str))))
 

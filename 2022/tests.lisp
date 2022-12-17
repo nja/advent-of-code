@@ -23,3 +23,4 @@
 (defanswer day14 644 27324)
 (defanswer day15 5525990 11756174628223)
 (defanswer day16 1857 2536)
+(defanswer day17 3147 1532163742758)
