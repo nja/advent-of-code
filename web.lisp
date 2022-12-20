@@ -116,7 +116,9 @@
 (defun parse-response (response)
   (let* ((relevant '("That's the right answer."
                      "That's not the right answer[^.]*\\."
-                     "Please wait[^.]*\\."))
+                     "Please wait[^.]*\\."
+                     "You gave an answer too recently"
+                     "You have [^.]+ left to wait."))
          (regex (format nil "(~{~a~^|~})" relevant)))
     (ppcre:all-matches-as-strings regex response)))
 
