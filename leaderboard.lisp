@@ -75,9 +75,9 @@
              (fmt (format nil "~a ~~a" (make-string (length ts) :initial-element #\.)))
              (lines (mapcar (lambda (name) (cons name (format nil fmt name))) names)))
         (loop for i from 0
-              for (name ts) in ts
-              do (setf (aref (cdr (assoc name lines :test #'equal)) i) #\*))
-                                        ;(format t "~{~a~%~}" (sort (mapcar #'cdr lines) #'string<))
+              for (name ts star) in ts
+              do (setf (aref (cdr (assoc name lines :test #'equal)) i)
+                       (getf '(1 #\' 2 #\*) star)))
         (format t "~{~a~%~}" (mapcar #'cdr lines))
         (print-time at)))))
 
@@ -90,8 +90,8 @@
     (sort
      (remove nil (mapcan (lambda (member)
                            (let ((day (day (days member))))
-                             (list (list (name member) (ts "1" day))
-                                   (list (name member) (ts "2" day)))))
+                             (list (list (name member) (ts "1" day) 1)
+                                   (list (name member) (ts "2" day) 2))))
                          (members))
              :key #'cadr)
      #'< :key #'cadr)))
