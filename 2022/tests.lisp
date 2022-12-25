@@ -30,4 +30,5 @@
 (defanswer day21 54703080378102 3952673930912)
 (defanswer day22 65368 156166)
 (defanswer day23 4241 1079)
-(defanswer day24 279)
+(defanswer day24 279 762)
+(defanswer day25 "2-00=12=21-0=01--000")
