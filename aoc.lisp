@@ -69,9 +69,9 @@
 (defun top-row (rows cols i &optional (from 0))
   (with-output-to-string (str)
     (format str "~&~a" (getspc rows))
-    (loop with fmt = (getfmt cols)
+    (loop with fmt = (getfmt (+ cols from))
           for n below cols
-          for s = (format nil fmt (+ from n))
+          for s = (format nil fmt (abs (+ from n)))
           for c = (aref s i)
           do (princ c str))))
 
@@ -81,11 +81,11 @@
       (setf cols (reduce #'max (mapcar #'length lines))))
     (loop for i from 0 below (digits (+ cols col+)) do
       (princ (top-row (+ rows row+) cols i col+)) (terpri))
-    (loop with fmt = (getfmt (+ rows row+))
+    (loop with fmt = (getfmt rows)
           for l in lines
           for n from row+
           do (format t "~&")
-             (format t fmt n)
+             (format t fmt (abs n))
              (princ l))))
 
 (defun print-array (array &key (row+ 0) (col+ 0))

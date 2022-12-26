@@ -89,12 +89,16 @@
              cache
              :key #'cadr))
 
-(defun submit (year day part answer)
-  (declare (integer year day part) ((or integer string) answer))
+(defun submit (part answer &key (year (default-year)) (day (default-day)))
+  (declare (type integer year day part) (type (or integer string) answer))
+  (assert (<= 2015 year))
+  (assert (<= 1 day 25))
+  (assert (<= 1 part 2))
   (flet ((to-string (x)
            (etypecase x
              (string x)
              (integer (format nil "~d" x)))))
+    (format t "~&~4d ~2,'0d ~d: '~a'~%" year day part (to-string answer))
     (let* ((path (format nil "~d/day/~d/answer" year day))
            (cache-key (cons path part))
            (parameters (list (cons "level" (to-string part))
@@ -104,5 +108,25 @@
             (if cached
                 (values cached at)
                 (set-cached cache-key (post-aoc-webpage path parameters))))
-        (format t "~&~a~%(Cached until ~a)~%"
-                response (print-time at nil))))))
+        (stash response)
+        (format t "~&~{~a~%~}(Cached until ~a)~%"
+                (parse-response response) (print-time at nil))
+        answer))))
+
+(defun parse-response (response)
+  (let* ((relevant '("That's the right answer."
+                     "That's not the right answer[^.]*\\."
+                     "Please wait[^.]*\\."
+                     "You gave an answer too recently"
+                     "You have [^.]+ left to wait."))
+         (regex (format nil "(~{~a~^|~})" relevant)))
+    (ppcre:all-matches-as-strings regex response)))
+
+(defun stash (x)
+  (let* ((path (system-pathname "stash.txt"))
+         (stash (read-from-string (a:read-file-into-string path))))
+    (push x stash)
+    (a:with-output-to-file (file path :if-exists :overwrite)
+      (prin1 stash file)
+      (fresh-line file))
+    x))

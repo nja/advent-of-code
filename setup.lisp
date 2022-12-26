@@ -17,7 +17,8 @@
   (let* ((packages (read-package-defs))
          (package (find designator packages :key #'cadr)))
     (unless package
-      (push (package-definition designator) packages))
+      (push (package-definition designator) packages)
+      (setf package (find designator packages :key #'cadr)))
     (with-open-file (out (system-pathname "package.lisp")
                          :direction :output :if-exists :supersede)
       (format out ";;;; package.lisp~%")

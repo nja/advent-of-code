@@ -208,4 +208,23 @@
   (:use :cl)
   (:local-nicknames (:a :alexandria) (:d :dijkstra)))
 (defpackage :aoc2022.day13 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day14 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day15 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day16
+  (:use :cl)
+  (:local-nicknames (:a :alexandria) (:d :dijkstra)))
+(defpackage :aoc2022.day17 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day18
+  (:use :cl)
+  (:local-nicknames (:a :alexandria) (:d :dijkstra)))
+(defpackage :aoc2022.day19 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day20 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day21 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day22 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day23 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day24 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2022.day24
+  (:use :cl)
+  (:local-nicknames (:a :alexandria) (:d :dijkstra)))
+(defpackage :aoc2022.day25 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2022.tests (:use :aoc))
