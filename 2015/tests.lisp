@@ -15,3 +15,4 @@
 (defanswer day11 "hxbxxyzz" "hxcaabcc")
 (defanswer day12 119433 68466)
 (defanswer day13 733 725)
+(defanswer day14 2655 1059)
