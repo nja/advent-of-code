@@ -13,3 +13,4 @@
 (defanswer day09 141)
 (defanswer day10 360154 5103798)
 (defanswer day11 "hxbxxyzz" "hxcaabcc")
+(defanswer day12 119433 68466)
