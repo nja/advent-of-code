@@ -11,3 +11,4 @@
 (defanswer day07 956 40149)
 (defanswer day08 1371 2117)
 (defanswer day09 141)
+(defanswer day10 360154 5103798)
