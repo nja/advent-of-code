@@ -17,3 +17,4 @@
 (defanswer day13 733 725)
 (defanswer day14 2655 1059)
 (defanswer day15 222870 117936)
+(defanswer day16 40 241)
