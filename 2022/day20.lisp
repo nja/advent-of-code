@@ -24,10 +24,11 @@
 (defparameter *count* nil)
 
 (defun nth-number (numbers n)
-  (let ((n (mod n *count*)))
-    (if (zerop n)
-        numbers
-        (nth-number (cdr numbers) (1- n)))))
+  (labels ((rec (numbers n)
+             (if (zerop n)
+                 numbers
+                 (rec (cdr numbers) (1- n)))))
+    (rec numbers (mod n *count*))))
 
 (defun insert-after (place number)
   (rplacd number (cdr place))
