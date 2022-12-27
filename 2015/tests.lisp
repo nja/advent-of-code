@@ -10,3 +10,4 @@
 (defanswer day06 400410 15343601)
 (defanswer day07 956 40149)
 (defanswer day08 1371 2117)
+(defanswer day09 141)

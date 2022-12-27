@@ -3,41 +3,49 @@
 (in-package :aoc2015.day09)
 
 (defun distances (input)
-  (let ((*package* (symbol-package 'parse))
+  (let ((*package* (symbol-package 'distances))
         (distances (make-hash-table :test 'equal))
         nodes)
     (dolist (line (aoc:lines input))
       (destructuring-bind (a to b = c) (read-from-string (format nil "(~a)" line))
         (declare (ignore to =))
-        (print (list line a b c))
-        (setf (gethash (key a b) distances) c)
+        (setf (gethash (key a b) distances) c
+              (gethash (key a) distances) 0
+              (gethash (key b) distances) 0)
         (pushnew a nodes)
         (pushnew b nodes)))
     (values distances nodes)))
 
-(defun key (a b)
-  (if (string< (symbol-name a) (symbol-name b))
-      (cons a b)
-      (cons b a)))
+(defun key (a &optional b)
+  (cond ((null a) b)
+        ((null b) a)
+        ((string< (symbol-name a) (symbol-name b))
+         (cons a b))
+        (t
+         (cons b a))))
 
-(defvar *distances*)
-
-(defun distance (a b)
-  (gethash (key a b) *distances*))
-
-(defun visit (nodes)
-  (if (null (rest nodes))
-      0
-      (reduce #'min (mapcar (lambda (n)
-                              (+ (distance (first nodes) n)
-                                 (visit (remove n nodes))))
-                            (rest nodes)))))
+(defun travel (distances nodes &optional (test #'<))
+  (let (best-distance best-path)
+    (labels ((distance (a b)
+               (gethash (key a b) distances))
+             (rec (nodes path distance next)
+               (cond ((null nodes)
+                      (when (or (null best-distance) (funcall test distance best-distance))
+                        (setf best-distance distance
+                              best-path path))
+                      (funcall next))
+                     (t (labels ((next (options)
+                                   (if (null options)
+                                       (funcall next)
+                                       (rec (remove (car options) nodes)
+                                            (cons (car options) path)
+                                            (+ distance (distance (car options) (car path)))
+                                            (lambda () (next (cdr options)))))))
+                          (next nodes))))))
+      (rec nodes nil 0 (lambda () (values best-distance (nreverse best-path)))))))
 
 (defun part1 (input)
-  (multiple-value-bind (*distances* nodes) (distances input)
-    (visit nodes)))
+  (multiple-value-call #'travel (distances input)))
 
-(defparameter *test* (remove #\Return
-"London to Dublin = 464
-London to Belfast = 518
-Dublin to Belfast = 141"))
+(defun part2 (input)
+  (multiple-value-call #'travel (distances input) #'>))
