@@ -2,10 +2,6 @@
 
 (in-package :aoc2022.day20)
 
-(defstruct (node :conc-name)
-  "Node for a double linked list."
-  next prev n)
-
 (defun numbers (input &optional (factor 1))
   (with-input-from-string (in input)
     (loop while (listen in)
@@ -29,10 +25,9 @@
 
 (defun nth-number (numbers n)
   (let ((n (mod n *count*)))
-    (case (signum n)
-      (0 numbers)
-      (1 (nth-number (cdr numbers) (1- n)))
-      (-1 (nth-number numbers n)))))
+    (if (zerop n)
+        numbers
+        (nth-number (cdr numbers) (1- n)))))
 
 (defun insert-after (place number)
   (rplacd number (cdr place))
@@ -57,10 +52,9 @@
       (find-number (cdr numbers) n)))
 
 (defun grove-coords (numbers)
-  (let ((zero (find-number numbers 0)))
-    (+ (car (nth-number zero 1000))
-       (car (nth-number zero 2000))
-       (car (nth-number zero 3000)))))
+  (loop for n = (find-number numbers 0) then (nth-number n 1000)
+        repeat 4
+        sum (car n)))
 
 (defun part1 (input)
   (multiple-value-bind (numbers *count*) (numbers input)
