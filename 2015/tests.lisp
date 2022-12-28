@@ -20,3 +20,4 @@
 (defanswer day16 40 241)
 (defanswer day17 1304 18)
 (defanswer day18 768 781)
+(defanswer day19 535 212)
