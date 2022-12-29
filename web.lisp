@@ -120,7 +120,10 @@
                      "You gave an answer too recently"
                      "You have [^.]+ left to wait."
                      "You don't seem to be solving the right level."
-                     "Did you already complete it\\?"))
+                     "Did you already complete it\\?"
+                     "Congratulations!"
+                     "You've finished every puzzle in Advent of Code \\d+!"
+                     "I hope you had as much fun solving them as I had making them for you."))
          (regex (format nil "(~{~a~^|~})" relevant)))
     (or (ppcre:all-matches-as-strings regex response)
         (ppcre:all-matches-as-strings "<article>.*</article>" response)
