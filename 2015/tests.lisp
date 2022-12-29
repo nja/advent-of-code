@@ -26,3 +26,4 @@
 (defanswer day22 953 1289)
 (defanswer day23 184 231)
 (defanswer day24 11846773891 80393059)
+(defanswer day25 9132360)
