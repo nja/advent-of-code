@@ -118,9 +118,19 @@
                      "That's not the right answer[^.]*\\."
                      "Please wait[^.]*\\."
                      "You gave an answer too recently"
-                     "You have [^.]+ left to wait."))
+                     "You have [^.]+ left to wait."
+                     "You don't seem to be solving the right level."
+                     "Did you already complete it\\?"
+                     "Congratulations!"
+                     "You've finished every puzzle in Advent of Code \\d+!"
+                     "I hope you had as much fun solving them as I had making them for you."))
          (regex (format nil "(~{~a~^|~})" relevant)))
-    (ppcre:all-matches-as-strings regex response)))
+    (or (ppcre:all-matches-as-strings regex response)
+        (ppcre:all-matches-as-strings "<article>.*</article>" response)
+        (ppcre:all-matches-as-strings "<main>.*</main>" response)
+        (ppcre:all-matches-as-strings "<body>.*</body>" response)
+        (ppcre:all-matches-as-strings "<html>.*</html>" response)
+        response)))
 
 (defun stash (x)
   (let* ((path (system-pathname "stash.txt"))
@@ -130,3 +140,8 @@
       (prin1 stash file)
       (fresh-line file))
     x))
+
+(defun parse-stash ()
+  (let* ((path (system-pathname "stash.txt"))
+         (stash (read-from-string (a:read-file-into-string path))))
+    (mapcar #'aoc::parse-response stash)))
