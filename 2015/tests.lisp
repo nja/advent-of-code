@@ -23,3 +23,4 @@
 (defanswer day19 535 212)
 (defanswer day20 665280 705600)
 (defanswer day21 78 148)
+(defanswer day22 953 1289)

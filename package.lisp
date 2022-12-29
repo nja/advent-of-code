@@ -51,6 +51,7 @@
 (defpackage :aoc2015.day19 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2015.day20 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2015.day21 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2015.day22 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2015.tests (:use :aoc))
 
 (defpackage :aoc2016.day01 (:use :cl) (:shadow :step))
