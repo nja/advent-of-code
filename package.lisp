@@ -153,6 +153,7 @@
 
 (defpackage :aoc2019.day01 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2019.day02 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2019.day03 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2019.tests (:use :aoc))
 
 (defpackage :aoc2020.day01 (:use :cl) (:import-from :alexandria :curry))
