@@ -43,7 +43,8 @@
      (:file "day21") (:file "day22") (:file "day23") (:file "day24")
      (:file "day25") (:file "tests")))
    (:module "2019" :components
-    ((:file "day01") (:file "day02") (:file "day03") (:file "day04")))
+    ((:file "day01") (:file "day02") (:file "day03") (:file "day04")
+     (:file "day05")))
    (:module "2020" :components
     ((:file "day01") (:file "day02") (:file "day03") (:file "day04")
      (:file "day05") (:file "day06") (:file "day07") (:file "day08")
