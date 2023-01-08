@@ -3,8 +3,7 @@
 (in-package :aoc2019.day02)
 
 (defun parse (input)
-  (let ((integers (mapcar #'parse-integer (str:split "," input))))
-    (make-array (length integers) :initial-contents integers)))
+  (map 'vector #'parse-integer (str:split "," input)))
 
 (defun patch (memory pos &rest values)
   (let ((memory (a:copy-array memory)))
