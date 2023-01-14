@@ -45,7 +45,7 @@
    (:module "2019" :components
     ((:file "day01") (:file "day02") (:file "day03") (:file "day04")
      (:file "day05") (:file "day06") (:file "day07") (:file "day08")
-     (:file "day09")))
+     (:file "day09") (:file "day10")))
    (:module "2020" :components
     ((:file "day01") (:file "day02") (:file "day03") (:file "day04")
      (:file "day05") (:file "day06") (:file "day07") (:file "day08")
