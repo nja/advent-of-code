@@ -266,3 +266,4 @@
 (fiasco:define-test-package :aoc2022.tests (:use :aoc))
 
 (defpackage :aoc2023.day01 (:use :cl) (:local-nicknames (:a :alexandria)))
+(fiasco:define-test-package :aoc2023.tests (:use :aoc))
