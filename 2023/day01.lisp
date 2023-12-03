@@ -3,10 +3,7 @@
 (in-package :aoc2023.day01)
 
 (defun parse-digits (&rest digits)
-  (parse-integer
-   (with-output-to-string (s)
-     (dolist (d digits)
-       (format s "~a" d)))))
+  (parse-integer (format nil "~{~a~}" digits)))
 
 (defun calibration-value (line)
   (parse-digits
@@ -16,27 +13,20 @@
 (defun part1 (input)
   (reduce #'+ (mapcar #'calibration-value (aoc:lines input))))
 
-(defparameter *replacements*
+(defparameter *digits*
   (loop for d from 1 upto 10
-        collect (list (format nil "~r" d)
-                      (format nil "~d" d)
-                      d)))
+        collect (list (format nil "~r" d) d)
+        collect (list (format nil "~d" d) d)))
 
-(defun find-digit (line &key from-end)
-  (let (best digit (comparison (if from-end #'> #'<)))
-    (flet ((f (s d)
-             (let ((i (search s line :from-end from-end)))
-               (when (and i (or (null best) (funcall comparison i best)))
-                 (setf best i digit d)))))
-      (dolist (x *replacements* digit)
-        (destructuring-bind (a b d) x
-          (f a d)
-          (f b d))))))
+(defun find-digits (line)
+  (loop repeat (length line)
+        for l = line then (str:substring 1 nil l)
+        when (cadr (find-if (a:rcurry #'str:starts-with? l) *digits* :key #'car))
+          collect it))
 
 (defun calibration-value2 (line)
-  (parse-digits
-   (find-digit line)
-   (find-digit line :from-end t)))
+  (let ((digits (find-digits line)))
+    (parse-digits (first digits) (a:lastcar digits))))
 
 (defun part2 (input)
   (reduce #'+ (mapcar #'calibration-value2 (aoc:lines input))))
