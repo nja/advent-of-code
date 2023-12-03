@@ -59,6 +59,23 @@
 (defun part1 (input)
   (reduce #'+ (numbers (copy-part-numbers (to-array input)))))
 
+(defun adjacent-numbers (array row col)
+  (let ((tmp (make-array (array-dimensions array) :initial-element #\.)))
+    (loop for (r c) in (adjacents array row col)
+          do (copy-digits array tmp r c))
+    (numbers tmp)))
+
+(defun gear-ratios (array)
+  (loop for row below (array-dimension array 0) append
+    (loop for col below (array-dimension array 1)
+          for r = (and (char= #\* (aref array row col))
+                       (adjacent-numbers array row col))
+          when (and r (= 2 (length r)))
+            collect r)))
+
+(defun part2 (input)
+  (reduce #'+ (mapcar (a:curry #'reduce #'*) (gear-ratios (to-array input)))))
+
 (defparameter *test*
   "467..114..
 ...*......
