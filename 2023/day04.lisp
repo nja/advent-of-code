@@ -2,16 +2,13 @@
 
 (in-package :aoc2023.day04)
 
-(defun list-of-numbers (string)
-  (read-from-string (format nil "(~a)" string)))
-
-(defun parse-card (line)
-  (destructuring-bind (a b) (str:split ":" line)
-    (list* (parse-integer (remove-if-not #'digit-char-p a))
-           (mapcar #'list-of-numbers (str:split "|" b)))))
-
-(defun parse (input)
-  (mapcar #'parse-card (aoc:lines input)))
+(defun parse-cards (input)
+  (mapcar (lambda (line)
+            (destructuring-bind (a b) (str:split ":" line)
+              (list* (parse-integer (remove-if-not #'digit-char-p a))
+                     (mapcar (lambda (s) (read-from-string (format nil "(~a)" s)))
+                             (str:split "|" b)))))
+          (aoc:lines input)))
 
 (defun id (card) (first card))
 (defun winning (card) (second card))
@@ -24,7 +21,7 @@
   (floor (expt 2 (1- (count-matches card)))))
 
 (defun part1 (input)
-  (reduce #'+ (mapcar #'score (parse input))))
+  (reduce #'+ (mapcar #'score (parse-cards input))))
 
 (defun count-cards (cards)
   (let ((counts (make-array (1+ (length cards)) :initial-element 1)))
@@ -38,7 +35,7 @@
     counts))
 
 (defun part2 (input)
-  (reduce #'+ (count-cards (parse input))))
+  (reduce #'+ (count-cards (parse-cards input))))
 (defparameter *test*
 "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
