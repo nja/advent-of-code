@@ -6,10 +6,8 @@
   (mapcar #'parse-integer (rest (str:split " " (first (aoc:sections input))))))
 
 (defun parse-maps (input)
-  (mapcar (a:compose (lambda (lines)
-                       (mapcar (a:compose (a:curry #'mapcar #'parse-integer)
-                                          (a:curry #'str:split " "))
-                               lines))
+  (mapcar (a:compose (a:curry #'mapcar (a:compose (a:curry #'mapcar #'parse-integer)
+                                                  (a:curry #'str:split " ")))
                      #'rest
                      #'aoc:lines)
           (rest (aoc:sections input))))
@@ -67,19 +65,18 @@
 ;;     (recur nil runs map)))
 
 (defun apply-run-map (runs map)
-  (let (mapped)
-    (labels ((recur (runs map)
-               (if (null map)
-                   (append mapped runs)
-                   (let ((next
-                           (loop for run in runs
-                                 for (m u) = (multiple-value-list
-                                              (apply-run-range (car map) run))
-                                 when m
-                                   do (push m mapped)
-                                 append u)))
-                     (recur next (cdr map))))))
-      (recur runs map))))
+  (labels ((recur (runs map mapped)
+             (if (null map)
+                 (append mapped runs)
+                 (recur (loop for run in runs
+                              for (m u) = (multiple-value-list
+                                           (apply-run-range (car map) run))
+                              when m
+                                do (push m mapped)
+                              append u)
+                        (cdr map)
+                        mapped))))
+    (recur runs map nil)))
 
 ;; (defun apply-run-map (runs map)
 ;;   (let* (mapped (unmapped (reduce (lambda (runs range)
