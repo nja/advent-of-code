@@ -24,75 +24,38 @@
 (defun part1 (input)
   (reduce #'min (reduce #'apply-rules (rules input) :initial-value (seeds input))))
 
-(defun parse-seed-runs (input)
+(defun ranges (input)
   (loop for (a b) on (seeds input) by #'cddr
         collect (list a (+ a b -1))))
 
-(defun apply-run-range (range run)
-  (destructuring-bind (dst src range) range
-    (let ((start src) (end (+ src range -1)))
-      (destructuring-bind (lo hi) run
-        (values (when (and (<= start hi) (<= lo end))
-                  (let ((left (max start lo))
-                        (right (min end hi)))
-                    (list (+ dst (- left start))
-                          (+ dst (- right start)))))
-                (remove nil (list (when (< lo start)
-                                    (list lo (min hi (1- start))))
-                                  (when (< end hi)
-                                    (list (max lo (1+ end)) hi)))))))))
+(defun map-range (rule range)
+  (destructuring-bind (dst src len) rule
+    (let ((first src)
+          (last (+ src len -1)))
+      (destructuring-bind (lo hi) range
+        (values (when (and (<= first hi) (<= lo last))
+                  (let ((left (max first lo))
+                        (right (min last hi)))
+                    (list (+ dst (- left first))
+                          (+ dst (- right first)))))
+                (remove nil (list (when (< lo first)
+                                    (list lo (min hi (1- first))))
+                                  (when (< last hi)
+                                    (list (max lo (1+ last)) hi)))))))))
 
-(defun apply-run-map (runs map)
-  (labels ((recur (runs map mapped)
-             (if (null map)
-                 (append mapped runs)
+(defun apply-range-rules (ranges rules)
+  (labels ((recur (ranges rules mapped)
+             (if (null rules)
+                 (append mapped ranges)
                  (recur (mapcan (lambda (run)
                                   (multiple-value-bind (m u)
-                                      (apply-run-range (car map) run)
+                                      (map-range (car rules) run)
                                     (when m (push m mapped))
                                     u))
-                                runs)
-                        (cdr map)
+                                ranges)
+                        (cdr rules)
                         mapped))))
-    (recur runs map nil)))
-
-;; (defun apply-run-maps (maps runs)
-;;   (reduce #'apply-run-map maps :initial-value runs))
+    (recur ranges rules nil)))
 
 (defun part2 (input)
-  (reduce #'min (mapcar #'car (reduce #'apply-run-map (rules input) :initial-value (parse-seed-runs input)))))
-
-(defparameter *test*
-  "seeds: 79 14 55 13
-
-seed-to-soil map:
-50 98 2
-52 50 48
-
-soil-to-fertilizer map:
-0 15 37
-37 52 2
-39 0 15
-
-fertilizer-to-water map:
-49 53 8
-0 11 42
-42 0 7
-57 7 4
-
-water-to-light map:
-88 18 7
-18 25 70
-
-light-to-temperature map:
-45 77 23
-81 45 19
-68 64 13
-
-temperature-to-humidity map:
-0 69 1
-1 0 69
-
-humidity-to-location map:
-60 56 37
-56 93 4")
+  (reduce #'min (mapcar #'car (reduce #'apply-range-rules (rules input) :initial-value (ranges input)))))
