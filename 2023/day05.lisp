@@ -14,24 +14,24 @@
                      #'aoc:lines)
           (rest (aoc:sections input))))
 
-(defun apply-range (range number)
+(defun apply-seed-range (range number)
   (destructuring-bind (dst src range) range
     (when (< (1- src) number (+ src range))
       (+ dst (- number src)))))
 
-(defun apply-map (numbers map)
+(defun apply-seed-map (numbers map)
   (mapcar (lambda (n)
             (or (loop for range in map
-                      when (apply-range range n)
+                      when (apply-seed-range range n)
                         return it)
                 n))
           numbers))
 
-(defun apply-maps (maps numbers)
-  (reduce #'apply-map maps :initial-value numbers))
+(defun apply-seed-maps (maps numbers)
+  (reduce #'apply-seed-map maps :initial-value numbers))
 
 (defun part1 (input)
-  (reduce #'min (apply-maps (parse-maps input) (parse-seeds input))))
+  (reduce #'min (apply-seed-maps (parse-maps input) (parse-seeds input))))
 
 (defparameter *test*
   "seeds: 79 14 55 13
