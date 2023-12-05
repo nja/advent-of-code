@@ -2,97 +2,65 @@
 
 (in-package :aoc2023.day05)
 
-(defun parse-seeds (input)
+(defun seeds (input)
   (mapcar #'parse-integer (rest (str:split " " (first (aoc:sections input))))))
 
-(defun parse-maps (input)
+(defun rules (input)
   (mapcar (a:compose (a:curry #'mapcar (a:compose (a:curry #'mapcar #'parse-integer)
                                                   (a:curry #'str:split " ")))
                      #'rest
                      #'aoc:lines)
           (rest (aoc:sections input))))
 
-(defun apply-seed-range (range number)
-  (destructuring-bind (dst src range) range
+(defun map-number (rule number)
+  (destructuring-bind (dst src range) rule
     (when (< (1- src) number (+ src range))
       (+ dst (- number src)))))
 
-(defun apply-seed-map (numbers map)
-  (mapcar (lambda (n)
-            (or (loop for range in map
-                      when (apply-seed-range range n)
-                        return it)
-                n))
+(defun apply-rules (numbers rules)
+  (mapcar (lambda (n) (or (some (a:rcurry #'map-number n) rules) n))
           numbers))
 
-(defun apply-seed-maps (maps numbers)
-  (reduce #'apply-seed-map maps :initial-value numbers))
-
 (defun part1 (input)
-  (reduce #'min (apply-seed-maps (parse-maps input) (parse-seeds input))))
+  (reduce #'min (reduce #'apply-rules (rules input) :initial-value (seeds input))))
 
 (defun parse-seed-runs (input)
-  (loop for (a b) on (parse-seeds input) by #'cddr
+  (loop for (a b) on (seeds input) by #'cddr
         collect (list a (+ a b -1))))
 
-;; (defun apply-run-range (range run)
-;;   (destructuring-bind (dst src range) range
-;;     (let ((start src) (end (+ src range -1)))
-;;       (destructuring-bind (lo hi) run
-;;         (values (when (and (<= start hi) (<= lo end))
-;;                   (let ((left (max start lo))
-;;                         (right (min end hi)))
-;;                     (list (+ dst (- left start))
-;;                           (+ dst (- right start)))))
-;;                 (remove nil (list (when (< lo start)
-;;                                     (list lo (min hi (1- start))))
-;;                                   (when (< end hi)
-;;                                     (list (max lo (1+ end)) hi)))))))))
-
-;; (defun apply-run-map (runs map)
-;;   (labels ((recur (mapped unmapped ranges)
-;;              (if (or (null ranges) (null unmapped))
-;;                  (append mapped unmapped)
-;;                  (let ((next
-;;                          (loop for run in unmapped
-;;                                for (m u) = (multiple-value-list
-;;                                             (apply-run-range (car ranges) run))
-;;                                when m
-;;                                  do (push mapped m)
-;;                                append u
-;;                                do (break))))
-;;                    (recur mapped next (cdr ranges))))))
-;;     (recur nil runs map)))
+(defun apply-run-range (range run)
+  (destructuring-bind (dst src range) range
+    (let ((start src) (end (+ src range -1)))
+      (destructuring-bind (lo hi) run
+        (values (when (and (<= start hi) (<= lo end))
+                  (let ((left (max start lo))
+                        (right (min end hi)))
+                    (list (+ dst (- left start))
+                          (+ dst (- right start)))))
+                (remove nil (list (when (< lo start)
+                                    (list lo (min hi (1- start))))
+                                  (when (< end hi)
+                                    (list (max lo (1+ end)) hi)))))))))
 
 (defun apply-run-map (runs map)
   (labels ((recur (runs map mapped)
              (if (null map)
                  (append mapped runs)
-                 (recur (loop for run in runs
-                              for (m u) = (multiple-value-list
-                                           (apply-run-range (car map) run))
-                              when m
-                                do (push m mapped)
-                              append u)
+                 (recur (mapcan (lambda (run)
+                                  (multiple-value-bind (m u)
+                                      (apply-run-range (car map) run)
+                                    (when m (push m mapped))
+                                    u))
+                                runs)
                         (cdr map)
                         mapped))))
     (recur runs map nil)))
 
-;; (defun apply-run-map (runs map)
-;;   (let* (mapped (unmapped (reduce (lambda (runs range)
-;;                                     (break)
-;;                                     (multiple-value-bind (m u) (apply-run-range range run)
-;;                                       (push m mapped)
-;;                                       u))
-;;                                   map
-;;                                   :initial-value runs)))
-;;     (append unmapped mapped)))
-
-(defun apply-run-maps (maps runs)
-  (reduce #'apply-run-map maps :initial-value runs))
+;; (defun apply-run-maps (maps runs)
+;;   (reduce #'apply-run-map maps :initial-value runs))
 
 (defun part2 (input)
-  (reduce #'min (mapcar #'car (apply-run-maps (parse-maps input) (parse-seed-runs input)))))
+  (reduce #'min (mapcar #'car (reduce #'apply-run-map (rules input) :initial-value (parse-seed-runs input)))))
 
 (defparameter *test*
   "seeds: 79 14 55 13
