@@ -33,6 +33,37 @@
 (defun part1 (input)
   (reduce #'min (apply-seed-maps (parse-maps input) (parse-seeds input))))
 
+(defun parse-seed-runs (input)
+  (loop for (a b) on (parse-seeds input) by #'cddr
+        collect (list a (+ a b -1))))
+
+(defun apply-run-range (range run)
+  (destructuring-bind (dst src range) range
+    (let ((start src) (end (+ src range -1)))
+      (destructuring-bind (lo hi) run
+        (remove nil (list (when (< lo start)
+                            (list lo (min hi (1- start))))
+                          (when (and (<= start hi) (<= lo end))
+                            (let ((left (max start lo))
+                                  (right (min end hi)))
+                              (list (+ dst (- left start))
+                                    (+ dst (- right start)))))
+                          (when (< end hi)
+                            (list (max lo (1+ end)) hi))))))))
+
+(defun apply-run-map (runs map)
+  (if (null map)
+      runs
+      (apply-run-map (mapcan (lambda (run) (print (apply-run-range (car map) run)))
+                             runs)
+                     (cdr map))))
+
+(defun apply-run-maps (maps runs)
+  (reduce #'apply-run-map maps :initial-value runs))
+
+(defun part2 (input)
+  (apply-run-maps (parse-maps input) (parse-seed-runs input)))
+
 (defparameter *test*
   "seeds: 79 14 55 13
 
