@@ -7,3 +7,4 @@
 (defanswer day03 535351 87287096)
 (defanswer day04 20407 23806951)
 (defanswer day05 346433842 60294664)
+(defanswer day06 449820 42250895)
