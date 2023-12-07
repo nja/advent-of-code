@@ -28,16 +28,17 @@
       (4 'one-pair)
       (5 'high-card))))
 
-(defparameter *hand-type* #'hand-type)
-
 (defun hand-strength (hand)
-  (position (funcall *hand-type* hand) '(five-of-a-kind four-of-a-kind full-house
-                                         three-of-a-kind two-pairs one-pair high-card)))
+  (position (joker-type hand) '(five-of-a-kind four-of-a-kind full-house
+                                three-of-a-kind two-pairs one-pair high-card)))
 
 (defparameter *cards* "AKQJT98765432")
+(defparameter *joker* nil)
 
 (defun card-strength (card)
-  (position card *cards*))
+  (if (eql card *joker*)
+      (length *cards*)
+      (position card *cards*)))
 
 (defun compare-hands (a b)
   (let ((sa (hand-strength a))
@@ -66,7 +67,7 @@
 
 (defun joker-type (hand)
   (let ((type (hand-type hand))
-        (jokers (count #\J (first hand))))
+        (jokers (count *joker* (first hand))))
     (or (case type
           (four-of-a-kind (case jokers ((4 1) 'five-of-a-kind)))
           (full-house (case jokers ((3 2) 'five-of-a-kind)))
@@ -80,12 +81,12 @@
         type)))
 
 (defun part2 (input)
-  (let ((*cards* "AKQT98765432J")
-        (*hand-type* #'joker-type))
+  (let ((*joker* #\J))
     (total-winnings (mapcar #'parse (aoc:lines input)))))
 
 ;;; 253262423 too low
 ;;; 253154990 too low
+;;; 253498818 too low
 
 (defparameter *test*
   "32T3K 765
