@@ -19,9 +19,12 @@
 (defun max-of-a-kind (counts)
   (reduce #'max (remove-if-not #'integerp counts)))
 
+(defun kinds-of-cards (counts)
+  (count-if #'characterp counts))
+
 (defun hand-type (hand)
   (let ((counts (count-kinds hand)))
-    (case (count-if #'characterp counts)
+    (case (kinds-of-cards counts)
       (1 'five-of-a-kind)
       (2 (case (max-of-a-kind counts)
            (4 'four-of-a-kind)
@@ -32,12 +35,13 @@
       (4 'one-pair)
       (5 'high-card))))
 
-(defun hand-strength (hand)
-  (position (joker-type hand) '(five-of-a-kind four-of-a-kind full-house
-                                three-of-a-kind two-pairs one-pair high-card)))
-
 (defparameter *cards* "AKQJT98765432")
+(defparameter *hands* '(five-of-a-kind four-of-a-kind full-house
+                        three-of-a-kind two-pairs one-pair high-card))
 (defparameter *joker* nil)
+
+(defun hand-strength (hand)
+  (position (joker-type hand) *hands*))
 
 (defun card-strength (card)
   (if (eql card *joker*)
@@ -45,25 +49,25 @@
       (position card *cards*)))
 
 (defun compare-hands (a b)
-  (let ((sa (hand-strength a))
-        (sb (hand-strength b)))
-    (cond ((< sa sb) t)
-          ((< sb sa) nil)
-          (t (loop for ca across (cards a)
-                   for cb across (cards b)
-                   for sa = (card-strength ca)
-                   for sb = (card-strength cb)
-                   if (< sa sb)
-                     return t
-                   if (< sb sa)
-                     return nil)))))
+  (or (< (hand-strength a) (hand-strength b))
+      (and (not (< (hand-strength b) (hand-strength a)))
+           (compare-cards (cards a) (cards b)))))
+
+(defun compare-cards (a b)
+  (loop for i below (length a)
+        for sa = (card-strength (aref a i))
+        for sb = (card-strength (aref b i))
+        if (< sa sb)
+          return t
+        if (< sb sa)
+          return nil))
 
 (defun rank-hands (hands)
-  (reverse (sort hands #'compare-hands)))
+  (sort (copy-list hands) #'compare-hands))
 
 (defun total-winnings (hands)
   (loop for rank from 1
-        for hand in (rank-hands hands)
+        for hand in (reverse (rank-hands hands))
         sum (* rank (bid hand))))
 
 (defun part1 (input)
@@ -86,14 +90,3 @@
 (defun part2 (input)
   (let ((*joker* #\J))
     (total-winnings (hands input))))
-
-;;; 253262423 too low
-;;; 253154990 too low
-;;; 253498818 too low
-
-(defparameter *test*
-  "32T3K 765
-T55J5 684
-KK677 28
-KTJJT 220
-QQQJA 483")
