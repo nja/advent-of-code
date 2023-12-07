@@ -2,13 +2,17 @@
 
 (in-package :aoc2023.day07)
 
-(defun parse (line)
-  (list (first (str:split " " line))
-        (parse-integer (second (str:split " " line)))))
+(defun hands (input)
+  (mapcar (lambda (l) (list (first (str:split " " l))
+                            (parse-integer (second (str:split " " l)))))
+          (aoc:lines input)))
+
+(defun cards (hand) (first hand))
+(defun bid (hand) (second hand))
 
 (defun count-kinds (hand)
   (loop with kinds
-        for k across (first hand)
+        for k across (cards hand)
         do (incf (getf kinds k 0))
         finally (return kinds)))
 
@@ -45,8 +49,8 @@
         (sb (hand-strength b)))
     (cond ((< sa sb) t)
           ((< sb sa) nil)
-          (t (loop for ca across (first a)
-                   for cb across (first b)
+          (t (loop for ca across (cards a)
+                   for cb across (cards b)
                    for sa = (card-strength ca)
                    for sb = (card-strength cb)
                    if (< sa sb)
@@ -60,29 +64,28 @@
 (defun total-winnings (hands)
   (loop for rank from 1
         for hand in (rank-hands hands)
-        sum (* rank (second hand))))
+        sum (* rank (bid hand))))
 
 (defun part1 (input)
-  (total-winnings (mapcar #'parse (aoc:lines input))))
+  (total-winnings (hands input)))
 
 (defun joker-type (hand)
   (let ((type (hand-type hand))
-        (jokers (count *joker* (first hand))))
+        (jokers (count *joker* (cards hand))))
     (or (case type
           (four-of-a-kind (case jokers ((4 1) 'five-of-a-kind)))
           (full-house (case jokers ((3 2) 'five-of-a-kind)))
-          (three-of-a-kind (case jokers
-                             (3 'four-of-a-kind)
-                             (1 'four-of-a-kind)))
+          (three-of-a-kind (case jokers ((3 1) 'four-of-a-kind)))
           (two-pairs (case jokers
                        (2 'four-of-a-kind)
                        (1 'full-house)))
-          (one-pair (case jokers ((2 1) 'three-of-a-kind))))
+          (one-pair (case jokers ((2 1) 'three-of-a-kind)))
+          (high-card (case jokers (1 'one-pair))))
         type)))
 
 (defun part2 (input)
   (let ((*joker* #\J))
-    (total-winnings (mapcar #'parse (aoc:lines input)))))
+    (total-winnings (hands input))))
 
 ;;; 253262423 too low
 ;;; 253154990 too low
