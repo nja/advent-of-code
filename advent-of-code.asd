@@ -74,7 +74,7 @@
    (:module "2023" :components
     ((:file "day01") (:file "day02") (:file "day03") (:file "day04")
      (:file "day05") (:file "day06") (:file "day07") (:file "day08")
-     (:file "tests"))))
+     (:file "day09") (:file "tests"))))
   :depends-on
   (#:alexandria #:arrow-macros #:cl-ppcre #:drakma #:fare-memoization #:fiasco
    #:ironclad #:jsown #:pettomato-indexed-priority-queue #:queues.simple-queue
