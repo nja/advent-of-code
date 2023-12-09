@@ -56,9 +56,6 @@
           return (reduce #'lcm results)))
 
 (defun part2 (input)
-  (let* ((map (parse-map input))
-         (hash-map (hash-map map))
-         (instructions (parse-instructions input))
-         (ends (set-map (ending-with "Z" map))))
-    (walkers (mapcar (lambda (p) (walker hash-map ends p instructions))
+  (let* ((map (parse-map input)))
+    (walkers (mapcar (lambda (p) (walker (hash-map map) (set-map (ending-with "Z" map)) p (parse-instructions input)))
                      (ending-with "A" map)))))
