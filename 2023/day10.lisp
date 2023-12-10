@@ -73,38 +73,78 @@ LJ...")
                    do (setf (aref big-array big-row big-col)
                             (aref src src-row src-col))))))
 
+(defparameter *big-array* nil)
+
+(defun neighbours (pos)
+  (destructuring-bind (row col) pos
+    (let (result)
+      (flet ((collect (r c)
+               (when (and (array-in-bounds-p *big-array* r c)
+                          (find (aref *big-array* r c) "._"))
+                 (push (list r c) result))))
+        (collect (1- row) col)
+        (collect row (1- col))
+        (collect (1+ row) col)
+        (collect row (1+ col))
+        result))))
+
 (defparameter *big-pipes*
   (list #\| (to-array
-"_|_
+             "_|_
 _|_
 _|_")
         #\- (to-array
-"___
+             "___
 ---
 ___")
         #\L (to-array
-"_L_
+             "_L_
 _LL
 ___")
         #\J (to-array
-"_J_
+             "_J_
 JJ_
 ___")
         #\7 (to-array
-"___
+             "___
 77_
 _7_")
         #\F (to-array
-"___
+             "___
 _FF
 _F_")
         #\S (to-array
-"_S_
+             "_S_
 _S_
 _S_")))
 
 
 
+(defun outside-count (array)
+  (let* ((*big-array* (mark-big-loop array (start-position array) 'S))
+         (positions (mapcar #'dijkstra:item (dijkstra:search* '(0 0) #'neighbours))))
+    (- (/ (count-if (lambda (p)
+                      (eql #\. (apply #'aref *big-array* p)))
+                    positions)
+          9)
+       (* 2 (array-dimension array 0))
+       (* 2 (array-dimension array 1))
+       4)))
+
+(defparameter *test2*
+".F----7F7F7F7F-7....
+.|F--7||||||||FJ....
+.||.FJ||||||||L7....
+FJL7L7LJLJ||LJ.L-7..
+L--J.L7...LJS7F-7L7.
+....F-J..F7FJ|L7L7L7
+....L7.F7||L7|.L7L7|
+.....|FJLJ|FJ|F7|.LJ
+....FJL-7.||.||||...
+....L---J.LJ.LJLJ...")
+
 (defun part2 (input)
-  (let ((array (to-array input)))
-    (mark-big-loop array (start-position array) 'S)))
+  (let* ((array (to-array input))
+         (distance (distance array (start-position array) 'S))
+         (outside (outside-count array)))
+    (- (array-total-size array) distance outside)))
