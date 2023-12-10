@@ -42,7 +42,7 @@ LJ...")
 (defun distance (array position direction)
   (loop for distance from 1
         for p = (add position (dir direction)) then (add p (dir dir))
-        for pipe = (print (apply #'aref array p))
+        for pipe = (apply #'aref array p)
         for dir = (turn pipe (or dir direction))
         when (null dir)
           return distance))
@@ -50,3 +50,61 @@ LJ...")
 (defun part1 (input)
   (let ((array (to-array input)))
     (/ (distance array (start-position array) 'S) 2)))
+
+(defun mark-big-loop (array position direction)
+  (loop with copy = (make-array (mul (add (array-dimensions array) '(2 2)) 3) :initial-element #\.)
+        for p = (add position (dir direction)) then (add p (dir dir))
+        for pipe = (apply #'aref array p)
+        for dir = (turn pipe (or dir direction))
+        do (write-big-pipe copy p pipe)
+        when (null dir)
+          return copy))
+
+(defun mul (a f)
+  (mapcar (a:curry #'* f) a))
+
+(defun write-big-pipe (big-array pos pipe)
+  (let ((pos (mul (add pos '(1 1)) 3))
+        (src (getf *big-pipes* pipe)))
+    (loop for big-row from (first pos)
+          for src-row below 3
+          do (loop for big-col from (second pos)
+                   for src-col below 3
+                   do (setf (aref big-array big-row big-col)
+                            (aref src src-row src-col))))))
+
+(defparameter *big-pipes*
+  (list #\| (to-array
+"_|_
+_|_
+_|_")
+        #\- (to-array
+"___
+---
+___")
+        #\L (to-array
+"_L_
+_LL
+___")
+        #\J (to-array
+"_J_
+JJ_
+___")
+        #\7 (to-array
+"___
+77_
+_7_")
+        #\F (to-array
+"___
+_FF
+_F_")
+        #\S (to-array
+"_S_
+_S_
+_S_")))
+
+
+
+(defun part2 (input)
+  (let ((array (to-array input)))
+    (mark-big-loop array (start-position array) 'S)))
