@@ -11,4 +11,4 @@
 (defanswer day07 253603890 253630098)
 (defanswer day08 16043 15726453850399)
 (defanswer day09 2101499000 1089)
-
+(defanswer day10 6599)
