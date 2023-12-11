@@ -26,7 +26,7 @@
         for srow from 0
         for drow from 0
         for line in lines do
-          (flet ((line () 
+          (flet ((line ()
                    (loop for scol from 0
                          for dcol from 0
                          for x across line
@@ -50,3 +50,22 @@
         for c below (length (first lines))
         when (every (lambda (l) (char= #\. (aref l c))) lines)
           collect c))
+
+(defun galaxies (array)
+  (loop for row below (array-dimension array 0)
+        append (loop for col below (array-dimension array 1)
+                     when (char= #\# (aref array row col))
+                       collect (list row col))))
+
+(defun distance (a b)
+  (reduce #'+ (mapcar (lambda (x y) (abs (- x y))) a b)))
+
+(defun distances (galaxies)
+  (let ((sum 0))
+    (a:map-combinations (lambda (x) (incf sum (apply #'distance x)))
+                        galaxies
+                        :length 2)
+    sum))
+
+(defun part1 (input)
+  (distances (galaxies (expand input))))
