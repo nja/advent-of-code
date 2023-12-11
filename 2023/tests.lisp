@@ -12,4 +12,4 @@
 (defanswer day08 16043 15726453850399)
 (defanswer day09 2101499000 1089)
 (defanswer day10 6599 477)
-(defanswer day11 9599070)
+(defanswer day11 9599070 842645913794)
