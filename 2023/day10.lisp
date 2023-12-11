@@ -39,17 +39,29 @@ LJ...")
           when (eql #\S (aref array row col))
             do (return-from start-position (list row col)))))
 
-(defun distance (array position direction)
-  (loop for distance from 1
-        for p = (add position (dir direction)) then (add p (dir dir))
+(defun pipe (array position direction)
+  (loop for p = (add position (dir direction)) then (add p (dir dir))
         for pipe = (apply #'aref array p)
         for dir = (turn pipe (or dir direction))
-        when (null dir)
-          return distance))
+        collect p
+        until (null dir)))
 
 (defun part1 (input)
   (let ((array (to-array input)))
-    (/ (distance array (start-position array) 'S) 2)))
+    (/ (length (pipe array (start-position array) 'S)) 2)))
+
+(defun count-insides (array pipes)
+  (loop for row below (array-dimension array 0)
+        sum (loop with inside
+                  for col below (array-dimension array 1)
+                  for p = (find (list row col) pipes :test #'equalp)
+                  when p
+                    do (setf inside (not inside))
+                  count (and (not p) inside))))
+
+(defun embiggen (input)
+  (let ((array (to-array input)))
+    (mark-big-loop array (start-position array) 'S)))
 
 (defun mark-big-loop (array position direction)
   (loop with copy = (make-array (mul (add (array-dimensions array) '(2 2)) 3) :initial-element #\.)
@@ -114,11 +126,9 @@ _7_")
 _FF
 _F_")
         #\S (to-array
-             "_S_
-_S_
+             "___
+_SS
 _S_")))
-
-
 
 (defun outside-count (array)
   (let* ((*big-array* (mark-big-loop array (start-position array) 'S))
@@ -145,6 +155,10 @@ L--J.L7...LJS7F-7L7.
 
 (defun part2 (input)
   (let* ((array (to-array input))
-         (distance (distance array (start-position array) 'S))
+         (distance (length (distance array (start-position array) 'S)))
          (outside (outside-count array)))
     (- (array-total-size array) distance outside)))
+
+(defun part2 (input)
+  (let ((array (to-array input)))
+    (count-insides array (pipe array (start-position array) 'S))))
