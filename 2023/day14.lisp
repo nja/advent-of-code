@@ -96,14 +96,15 @@ O.#..O.#.#
                     when (char= #\O (aref array row col))
                       sum (- rows row)))))
 
-;; (defun part1 (input)
-;;   (total-load (tilt-north (to-array input))))
+(defun part1 (input)
+  (let ((array (to-array input)))
+    (tilt-north array (array-dimension array 0) (array-dimension array 1))
+    (total-load array)))
 
 (defun load-hash (array)
   (let ((copy (a:copy-array array))
         (rows (array-dimension array 0))
-        (cols (array-dimension array 1))
-        (load (total-load array)))
+        (cols (array-dimension array 1)))
     (loop for i from 1
           with hash = (make-hash-table)
           do (tilt-north copy rows cols)
@@ -111,15 +112,23 @@ O.#..O.#.#
              (tilt-south copy rows cols)
              (tilt-east copy rows cols)
           do (push i (gethash (total-load copy) hash))
-          repeat 10000
+          repeat 128
           finally (return hash))))
 
-(defun differences (hash)
-  (mapcar (lambda (l) (remove-duplicates (mapcar #'- l (cdr l))))
-          (remove-if-not #'cdr (a:hash-table-values hash))))
+(defun skip-cycles (hash n)
+  (let ((ramp-up (ramp-up hash))
+        (cycle-length (cycle-length hash)))
+    (+ ramp-up cycle-length (mod (- n ramp-up) cycle-length))))
 
-(defun singles (hash)
+(defun cycle-length (hash)
+  (let ((diffs (remove-duplicates (mapcar (lambda (l) (reduce #'+ (remove-duplicates (mapcar #'- l (cdr l)))))
+                                          (remove-if-not #'cdr (a:hash-table-values hash))))))
+    (and (= 1 (length diffs)) (first diffs))))
+
+(defun ramp-up (hash)
   (count-if-not #'cdr (a:hash-table-values hash)))
 
 (defun part2 (input)
-  (total-load (cycles (to-array input) (+ 92 7 5))))
+  (let ((array (to-array input)))
+    (total-load (cycles array (skip-cycles (load-hash array) 1000000000)))))
+
