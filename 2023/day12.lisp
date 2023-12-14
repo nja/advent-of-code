@@ -9,6 +9,17 @@
 (defun parse (input)
   (mapcar #'parse-line (aoc:lines input)))
 
+(defun arrangements (counts length)
+  (labels ((str (c l) (make-string l :initial-element c))
+           (broken () (str #\# (first counts)))
+           (spacer () (if (rest counts) "." ""))
+           (required-length () (+ (max 0 (1- (length (rest counts)))) (reduce #'+ counts) (length (spacer)))))
+    (cond ((null counts) (list (str #\. length)))
+          ((> (required-length) length) nil)
+          (t (let ((prefix (str:concat (broken) (spacer))))
+               (append (mapcar (a:curry #'str:concat prefix) (arrangements (rest counts) (- length (length prefix))))
+                       (mapcar (a:curry #'str:concat ".") (arrangements counts (1- length)))))))))
+
 (defun count-valid-arrangements (pattern counts)
   (count-if (pattern-predicate pattern) (arrangements counts (length pattern))))
 
