@@ -97,7 +97,7 @@ O.#..O.#.#
              (tilt-south copy rows cols)
              (tilt-east copy rows cols)
           do (push i (gethash (total-load copy) hash))
-          repeat 30
+          repeat 128
           finally (return hash))))
 
 (defun skip-cycles (hash n)
