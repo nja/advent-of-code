@@ -52,21 +52,6 @@ O.#..O.#.#
       (tilt-south array rows cols)
       (tilt-east array rows cols))))
 
-(defun tilt-north-col (array col)
-  (flet ((free? (c) (char= #\. c))
-         (round? (c) (char= #\O c))
-         (square? (c) (char= #\# c)))    
-    (loop with free
-          for row below (array-dimension array 0)
-          for c = (aref array row col)
-          do (cond ((and free (round? c))
-                    (rotatef (aref array row col) (aref array free col))
-                    (incf free))
-                   ((or (round? c) (square? c))
-                    (setf free nil))
-                   ((and (not free) (free? c))
-                    (setf free row))))))
-
 (defun tilt* (array start-row rd start-col cd rows cols)
   (declare (type fixnum start-row rd start-col cd rows cols))
   (flet ((free? (c) (char= #\. c))
@@ -112,7 +97,7 @@ O.#..O.#.#
              (tilt-south copy rows cols)
              (tilt-east copy rows cols)
           do (push i (gethash (total-load copy) hash))
-          repeat 128
+          repeat 30
           finally (return hash))))
 
 (defun skip-cycles (hash n)
