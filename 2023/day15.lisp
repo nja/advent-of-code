@@ -21,36 +21,28 @@
               (list a b c)))
           (str:split "," input)))
 
-(defun make-boxes ()
-  (make-array 256 :initial-element nil))
-
 (defun perform-step (step boxes)
-  (let ((i (box step)))
-    (symbol-macrolet ((box (aref boxes i)))
-      (case (second step)
-        (- (setf box (remove (label step) box :test #'string= :key #'label)))
-        (= (let ((lens (find (label step) box :test #'string= :key #'label)))
-             (if lens
-                 (setf (second lens) (focal-length step))
-                 (setf box (nconc box (list (list (label step) (focal-length step))))))))))))
+  (destructuring-bind (label op focal-length) step
+    (let ((i (hash label)))
+      (symbol-macrolet ((box (aref boxes i)))
+        (case op
+          (- (setf box (remove label box :test #'string= :key #'label)))
+          (= (let ((lens (find label box :test #'string= :key #'label)))
+               (if lens
+                   (setf (second lens) focal-length)
+                   (push (list label focal-length) box)))))))))
 
 (defun label (x) (first x))
-
-(defun box (step)
-  (hash (label step)))
-
-(defun focal-length (step)
-  (third step))
 
 (defun focusing-power (boxes)
   (loop for box-number from 1
         for lenses across boxes
         sum (loop for lens in lenses
-                  for slot-number from 1
+                  for slot-number downfrom (length lenses)
                   sum (* box-number slot-number (second lens)))))
 
 (defun configure-lenses (steps)
-  (let ((boxes (make-boxes)))
+  (let ((boxes (make-array 256 :initial-element nil)))
     (dolist (step steps boxes)
       (perform-step step boxes))))
 
