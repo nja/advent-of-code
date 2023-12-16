@@ -2,18 +2,6 @@
 
 (in-package :aoc2023.day16)
 
-(defparameter *test*
-".|...\\....
-|.-.\\.....
-.....|-...
-........|.
-..........
-.........\\
-..../.\\\\..
-.-.-/..|..
-.|....-|.\\
-..//.|....")
-
 (defun to-array (input)
   (loop with array = (make-array (list (length (aoc:lines input))
                                        (length (first (aoc:lines input)))))
@@ -23,9 +11,10 @@
         finally (return array )))
 
 (defun turn-clockwise (direction)
-  (getf '(up right right down down left left up) direction))
+  (case direction (up 'right) (right 'down) (down 'left) (left 'up)))
+
 (defun turn-anti-clockwise (direction)
-  (getf '(up left left down down right right up) direction))
+  (case direction (up 'left) (left 'down) (down 'right) (right 'up)))
 
 (defun reflect (mirror direction)
   (funcall (case mirror
@@ -70,7 +59,23 @@
   (when beams
     (energize (mapcan (lambda (b) (beam b array energized)) beams) array energized)))
 
-(defun part1 (input)
+(defun count-energized (array beam)
   (let ((energized (make-hash-table :test 'equal)))
-    (energize '((right 0 0)) (to-array input) energized)
+    (energize (list beam) array energized)
     (length (remove-duplicates (mapcar #'cdr (a:hash-table-keys energized)) :test #'equal))))
+
+(defun part1 (input)
+  (count-energized (to-array input) '(right 0 0)))
+
+(defun edge-beams (rows cols)
+  (append (loop for row below rows
+                collect (list 'right row 0)
+                collect (list 'left row (1- cols)))
+          (loop for col from 0 below (1- cols)
+                collect (list 'up (1- rows) col)
+                collect (list 'down 0 col))))
+
+(defun part2 (input)
+  (let ((array (to-array input)))
+    (reduce #'max (mapcar (a:curry #'count-energized array)
+                          (apply #'edge-beams (array-dimensions array))))))
