@@ -2,21 +2,6 @@
 
 (in-package :aoc2023.day10)
 
-(defparameter *test*
-"..F7.
-.FJ|.
-SJ.L7
-|F--J
-LJ...")
-
-(defun to-array (input)
-  (loop with lines = (aoc:lines input)
-        with array = (make-array (list (length lines) (length (first lines))))
-        for c across (remove #\Newline input)
-        for i from 0
-        do (setf (row-major-aref array i) c)
-        finally (return array)))
-
 (defun turn (pipe dir)
   (ecase pipe
     (#\| (ecase dir (S 'S) (N 'N)))
@@ -47,7 +32,7 @@ LJ...")
         until (null dir)))
 
 (defun part1 (input)
-  (let ((array (to-array input)))
+  (let ((array (aoc:to-array input)))
     (/ (length (pipe array (start-position array) 'S)) 2)))
 
 (defun count-insides (array pipes)
@@ -60,7 +45,7 @@ LJ...")
                   count (and (not p) inside))))
 
 (defun embiggen (input)
-  (let ((array (to-array input)))
+  (let ((array (aoc:to-array input)))
     (mark-big-loop array (start-position array) 'S)))
 
 (defun mark-big-loop (array position direction)
@@ -101,31 +86,31 @@ LJ...")
         result))))
 
 (defparameter *big-pipes*
-  (list #\| (to-array
+  (list #\| (aoc:to-array
              "_|_
 _|_
 _|_")
-        #\- (to-array
+        #\- (aoc:to-array
              "___
 ---
 ___")
-        #\L (to-array
+        #\L (aoc:to-array
              "_L_
 _LL
 ___")
-        #\J (to-array
+        #\J (aoc:to-array
              "_J_
 JJ_
 ___")
-        #\7 (to-array
+        #\7 (aoc:to-array
              "___
 77_
 _7_")
-        #\F (to-array
+        #\F (aoc:to-array
              "___
 _FF
 _F_")
-        #\S (to-array
+        #\S (aoc:to-array
              "___
 _SS
 _S_")))
@@ -153,12 +138,12 @@ L--J.L7...LJS7F-7L7.
 ....FJL-7.||.||||...
 ....L---J.LJ.LJLJ...")
 
-(defun part2 (input)
-  (let* ((array (to-array input))
-         (distance (length (distance array (start-position array) 'S)))
-         (outside (outside-count array)))
-    (- (array-total-size array) distance outside)))
+;; (defun part2 (input)
+;;   (let* ((array (aoc:to-array input))
+;;          (distance (length (distance array (start-position array) 'S)))
+;;          (outside (outside-count array)))
+;;     (- (array-total-size array) distance outside)))
 
 (defun part2 (input)
-  (let ((array (to-array input)))
+  (let ((array (aoc:to-array input)))
     (count-insides array (pipe array (start-position array) 'S))))
