@@ -70,14 +70,6 @@
 (defun part1 (input)
   (distances (galaxies (expand input))))
 
-(defun to-array (input)
-  (loop with array = (make-array (list (length (aoc:lines input))
-                                       (length (first (aoc:lines input)))))
-        for c across (remove #\Newline input)
-        for i from 0
-        do (setf (row-major-aref array i) c)
-        finally (return array)))
-
 (defparameter *age* 1000000)
 
 (defun old-distances (galaxies empty-rows empty-cols)
@@ -98,4 +90,4 @@
         finally (return d)))
 
 (defun part2 (input)
-  (old-distances (galaxies (to-array input)) (empty-rows input) (empty-cols input)))
+  (old-distances (galaxies (aoc:to-array input)) (empty-rows input) (empty-cols input)))
