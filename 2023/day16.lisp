@@ -36,3 +36,41 @@
                     ((up down) #'turn-clockwise)
                     ((left right) #'turn-anti-clockwise))))
            direction))
+
+(defun split (mirror direction)
+  (or (case mirror
+        (#\| (case direction ((left right) '(up down))))
+        (#\- (case direction ((up down) '(left right)))))
+      (list direction)))
+
+(defun move (direction row col)
+  (incf row (case direction
+              (up -1)
+              (down 1)
+              (t 0)))
+  (incf col (case direction
+              (left -1)
+              (right 1)
+              (t 0)))
+  (list direction row col))
+
+(defun beam (beam array energized)
+  (destructuring-bind (direction row col) beam
+    (when (and (array-in-bounds-p array row col)
+               (not (gethash beam energized)))
+      (setf (gethash beam energized) t)
+      (let ((at (aref array row col)))
+        (case at
+          (#\. (list (move direction row col)))
+          ((#\\ #\/) (list (move (reflect at direction) row col)))
+          ((#\- #\|) (mapcar (lambda (d) (move d row col))
+                             (split at direction))))))))
+
+(defun energize (beams array energized)
+  (when beams
+    (energize (mapcan (lambda (b) (beam b array energized)) beams) array energized)))
+
+(defun part1 (input)
+  (let ((energized (make-hash-table :test 'equal)))
+    (energize '((right 0 0)) (to-array input) energized)
+    (length (remove-duplicates (mapcar #'cdr (a:hash-table-keys energized)) :test #'equal))))
