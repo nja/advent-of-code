@@ -14,64 +14,49 @@ O.#..O.#.#
 #....###..
 #OO..#....")
 
-(defun to-array (input)
-  (loop with array = (make-array (list (length (aoc:lines input))
-                                       (length (first (aoc:lines input)))))
-        for i from 0
-        for c across (remove #\Newline input)
-        do (setf (row-major-aref array i) c)
-        finally (return array)))
+(defun tilt-north (array)
+  (loop for col below (array-dimension array 1)
+        do (tilt* array 0 1 col 0)))
 
-(defun tilt-north (array rows cols)
-  (declare (type fixnum rows cols))
-  (loop for col below cols
-        do (tilt* array 0 1 col 0 rows cols)))
+(defun tilt-south (array)
+  (destructuring-bind (rows cols) (array-dimensions array)
+    (loop for col below cols
+          do (tilt* array (1- rows) -1 col 0))))
 
-(defun tilt-south (array rows cols)
-  (declare (type fixnum rows cols))
-  (loop for col below cols
-        do (tilt* array (1- rows) -1 col 0 rows cols)))
+(defun tilt-east (array)
+  (destructuring-bind (rows cols) (array-dimensions array)
+    (loop for row below rows
+          do (tilt* array row 0 (1- cols) -1))))
 
-(defun tilt-east (array rows cols)
-  (declare (type fixnum rows cols))
-  (loop for row below rows
-        do (tilt* array row 0 (1- cols) -1 rows cols)))
-
-(defun tilt-west (array rows cols)
-  (declare (type fixnum rows cols))
-  (loop for row below rows
-        do (tilt* array row 0 0 1 rows cols)))
+(defun tilt-west (array)
+  (loop for row below (array-dimension array 0)
+        do (tilt* array row 0 0 1)))
 
 (defun cycles (array n)
-  (let ((rows (array-dimension array 0))
-        (cols (array-dimension array 1)))
-    (dotimes (x n array)
-      (declare (type fixnum n x))
-      (tilt-north array rows cols)
-      (tilt-west array rows cols)
-      (tilt-south array rows cols)
-      (tilt-east array rows cols))))
+  (dotimes (x n array)
+    (declare (type fixnum n x))
+    (tilt-north array)
+    (tilt-west array)
+    (tilt-south array)
+    (tilt-east array)))
 
-(defun tilt* (array start-row rd start-col cd rows cols)
-  (declare (type fixnum start-row rd start-col cd rows cols))
+(defun tilt* (array start-row rd start-col cd)
   (flet ((free? (c) (char= #\. c))
          (round? (c) (char= #\O c))
          (square? (c) (char= #\# c)))
-    (loop with free and fr fixnum  and fc fixnum
+    (loop with fr  and fc
           for row = start-row then (+ row rd)
           for col = start-col then (+ col cd)
-          while (and (<= 0 row (1- rows))
-                     (<= 0 col (1- cols)))
+          while (array-in-bounds-p array row col)
           for c = (aref array row col)
-          do (cond ((and free (round? c))
+          do (cond ((and fr (round? c))
                     (rotatef (aref array row col) (aref array fr fc))
                     (incf fr rd)
                     (incf fc cd))
                    ((or (round? c) (square? c))
-                    (setf free nil))
-                   ((and (not free) (free? c))
-                    (setf free t
-                          fr row
+                    (setf fr nil))
+                   ((and (not fr) (free? c))
+                    (setf fr row
                           fc col))))))
 
 (defun total-load (array)
@@ -82,22 +67,35 @@ O.#..O.#.#
                       sum (- rows row)))))
 
 (defun part1 (input)
-  (let ((array (to-array input)))
-    (tilt-north array (array-dimension array 0) (array-dimension array 1))
+  (let ((array (aoc:to-array input)))
+    (tilt-north array)
     (total-load array)))
 
+(defun cycle-hash (array)
+  (let ((copy (a:copy-array array)))
+    (loop for i from 1
+          with hash = (make-hash-table :test 'equalp)
+          do (tilt-north copy)
+             (tilt-west copy)
+             (tilt-south copy)
+             (tilt-east copy)
+          when (< 100 i)
+            do (push i (gethash (a:copy-array copy) hash))
+          repeat 200
+          finally (return hash))))
+
+
 (defun load-hash (array)
-  (let ((copy (a:copy-array array))
-        (rows (array-dimension array 0))
-        (cols (array-dimension array 1)))
+  (let ((copy (a:copy-array array)))
     (loop for i from 1
           with hash = (make-hash-table)
-          do (tilt-north copy rows cols)
-             (tilt-west copy rows cols)
-             (tilt-south copy rows cols)
-             (tilt-east copy rows cols)
+          do (tilt-north copy)
+             (tilt-west copy)
+             (tilt-south copy)
+             (tilt-east copy)
           do (push i (gethash (total-load copy) hash))
-          repeat 128
+                                        ;until (< 10 (length (gethash (total-load copy) hash)))
+             repeat 36
           finally (return hash))))
 
 (defun skip-cycles (hash n)
@@ -114,6 +112,6 @@ O.#..O.#.#
   (count-if-not #'cdr (a:hash-table-values hash)))
 
 (defun part2 (input)
-  (let ((array (to-array input)))
+  (let ((array (aoc:to-array input)))
     (total-load (cycles array (skip-cycles (load-hash array) 1000000000)))))
 
