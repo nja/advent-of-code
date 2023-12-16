@@ -2,14 +2,6 @@
 
 (in-package :aoc2023.day16)
 
-(defun to-array (input)
-  (loop with array = (make-array (list (length (aoc:lines input))
-                                       (length (first (aoc:lines input)))))
-        for i from 0
-        for c across (remove #\Newline input)
-        do (setf (row-major-aref array i) c)
-        finally (return array )))
-
 (defun turn-clockwise (direction)
   (case direction (up 'right) (right 'down) (down 'left) (left 'up)))
 
@@ -65,7 +57,7 @@
     (length (remove-duplicates (mapcar #'cdr (a:hash-table-keys energized)) :test #'equal))))
 
 (defun part1 (input)
-  (count-energized (to-array input) '(right 0 0)))
+  (count-energized (aoc:to-array input) '(right 0 0)))
 
 (defun edge-beams (rows cols)
   (append (loop for row below rows
@@ -76,6 +68,6 @@
                 collect (list 'down 0 col))))
 
 (defun part2 (input)
-  (let ((array (to-array input)))
+  (let ((array (aoc:to-array input)))
     (reduce #'max (mapcar (a:curry #'count-energized array)
                           (apply #'edge-beams (array-dimensions array))))))
