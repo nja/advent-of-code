@@ -2,16 +2,6 @@
 
 (in-package :aoc2023.day03)
 
-(defun to-array (input)
-  (loop with lines = (aoc:lines input)
-        with rows = (length lines)
-        with cols = (length (first lines))
-        with array = (make-array (list rows cols))
-        for c across (remove #\Newline input)
-        for i from 0
-        do (setf (row-major-aref array i) c)
-        finally (return array)))
-
 (defun copy-digits (src dst row col)
   (flet ((digit? (col)
            (and (array-in-bounds-p src row col)
@@ -57,7 +47,7 @@
      (format s ")"))))
 
 (defun part1 (input)
-  (reduce #'+ (numbers (copy-part-numbers (to-array input)))))
+  (reduce #'+ (numbers (copy-part-numbers (aoc:to-array input)))))
 
 (defun adjacent-numbers (array row col)
   (let ((tmp (make-array (array-dimensions array) :initial-element #\.)))
@@ -74,7 +64,7 @@
             collect r)))
 
 (defun part2 (input)
-  (reduce #'+ (mapcar (a:curry #'reduce #'*) (gear-ratios (to-array input)))))
+  (reduce #'+ (mapcar (a:curry #'reduce #'*) (gear-ratios (aoc:to-array input)))))
 
 (defparameter *test*
   "467..114..
