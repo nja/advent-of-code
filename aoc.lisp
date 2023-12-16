@@ -44,6 +44,14 @@
 (defun strip-cr (string)
   (remove #\Return string))
 
+(defun to-array (input)
+  (loop with lines = (aoc:lines input)
+        with array = (make-array (list (length lines) (length (first lines))))
+        for i from 0
+        for c across (remove #\Newline input)
+        do (setf (row-major-aref array i) c)
+        finally (return array )))
+
 (defun tr (set1 set2 seq)
   (map (type-of seq)
        (lambda (x)
