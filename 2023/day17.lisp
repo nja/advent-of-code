@@ -24,7 +24,7 @@
 
 (defparameter *array* (parse *test*))
 
-(defun neighbours (valid-direction?)
+(defun neighbours (valid-direction? &optional min-count done?)
   (lambda (state)
     (destructuring-bind (row col dir count) state
       (loop for new-dir in '(north east south west)
@@ -36,11 +36,23 @@
                             (east (1+ col))
                             (west (1- col))
                             (t col))
+            for new-count = (if (eq dir new-dir)
+                                (1+ count)
+                                1)
             when (and (funcall valid-direction? dir count new-dir)
-                      (array-in-bounds-p *array* new-row new-col))
-              collect (list new-row new-col new-dir (if (eq dir new-dir)
-                                                        (1+ count)
-                                                        1))))))
+                      (array-in-bounds-p *array* new-row new-col)
+                      (or (null min-count)
+                          (not (funcall done? (list new-row new-col)))
+                          (<= min-count new-count)))
+              collect (list new-row new-col new-dir new-count)))))
+
+(defun done? (array)
+  (let ((dst (array-dimensions array)))
+    (lambda (x)
+      (loop for a in x
+            for b in dst
+            repeat 2
+            always (eql a (1- b))))))
 
 (defun valid-direction? (from count dir)
   (cond ((null from) t)
@@ -51,18 +63,24 @@
   (declare (ignore src))
   (aref *array* (first dst) (second dst)))
 
-(defun least-heat-loss (array valid-direction?)
+(defun least-heat-loss (array neighbours)
   (let* ((*array* array)
-         (dst-row (1- (array-dimension *array* 0)))
-         (dst-col (1- (array-dimension *array* 1))))
-    (dijkstra:distance (dijkstra:search* (list 0 0 nil 0) (neighbours valid-direction?)
-                                         :distancef #'distance
-                                         :donep (lambda (x)
-                                                  (and (eql (first x) dst-row)
-                                                       (eql (second x) dst-col)))))))
+         (n (dijkstra:search* (list 0 0 nil 0) neighbours
+                              :distancef #'distance
+                              :donep (done? array))))
+    (loop for x = n then (dijkstra:previous x)
+          while x
+          for (row col dir count) = (dijkstra:item x)
+          when dir do (setf (aref *array* row col) (case dir
+                                                     (north #\^)
+                                                     (east #\>)
+                                                     (south #\v)
+                                                     (west #\<))))
+    (aoc:print-array *array*)
+    (dijkstra:distance n)))
 
 (defun part1 (input)
-  (least-heat-loss (parse input) #'valid-direction?))
+  (least-heat-loss (parse input) (neighbours #'valid-direction?)))
 
 (defun ultra-valid-direction? (from count dir)
   (cond ((null from) t)
@@ -70,9 +88,8 @@
         ((eq from dir) (< count 10))
         (t (not (eq dir (case from (north 'south) (east 'west) (south 'north) (west 'east)))))))
 
-
 (defun part2 (input)
-  (least-heat-loss (parse input) #'ultra-valid-direction?))
+  (least-heat-loss (parse input) (neighbours #'ultra-valid-direction? 4 (done? (parse input) ))))
 
 ;; 2023 17 2: '1080'
 ;; That's not the right answer; your answer is too low.
