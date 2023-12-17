@@ -281,4 +281,5 @@
 (defpackage :aoc2023.day14 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2023.day15 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2023.day16 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2023.day17 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2023.tests (:use :aoc))
