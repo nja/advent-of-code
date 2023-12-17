@@ -7,38 +7,32 @@
     (dotimes (i (array-total-size array) array)
       (setf (row-major-aref array i) (digit-char-p (row-major-aref array i))))))
 
-(defparameter *array* (parse *test*))
+(defparameter *array* nil)
 
-(defstruct (state (:conc-name s) (:constructor state (row col dir count))) row col dir count)
+(defstruct (state :conc-name) row col dir dircount)
 
 (defun neighbours (valid-direction? &optional min-count done?)
   (lambda (state)
-    (loop for new-dir in '(north east south west)
-          for new-row = (case new-dir
-                          (north (1- (srow state)))
-                          (south (1+ (srow state)))
-                          (t (srow state)))
-          for new-col = (case new-dir
-                          (east (1+ (scol state)))
-                          (west (1- (scol state)))
-                          (t (scol state)))
-          for new-count = (if (eq (sdir state) new-dir)
-                              (1+ (scount state))
-                              1)
-          for new-state = (state new-row new-col new-dir new-count)
-          when (and (funcall valid-direction? (sdir state) (scount state) new-dir)
-                    (array-in-bounds-p *array* new-row new-col)
+    (loop for dir in '(north east south west)
+          for next = (make-state :row (+ (row state) (case dir (north -1) (south 1) (t 0)))
+                                 :col (+ (col state) (case dir (west -1) (east 1) (t 0)))
+                                 :dir dir
+                                 :dircount (if (eq (dir state) dir)
+                                               (1+ (dircount state))
+                                               1))
+          when (and (funcall valid-direction? (dir state) (dircount state) dir)
+                    (array-in-bounds-p *array* (row next) (col next))
                     (or (null min-count)
-                        (not (funcall done? new-state))
-                        (<= min-count new-count)))
-            collect new-state)))
+                        (not (funcall done? next))
+                        (<= min-count (dircount next))))
+            collect next)))
 
 
 (defun done? (array)
   (destructuring-bind (row col) (array-dimensions array)
     (lambda (state)
-      (and (eql (1- row) (srow state))
-           (eql (1- col) (scol state))))))
+      (and (eql (1- row) (row state))
+           (eql (1- col) (col state))))))
 
 (defun valid-direction? (from count dir)
   (cond ((null from) t)
@@ -47,23 +41,14 @@
 
 (defun distance (src dst)
   (declare (ignore src))
-  (aref *array* (srow dst) (scol dst)))
+  (aref *array* (row dst) (col dst)))
 
 (defun least-heat-loss (array neighbours)
   (let* ((*array* array)
-         (n (dijkstra:search* (state 0 0 nil 0) neighbours
+         (n (dijkstra:search* (make-state :row 0 :col 0 :dircount 0)
+                              neighbours
                               :distancef #'distance
                               :donep (done? array))))
-    ;; (loop for x = n then (dijkstra:previous x)
-    ;;       while x
-    ;;       for state = (dijkstra:item x)
-    ;;       when (sdir state) do (setf (aref *array* (srow state) (scol state))
-    ;;                                  (case (sdir state)
-    ;;                                    (north #\^)
-    ;;                                    (east #\>)
-    ;;                                    (south #\v)
-    ;;                                    (west #\<))))
-    ;; (aoc:print-array *array*)
     (dijkstra:distance n)))
 
 (defun part1 (input)
