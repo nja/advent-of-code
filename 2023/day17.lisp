@@ -2,21 +2,6 @@
 
 (in-package :aoc2023.day17)
 
-(defparameter *test*
-"2413432311323
-3215453535623
-3255245654254
-3446585845452
-4546657867536
-1438598798454
-4457876987766
-3637877979653
-4654967986887
-4564679986453
-1224686865563
-2546548887735
-4322674655533")
-
 (defun parse (input)
   (let ((array (aoc:to-array input)))
     (dotimes (i (array-total-size array) array)
@@ -24,35 +9,36 @@
 
 (defparameter *array* (parse *test*))
 
+(defstruct (state (:conc-name s) (:constructor state (row col dir count))) row col dir count)
+
 (defun neighbours (valid-direction? &optional min-count done?)
   (lambda (state)
-    (destructuring-bind (row col dir count) state
-      (loop for new-dir in '(north east south west)
-            for new-row = (case new-dir
-                            (north (1- row))
-                            (south (1+ row))
-                            (t row))
-            for new-col = (case new-dir
-                            (east (1+ col))
-                            (west (1- col))
-                            (t col))
-            for new-count = (if (eq dir new-dir)
-                                (1+ count)
-                                1)
-            when (and (funcall valid-direction? dir count new-dir)
-                      (array-in-bounds-p *array* new-row new-col)
-                      (or (null min-count)
-                          (not (funcall done? (list new-row new-col)))
-                          (<= min-count new-count)))
-              collect (list new-row new-col new-dir new-count)))))
+    (loop for new-dir in '(north east south west)
+          for new-row = (case new-dir
+                          (north (1- (srow state)))
+                          (south (1+ (srow state)))
+                          (t (srow state)))
+          for new-col = (case new-dir
+                          (east (1+ (scol state)))
+                          (west (1- (scol state)))
+                          (t (scol state)))
+          for new-count = (if (eq (sdir state) new-dir)
+                              (1+ (scount state))
+                              1)
+          for new-state = (state new-row new-col new-dir new-count)
+          when (and (funcall valid-direction? (sdir state) (scount state) new-dir)
+                    (array-in-bounds-p *array* new-row new-col)
+                    (or (null min-count)
+                        (not (funcall done? new-state))
+                        (<= min-count new-count)))
+            collect new-state)))
+
 
 (defun done? (array)
-  (let ((dst (array-dimensions array)))
-    (lambda (x)
-      (loop for a in x
-            for b in dst
-            repeat 2
-            always (eql a (1- b))))))
+  (destructuring-bind (row col) (array-dimensions array)
+    (lambda (state)
+      (and (eql (1- row) (srow state))
+           (eql (1- col) (scol state))))))
 
 (defun valid-direction? (from count dir)
   (cond ((null from) t)
@@ -61,22 +47,23 @@
 
 (defun distance (src dst)
   (declare (ignore src))
-  (aref *array* (first dst) (second dst)))
+  (aref *array* (srow dst) (scol dst)))
 
 (defun least-heat-loss (array neighbours)
   (let* ((*array* array)
-         (n (dijkstra:search* (list 0 0 nil 0) neighbours
+         (n (dijkstra:search* (state 0 0 nil 0) neighbours
                               :distancef #'distance
                               :donep (done? array))))
-    (loop for x = n then (dijkstra:previous x)
-          while x
-          for (row col dir count) = (dijkstra:item x)
-          when dir do (setf (aref *array* row col) (case dir
-                                                     (north #\^)
-                                                     (east #\>)
-                                                     (south #\v)
-                                                     (west #\<))))
-    (aoc:print-array *array*)
+    ;; (loop for x = n then (dijkstra:previous x)
+    ;;       while x
+    ;;       for state = (dijkstra:item x)
+    ;;       when (sdir state) do (setf (aref *array* (srow state) (scol state))
+    ;;                                  (case (sdir state)
+    ;;                                    (north #\^)
+    ;;                                    (east #\>)
+    ;;                                    (south #\v)
+    ;;                                    (west #\<))))
+    ;; (aoc:print-array *array*)
     (dijkstra:distance n)))
 
 (defun part1 (input)
@@ -90,15 +77,3 @@
 
 (defun part2 (input)
   (least-heat-loss (parse input) (neighbours #'ultra-valid-direction? 4 (done? (parse input) ))))
-
-;; 2023 17 2: '1080'
-;; That's not the right answer; your answer is too low.
-;; Please wait one minute before trying again.
-;; (Cached until 2023-12-17 14:04:45)
-
-(defparameter *test2*
-"111111111111
-999999999991
-999999999991
-999999999991
-999999999991")
