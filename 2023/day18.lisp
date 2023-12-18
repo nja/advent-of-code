@@ -93,30 +93,192 @@ U 2 (#7a21e3)")
           do (push (list (min r pr) (max r pr)) (gethash c hash))
         finally (return hash)))
 
+(defun verticals-predicate (plan)
+  (let ((hash (verticals-hash (positions plan))))
+    (lambda (r c)
+      (a:when-let (l (gethash c hash))
+        (and (loop for (min-r max-r) in l
+                     thereis (< min-r r max-r))
+             'vert)))))
+
 (defun corners (plan)
   (loop for prev in (mapcar #'car plan)
         for dir in (a:rotate (mapcar #'car plan) -1)
-        when prev 
+        when prev
           collect (case prev
                     (U (ecase dir (L 7) (R 'F)))
                     (D (ecase dir (L 'J) (R 'L)))
                     (L (ecase dir (U 'L) (D 'F)))
                     (R (ecase dir (U 'J) (D 7))))))
 
-(defun corners-hash (plan)
+(defun left-corners-hash (plan)
   (loop with hash = (make-hash-table :test 'equal)
-        for last-pos = '(0 0) then (list r c)
-        for (pr pc) = last-pos
+        with positions = (positions plan)
+        with corners = (corners plan)
+        for prev-pos in (a:rotate positions)
+        for prev-corner in (a:rotate corners)
+        for pos in positions
+        for corner in corners
+        for (pr pc) = prev-pos
         for (r c) = pos
-        when (eql c pc)
-          do (setf (gethash last-pos hash) (if (< pr r)
-                                               '))
+        when (eql r pr)
+          do (let ((left-col (min pc c)))
+               (setf (gethash (list r left-col) hash) (if (< pc c)
+                                                          prev-corner
+                                                          corner)))
         finally (return hash)))
 
-(lambda (x y)
-  (a:when-let (l (gethash y hash))
-    (loop for (min-x max-x) in l
-            thereis (< min-x x max-x))))
+
+(defun right-corners-hash (plan)
+  (loop with hash = (make-hash-table :test 'equal)
+        with positions = (positions plan)
+        with corners = (corners plan)
+        for prev-pos in (a:rotate positions)
+        for prev-corner in (a:rotate corners)
+        for pos in positions
+        for corner in corners
+        for (pr pc) = prev-pos
+        for (r c) = pos
+        when (eql r pr)
+          do (let ((right-col (max pc c)))
+               (setf (gethash (list r right-col) hash) (if (< pc c)
+                                                           corner
+                                                           prev-corner)))
+        finally (return hash)))
+
+(defun state (state pipe)
+  (if (not pipe)
+      state
+      (case state
+        (out (ecase pipe
+               (vert 'in)
+               (F 'out-F)
+               (L 'out-L)))
+        (in (ecase pipe
+              (vert 'out)
+              (F 'in-F)
+              (L 'in-L)))
+        (out-F (ecase pipe
+                 (J 'in)
+                 (7 'out)))
+        (out-L (ecase pipe
+                 (J 'out)
+                 (7 'in)))
+        (in-F (ecase pipe
+                (J 'out)
+                (7 'in)))
+        (in-L (ecase pipe
+                (J 'in)
+                (7 'out))))))
+
+(defun pos-pred (hash)
+  (lambda (r c) (gethash (list r c) hash)))
+
+(defun interesting-columns (plan row)
+  (remove-duplicates (sort (union (mapcar #'second (remove-if-not (lambda (p)
+                                                                    (eql row (first p)))
+                                                                  (positions plan)))
+                                  (a:hash-table-keys (verticals-hash (positions plan))))
+                           #'<)))
+
+(defun rows (plan)
+  (let ((rows (mapcar #'first (positions plan))))
+    (list (reduce #'min rows) (reduce #'max rows))))
+
+(defun row-insides (row cols vert? left? right?)
+  (loop with inside-from
+        with sum = 0
+        for state = 'out then new-state
+        for col in cols
+        for pipe = (or (funcall vert? row col)
+                       (funcall left? row col)
+                       (funcall right? row col))
+        for new-state = (state state pipe)
+;        do (break)
+        if (not (eq state new-state))
+          do ;(format t "~& row ~d col ~d ~a -> ~a" row col state new-state)
+             (cond ((eq new-state 'in) (setf inside-from col))
+                   ((eq state 'in)
+                    (incf sum (- col inside-from 1))
+                    (setf inside-from nil)))
+        finally (return sum)))
+
+(defun border (plan)
+  (loop for prev in (a:rotate (positions plan))
+        for pos in (positions plan)
+        sum (dist prev pos)))
+
+(defun dist (a b)
+  (reduce #'+ (mapcar (lambda (x y) (abs (- x y))) a b)))
+
+(defun lagoon-size (plan)
+  (+ (border plan)
+     (loop with vert? = (verticals-predicate plan)
+           with left? = (pos-pred (left-corners-hash plan))
+           with right? = (pos-pred (right-corners-hash plan))
+           with (min-row max-row) = (rows plan)
+           for row from min-row to max-row
+           sum (row-insides row (interesting-columns plan row) vert? left? right?))))
 
 (defun part2 (input)
-  (decode (parse input)))
+  (lagoon-size (decode (parse input))))
+
+
+ ;;  0123456
+ ;; 0L######
+ ;; 1#.....#
+ ;; 2L#R...#
+ ;; 3..#...#
+ ;; 4..#...#
+ ;; 5L#R.L#R
+ ;; 6#...#..
+ ;; 7LR..L#R
+ ;; 8.#....#
+ ;; 9.L#####
+
+
+
+ ;;  0123456
+ ;; 0#######
+ ;; 1#.....#
+ ;; 2###...#
+ ;; 3..#...#
+ ;; 4..#...#
+ ;; 5###.###
+ ;; 6#...#..
+ ;; 7##..###
+ ;; 8.#....#
+ ;; 9.######
+
+(defparameter *test2*
+"R 2 (#70c710)
+U 2 (#70c710)
+R 2 (#70c710)
+D 2 (#70c710)
+R 2 (#70c710)
+U 2 (#70c710)
+R 2 (#70c710)
+D 6 (#70c710)
+L 2 (#70c710)
+U 2 (#70c710)
+L 2 (#70c710)
+D 2 (#70c710)
+L 2 (#70c710)
+U 2 (#70c710)
+L 2 (#70c710)
+U 2 (#70c710)")
+
+;;  012345678
+;; 2  L#R L#R
+;; 1  # # # #
+;; 0L#R L## #
+;; 1#       #
+;; 2L#R L#R #
+;; 3  # # # #
+;; 4  L#R L#R
+
+(defun mark-corners (array hash rd)
+  (loop for (r c) in (a:hash-table-keys hash)
+        do (setf (aref array (+ r rd) c) (gethash (list r c) hash))))
+
+
