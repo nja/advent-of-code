@@ -70,3 +70,53 @@ U 2 (#7a21e3)")
             (1+ (- max-y min-y)))
          (length (dijkstra:search* (list min-x min-y) #'neighbours))))))
 
+(defun decode (plan)
+  (loop for x in (mapcar #'third plan)
+        for dir = (nth (logand x #xf) '(R D L U))
+        for len = (ash x -4)
+        collect (list dir len)))
+
+(defun positions (plan)
+  (loop for (dir len) in plan
+        for prev = '(0 0) then pos
+        for pos = (add prev (mul (delta dir) len))
+        collect pos))
+
+(defun mul (a f)
+  (mapcar (a:curry #'* f) a))
+
+(defun verticals-hash (positions)
+  (loop with hash = (make-hash-table)
+        for (pr pc) = '(0 0) then (list r c)
+        for (r c) in positions
+        when (eql c pc)
+          do (push (list (min r pr) (max r pr)) (gethash c hash))
+        finally (return hash)))
+
+(defun corners (plan)
+  (loop for prev in (mapcar #'car plan)
+        for dir in (a:rotate (mapcar #'car plan) -1)
+        when prev 
+          collect (case prev
+                    (U (ecase dir (L 7) (R 'F)))
+                    (D (ecase dir (L 'J) (R 'L)))
+                    (L (ecase dir (U 'L) (D 'F)))
+                    (R (ecase dir (U 'J) (D 7))))))
+
+(defun corners-hash (plan)
+  (loop with hash = (make-hash-table :test 'equal)
+        for last-pos = '(0 0) then (list r c)
+        for (pr pc) = last-pos
+        for (r c) = pos
+        when (eql c pc)
+          do (setf (gethash last-pos hash) (if (< pr r)
+                                               '))
+        finally (return hash)))
+
+(lambda (x y)
+  (a:when-let (l (gethash y hash))
+    (loop for (min-x max-x) in l
+            thereis (< min-x x max-x))))
+
+(defun part2 (input)
+  (decode (parse input)))
