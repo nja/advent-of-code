@@ -19,3 +19,4 @@
 (defanswer day15 510273 212449)
 (defanswer day16 6902 7697)
 (defanswer day17 942 1082)
+(defanswer day18 39039)
