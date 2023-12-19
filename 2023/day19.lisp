@@ -47,6 +47,61 @@
           (return-from workflow (+ x m a s))
         r))))
 
+(defun wrap (operations)
+  `(lambda (x m a s)
+     (declare ((integer 1 4000) x m a s) (optimize (speed 3) (safety 0) (debug 0) (space 0)))
+     (block workflow
+       (tagbody
+          (go in)
+          ,@(apply #'append operations)
+        a
+          (return-from workflow (+ x m a s))
+        r))))
+
+(defun range-asm (workflows)
+  (range-wrap (mapcar #'range-workflow-asm workflows)))
+
+(defun range-wrap (labels)
+  `(lambda ()
+     (declare (optimize (speed 3) (safety 0) (debug 0) (space 0)))
+     (labels ((a (x m a s) (* (size x) (size m) (size a) (size s)))
+              (r (x m a s) (declare (ignore x m a s)) 0)
+              ,@labels)
+       (in '(1 4000) '(1 4000) '(1 4000) '(1 4000)))))
+
+(defun range-workflow-asm (workflow)
+  (destructuring-bind (tag . rules) workflow
+    `(,tag (x m a s) (declare ((integer 1 4000) x m a s))
+           ,(range-rules-asm rules))))
+
+(defun range-rules-asm (rules)
+  (case (length (car rules))
+    (4 (destructuring-bind (a b c d) (car rules)
+         `(+ (apply (function ,d) (slice x m a s ',a ',b ,c))
+             (destructuring-bind (x m a s) (slice x m a s ',a ',(case b (> '<=) (< '>=)) ',c)
+               ,(range-rules-asm (cdr rules))))))
+    (1 `(,(caar rules) x m a s))))
+
+(defun slice (x m a s which pred num)
+  (list (if (eq 'x which) (cut x pred num) x)
+        (if (eq 'm which) (cut m pred num) m)
+        (if (eq 'a which) (cut a pred num) a)
+        (if (eq 's which) (cut s pred num) s)))
+
+(defun cut (range pred num)
+  (destructuring-bind (lo hi) range
+    (case pred
+      (< (list lo (min hi (1- num))))
+      (<= (list lo (min hi num)))
+      (> (list (max lo (1+ num)) hi))
+      (>= (list (max lo num) hi)))))
+
+(defun size (range)
+  (destructuring-bind (lo hi) range
+    (if (< hi lo)
+        0
+        (1+ (- hi lo)))))
+
 (defun ratings (workflows parts)
   (mapcar (a:curry #'apply (eval (assemble workflows))) parts))
 
@@ -119,18 +174,23 @@ hdj{m>838:A,pv}
 (defun operations (workflows)
   (mapcar #'assemble-workflow (fixed workflows)))
 
-(defun untangle (operations)
-  (reduce (lambda (operations x)
-            (destructuring-bind (tag . ops) x
-              (let ((goes-to (find-if (lambda (x) (equal (a:lastcar x) `(go ,tag)))
-                                      operations)))
-                (if goes-to
-                    (let ((inlined (append (butlast goes-to) ops)))
-                      (subst inlined goes-to (remove x operations)))
-                    operations))))
-          operations :initial-value operations))
+(defun untangle (operations x)
+  (destructuring-bind (tag . ops) x
+    (let ((goes-to (find-if (lambda (x) (equal (a:lastcar x) `(go ,tag))) operations))
+          (count (tree-count `(go ,tag) operations)))
+      (if (and (= 1 count) goes-to)
+          (let ((inlined (append (butlast goes-to) ops)))
+            (cons inlined (remove goes-to (remove x operations))))
+          operations))))
 
-;; (defun max-untangled (operations &optional (n 0))
-;;   (if (< 1 n)
-;;       operations
-;;       (max-untangled (untangle operations) (1+ n))))
+(defun max-untangle (operations &optional (n 0))
+  (if (< 100 n)
+      operations
+      (max-untangle (untangle operations) (1+ n))))
+
+(defun tree-count (what tree)
+  (cond ((null tree) 0)
+        ((equal what tree) 1)
+        ((atom tree) 0)
+        (+ (tree-count what (car tree))
+           (tree-count what (cdr tree)))))
