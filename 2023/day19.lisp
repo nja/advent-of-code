@@ -38,7 +38,7 @@
 
 (defun assemble (workflows)
   `(lambda (x m a s)
-     (declare (fixnum x m a s) (optimize (speed 3) (safety 0) (debug 0) (space 0)))
+     (declare ((integer 1 4000) x m a s) (optimize (speed 3) (safety 0) (debug 0) (space 0)))
      (block workflow
        (tagbody
           (go in)
@@ -57,6 +57,11 @@
 
 (defun test ()
   (eq 383682 (reduce #'+ (remove nil (mapcar (lambda (x) (apply #'optimized x)) *parts*)))))
+
+
+(defun test2 (workflows)
+  (eq 383682 (reduce #'+ (remove nil (mapcar (a:curry #'apply (eval (assemble workflows))) *parts*)))))
+
 
 (defparameter *test*
   "px{a<2006:qkq,m>2090:A,rfg}
@@ -82,6 +87,40 @@ hdj{m>838:A,pv}
 ;;; (WHEN (< S 696) (GO PTN))
 ;;; (WHEN (< A 2505) (GO LK))
 
-(defun )
+(defun rlis (from to list)
+  (sublis (list (cons from to))))
 
+(defun always-go-to-a (workflows)
+  (reduce (lambda (workflows workflow)
+            (destructuring-bind (tag . ops) workflow
+              (if (every (lambda (x) (eq 'a (a:lastcar x))) ops)
+                  (mapcar (lambda (other) (subst 'a tag other))
+                          (remove workflow workflows))
+                  workflows)))
+          workflows :initial-value workflows))
 
+(defun always-go-to-r (workflows)
+  (reduce (lambda (workflows workflow)
+            (destructuring-bind (tag . ops) workflow
+              (if (every (lambda (x) (eq 'r (a:lastcar x))) ops)
+                  (mapcar (lambda (other) (subst 'r tag other))
+                          (remove workflow workflows))
+                  workflows)))
+          workflows :initial-value workflows))
+
+(defun transforms (workflows)
+  (funcall (a:compose #'always-go-to-r #'always-go-to-a) workflows))
+
+(defun fixed (workflows &optional (n 0))
+  (if (< 100 n)
+      workflows
+      (fixed (transforms workflows) (1+ n))))
+
+(defun operations (workflows)
+  (mapcar #'assemble-workflow (fixed workflows)))
+
+(defun untangle (operations)
+  (reduce (lambda (operations x)
+            (destructuring-bind (tag . ops) x
+              (if (= 1 (count)))))
+          operations :initial-value operations))
