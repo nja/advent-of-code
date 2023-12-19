@@ -12,7 +12,7 @@
              (read-from-string x))))
     (mapcar (a:compose
              (lambda (strings)
-               (list (read-s (first strings))
+               (cons (read-s (first strings))
                      (mapcar (lambda (s)
                                (mapcar #'read-s (remove ":"
                                                         (ppcre:split "\\b" s)
@@ -26,6 +26,31 @@
   (mapcar (lambda (line)
             (read-from-string (aoc:tr "{}xmas=," "()      )" line)))
           (aoc:lines section)))
+
+(defun assemble-workflow (workflow)
+  (cons (first workflow)
+        (mapcar (lambda (rule)
+                  (case (length rule)
+                    (4 (destructuring-bind (a b c d) rule
+                         `(when (,b ,a ,c) (go ,d))))
+                    (1 (cons 'go rule))))
+                (rest workflow))))
+
+(defun assemble (workflows)
+  `(lambda (x m a s)
+     (block workflow
+       (tagbody
+          (go in)
+          ,@(mapcan #'assemble-workflow workflows)
+        a
+          (return-from workflow (+ x m a s))
+        r))))
+
+(defun ratings (workflows parts)
+  (mapcar (a:curry #'apply (eval (assemble workflows))) parts))
+
+(defun part1 (input)
+  (reduce #'+ (remove nil (apply #'ratings (parse input)))))
 
 (defparameter *test*
   "px{a<2006:qkq,m>2090:A,rfg}
