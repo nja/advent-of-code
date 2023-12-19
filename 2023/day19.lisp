@@ -122,5 +122,15 @@ hdj{m>838:A,pv}
 (defun untangle (operations)
   (reduce (lambda (operations x)
             (destructuring-bind (tag . ops) x
-              (if (= 1 (count)))))
+              (let ((goes-to (find-if (lambda (x) (equal (a:lastcar x) `(go ,tag)))
+                                      operations)))
+                (if goes-to
+                    (let ((inlined (append (butlast goes-to) ops)))
+                      (subst inlined goes-to (remove x operations)))
+                    operations))))
           operations :initial-value operations))
+
+;; (defun max-untangled (operations &optional (n 0))
+;;   (if (< 1 n)
+;;       operations
+;;       (max-untangled (untangle operations) (1+ n))))
