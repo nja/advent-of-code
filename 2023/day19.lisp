@@ -63,30 +63,29 @@
 
 (defun range-wrap (labels)
   `(lambda ()
-     (declare (optimize (speed 3) (safety 0) (debug 0) (space 0)))
-     (labels ((a (x m a s) (* (size x) (size m) (size a) (size s)))
-              (r (x m a s) (declare (ignore x m a s)) 0)
+     (labels ((a (vars) (reduce #'* (mapcar #'size vars)))
+              (r (vars) (declare (ignore vars)) 0)
               ,@labels)
-       (in '(1 4000) '(1 4000) '(1 4000) '(1 4000)))))
+       (in '((1 4000) (1 4000) (1 4000) (1 4000))))))
 
 (defun range-workflow-asm (workflow)
   (destructuring-bind (tag . rules) workflow
-    `(,tag (x m a s) (declare ((integer 1 4000) x m a s))
-           ,(range-rules-asm rules))))
+    `(,tag (vars) ,(range-rules-asm rules))))
 
 (defun range-rules-asm (rules)
   (case (length (car rules))
     (4 (destructuring-bind (a b c d) (car rules)
-         `(+ (apply (function ,d) (slice x m a s ',a ',b ,c))
-             (destructuring-bind (x m a s) (slice x m a s ',a ',(case b (> '<=) (< '>=)) ',c)
-               ,(range-rules-asm (cdr rules))))))
-    (1 `(,(caar rules) x m a s))))
+         `(let ((slice (slice vars ',a ',b ,c))
+                (vars (slice vars ',a ',(case b (> '<=) (< '>=)) ,c)))
+            (+ (,d slice) ,(range-rules-asm (cdr rules))))))
+    (1 `(,(caar rules) vars))))
 
-(defun slice (x m a s which pred num)
-  (list (if (eq 'x which) (cut x pred num) x)
-        (if (eq 'm which) (cut m pred num) m)
-        (if (eq 'a which) (cut a pred num) a)
-        (if (eq 's which) (cut s pred num) s)))
+(defun slice (vars which pred num)
+  (destructuring-bind (x m a s) vars
+    (list (if (eq 'x which) (cut x pred num) x)
+          (if (eq 'm which) (cut m pred num) m)
+          (if (eq 'a which) (cut a pred num) a)
+          (if (eq 's which) (cut s pred num) s))))
 
 (defun cut (range pred num)
   (destructuring-bind (lo hi) range
@@ -142,9 +141,6 @@ hdj{m>838:A,pv}
 ;;; (WHEN (< S 696) (GO PTN))
 ;;; (WHEN (< A 2505) (GO LK))
 
-(defun rlis (from to list)
-  (sublis (list (cons from to))))
-
 (defun always-go-to-a (workflows)
   (reduce (lambda (workflows workflow)
             (destructuring-bind (tag . ops) workflow
@@ -183,10 +179,10 @@ hdj{m>838:A,pv}
             (cons inlined (remove goes-to (remove x operations))))
           operations))))
 
-(defun max-untangle (operations &optional (n 0))
-  (if (< 100 n)
-      operations
-      (max-untangle (untangle operations) (1+ n))))
+;; (defun max-untangle (operations &optional (n 0))
+;;   (if (< 100 n)
+;;       operations
+;;       (max-untangle (untangle operations) (1+ n))))
 
 (defun tree-count (what tree)
   (cond ((null tree) 0)
