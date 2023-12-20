@@ -42,38 +42,34 @@
     hash))
 
 (defun receive (module source signal output)
-  (when module
-    (flet ((send (sig)
-             (map nil (lambda (dst) (funcall output (id module) sig dst)) (dests module))))
-      (case (mtype module)
-        (broadcaster (send signal))
-        (flip-flop (when (eq signal 'low)
-                     (setf (state module) (not (state module)))
-                     (send (if (state module) 'high 'low))))
-        (conjunction
+  (flet ((send (sig)
+           (map nil (lambda (dst) (funcall output (id module) sig dst)) (dests module))))
+    (case (mtype module)
+      (broadcaster (send signal))
+      (flip-flop (when (eq signal 'low)
+                   (setf (state module) (not (state module)))
+                   (send (if (state module) 'high 'low))))
+      (conjunction
                                         ;(format t "~a state was ~a" (id module) (state module))
-         (setf (getf (state module) source) signal)
+       (setf (getf (state module) source) signal)
                                         ;(format t " is ~a~%" (state module))
-         (send (if (every (lambda (x)
-                            (case x
-                              (high t)
-                              (low nil)
-                              (t t)))
-                          (state module))
-                   'low
-                   'high)))))))
+       (send (if (find 'low (state module))
+                 'high
+                 'low))))))
 
-(defun process (modules wire)
+(defun process (modules wire count)
   (loop with highs = 0 and lows = 0
         for (src sig dst) = (queues:qpop wire)
         while sig
         do ;(format t "~a -~a-> ~a~%" src sig dst)
+           (incf count)
            (case sig
              (high (incf highs))
              (low (incf lows)))
-           (receive (gethash dst modules) src sig
-                    (lambda (&rest pulse) (queues:qpush wire pulse)))
-        finally (return (list lows highs))))
+           (a:when-let (receiver (gethash dst modules))
+             (receive receiver src sig
+                      (lambda (&rest pulse) (queues:qpush wire pulse))))
+        finally (return (list lows highs count))))
 
 (defun wire ()
   (queues:make-queue :simple-queue))
@@ -81,9 +77,9 @@
 (defun part1 (input)
   (let ((mods (modules (parse input)))
         (wire (wire)))
-    (loop repeat 1001
-          for (lows highs) = (process mods wire)
-          do (queues:qpush wire (list 'button 'low 'broadcaster))
+    (loop for (lows highs tot) = (progn (queues:qpush wire '(button low broadcaster))
+                                   (process mods wire (or tot 0)))
           sum lows into totlows
           sum highs into tothighs
+          repeat 1000
           finally (return (* totlows tothighs)))))
