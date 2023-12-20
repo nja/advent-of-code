@@ -63,7 +63,7 @@
 
 (defun range-wrap (labels)
   `(lambda ()
-     (labels ((a (vars) (reduce #'* (mapcar #'size vars)))
+     (labels ((a (vars) (combinations vars))
               (r (vars) (declare (ignore vars)) 0)
               ,@labels)
        (in '((1 4000) (1 4000) (1 4000) (1 4000))))))
@@ -100,6 +100,12 @@
     (if (< hi lo)
         0
         (1+ (- hi lo)))))
+
+(defun combinations (vars)
+  (reduce #'* (mapcar #'size vars)))
+
+(defun vars ()
+  (loop repeat 4 collect (list 1 4000)))
 
 (defun ratings (workflows parts)
   (mapcar (a:curry #'apply (eval (assemble workflows))) parts))
