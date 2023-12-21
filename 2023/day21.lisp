@@ -46,22 +46,26 @@
 (defun add (a b)
   (mapcar #'+ a b))
 
+(defparameter *parity-test* #'=)
+
 (defun parity-filter (pos &optional (test *parity-test*))
   (let ((parity (parity pos)))
     (lambda (p)
       (funcall test parity (parity p)))))
 
 (defun count-steps (array steps start)
-  (let ((nodes (remove-if-not (parity-filter start)
-                              (dijkstra:search* start (neighbours array) :max-distance steps)
-                              :key #'dijkstra:item)))
-    (prog1 (length nodes)
-      (when *trace*
-        (let ((copy (a:copy-array array)))
-          (dolist (pos (mapcar #'dijkstra:item nodes))
-            (setf (apply #'aref copy pos) #\O))
-          (terpri)
-          (aoc:print-array copy))))))
+  (if (plusp steps)
+      (let ((nodes (remove-if-not (parity-filter start)
+                                  (dijkstra:search* start (neighbours array) :max-distance steps)
+                                  :key #'dijkstra:item)))
+        (prog1 (length nodes)
+          (when *trace*
+            (let ((copy (a:copy-array array)))
+              (dolist (pos (mapcar #'dijkstra:item nodes))
+                (setf (apply #'aref copy pos) #\O))
+              (terpri)
+              (aoc:print-array copy)))))
+      0))
 
 (defun part1 (input)
   (let ((array (aoc:to-array input)))
@@ -122,78 +126,75 @@
       0
       (/ (1+ (expt (1- (* 2 n)) 2)) 2)))
 
-(defparameter *small*
+(defparameter *small* (aoc:to-array
 ".....
 .....
 ..S..
 .....
-.....")
+....."))
+
+
+(defparameter *medium* (aoc:to-array
+".......
+.......
+.......
+...S...
+.......
+.......
+......."))
+
 
 (defparameter *trace* t)
 
 (defun mongo (array steps)
-  (let ((dim (midp array)))
-    (multiple-value-bind (q rem) (truncate steps dim)
-      (let* ((n q)
-             (csn (centered-square-number n))
-             (same-f (same-parity-size n))
-             (other-f (other-parity-size n))
-             (edges 4)
-             (same-edges (if (and (plusp n) (evenp n))
-                             edges
-                             0))
-             (other-edges (if (oddp n)
-                              edges
-                              0))
-             (same-test (if (evenp steps)
+  (let* ((*parity-test* (if (evenp steps)
                             #'=
                             #'/=))
-             (other-test (if (oddp steps)
-                             #'/=
-                             #'=))
-             (same-diagonals (if (evenp n)
-                                 (max 0 (1- n))
-                                 0))
-             (other-diagonals (if (oddp n)
-                                  (max 0 (1- n))
-                                  0))
-             (diag-n (1- rem)))
-        (format t "q: ~a n: ~a diag-n: ~a~%" q n diag-n)
-        (format t "csn: ~a~%" csn)
-        (format t "same-f:  ~a other-f: ~a~%" same-f other-f)
-        (format t "same-edges: ~a other-edges: ~a~%" same-edges other-edges)
-        (format t "same-diagonals: ~a other-diagonals: ~a~%" same-diagonals other-diagonals)
-        (+ (let ((*parity-test* same-test))
-             (+ (count-steps array steps (start-pos array))
-                (* same-f (all-plots array))
-                (if (plusp same-edges)
-                    (+ (top array diag-n)
-                       (bottom array diag-n)
-                       (left array diag-n)
-                       (right array diag-n))
-                    0)
-                (if (plusp same-diagonals)
-                    (* same-diagonals
-                       (top-left array diag-n)
-                       (top-right array diag-n)
-                       (bottom-left array diag-n)
-                       (bottom-right array diag-n))
-                    0)))
-           (let ((*parity-test* other-test))
-             (+ (* other-f (all-plots array))
-                (if (plusp other-edges)
-                    (+ (top array diag-n)
-                       (bottom array diag-n)
-                       (left array diag-n)
-                       (right array diag-n))
-                    0)
-                (if (plusp other-diagonals)
-                    (* other-diagonals
-                       (top-left array diag-n)
-                       (top-right array diag-n)
-                       (bottom-left array diag-n)
-                       (bottom-right array diag-n))
-                    0))))))))
+         (dim (array-dimension array 0))
+         (steps-to-edge (midp array))
+         (steps-for-skipping (max 0 (- steps steps-to-edge dim)))
+         (steps-in-last (- steps steps-to-edge steps-for-skipping)))
+    (multiple-value-bind (skipped rem) (truncate steps-for-skipping dim)
+      (when (plusp skipped) (assert (eql rem (mod steps-in-last dim))))
+      (let* ((n (1+ skipped))
+             (csn (centered-square-number n))
+             (same-diagonals (same-diagonals n))
+             (other-diagonals (other-diagonals n))
+             (en steps-in-last)
+             (dn (1- rem)))
+        (format t "dim: ~a skipped: ~a~%" dim skipped)
+        (format t "steps-to-edge: ~a steps-for-skipping: ~a~%" steps-to-edge steps-for-skipping)
+        (format t "steps-in-last: ~a~%" steps-in-last)
+        (format t "rem: ~a n: ~a csn: ~a~%" rem n csn)
+        ;; (format t "en: ~a dn: ~a~%" en dn)
+        (+ 
+         (+ (count-steps array steps (start-pos array))
+            (* csn (all-plots array))
+            (if (plusp (same-edges n))
+                (+ (top array en)
+                   (bottom array en)
+                   (left array en)
+                   (right array en))
+                0))
+         (if (plusp same-diagonals)
+             (* same-diagonals
+                (top-left array dn)
+                (top-right array dn)
+                (bottom-left array dn)
+                (bottom-right array dn))
+             0)
+         (let ((*parity-test* (if (evenp steps)
+                                  #'/=
+                                  #'=)))
+           (+ (if (plusp (other-edges n))
+                  (+ (top array en)
+                     (bottom array en)
+                     (left array en)
+                     (right array en))
+                  0)
+              (if (plusp other-diagonals)
+                  0 0)))
+         )))))
 
 ;; 2023 21 2: '131453890353208129'
 ;; That's not the right answer.
@@ -201,20 +202,28 @@
 ;; 131453890353208129
 
 
-(defun same-parity-size (n)
-  (max 0 (1- (if (oddp n)
-                 (* n n)
-                 (* (1- n) (1- n))))))
+(defun other-edges (n)
+  (cond ((minusp n) (error "neg"))
+        ((zerop n) 0)
+        ((oddp n) 4)
+        ((evenp n) 0)))
 
-(defun other-parity-size (n)
-  (if (evenp n)
-      (* n n)
-      (* (1- n) (1- n))))
+(defun same-edges (n)
+  (cond ((minusp n) (error "neg"))
+        ((zerop n) 0)
+        ((oddp n) 0)
+        ((evenp n) 4)))
 
-(defun odd-squares (n)
-  (loop for i from 1 to n
-        when (oddp i)
-          sum (* i i)))
+(defun same-diagonals (n)
+  (cond ((minusp n) (error "neg"))
+        ((zerop n) 0)
+        ((evenp n) ())))
+
+(defun other-diagonals (n)
+  (cond ((minusp n) (error "neg"))
+        ((zerop n) 0)
+        (t 0)))
+
 
 (defun part2 (input)
   (let ((answer (mongo (aoc:to-array input) 26501365)))
@@ -230,31 +239,35 @@
 ;;         (1+ (truncate (- n to-edge) (array-dimension array 0))))))
 
 (defun top (array n)
-  (+ (count-steps array n (list 0 (midp array)))
-     (top-left array n)
-     (top-right array n)))
+  (when *trace* (print (list 'top n)))
+  (count-steps array n (list 0 (midp array))))
 
 (defun left (array n)
+  (when *trace* (print (list 'left n)))
   (count-steps array n (list (midp array) 0)))
 
 (defun top-left (array n)
+  (when *trace* (print (list 'top-left n)))
   (count-steps array n (list 0 0)))
 
 (defun top-right (array n)
+  (when *trace* (print (list 'top-right n)))
   (count-steps array n (list 0 (maxp array))))
 
 (defun bottom (array n)
+  (when *trace* (print (list 'bottom n)))
   (count-steps array n (list (maxp array) (midp array))))
 
 (defun right (array n)
-  (+ (count-steps array n (list (midp array) (maxp array)))
-     (top-right array n)
-     (bottom-right array n)))
+  (when *trace* (print (list 'right n)))
+  (count-steps array n (list (midp array) (maxp array))))
 
 (defun bottom-right (array n)
+  (when *trace* (print (list 'bottom-right n)))
   (count-steps array n (list (maxp array) (maxp array))))
 
 (defun bottom-left (array n)
+  (when *trace* (print (list 'bottom-left n)))
   (count-steps array n (list (maxp array) 0)))
 
 (defun maxp (array)
