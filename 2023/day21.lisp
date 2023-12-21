@@ -72,7 +72,7 @@
 
 (defun count-steps (array steps start)
   (if (plusp steps)
-      (let ((nodes (remove-if-not (parity-filter start)
+      (let ((nodes (remove-if-not (parity-filter (list (midp array) (midp array)))
                                   (dijkstra:search* start (neighbours array) :max-distance steps)
                                   :key #'dijkstra:item)))
         (prog1 (length nodes)
@@ -178,11 +178,11 @@
          (skipped-steps (* skipped dim))
          (steps-in-last (- steps steps-to-edge skipped-steps)))
     (assert (eql steps (+ steps-to-edge skipped-steps steps-in-last)))
-    (let* ((n (truncate steps dim))
+    (let* ((n (1+ skipped))
            (mid 1)
            (csn (centered-square-number n))
            (same-edges (same-edges n))
-           (other-edges (other-edges n))
+           (other-edges (other-edges n steps-past-edge))
            (same-diagonals (same-diagonals n))
            (other-diagonals (other-diagonals n))
            (same-skipped (same-skipped n))
@@ -203,10 +203,10 @@
       (format t "same-edges: ~a other-edges: ~a~%" same-edges other-edges)
       (format t "en: ~a 1qn: ~a 3qn: ~a~%" en 1qn 3qn)
       (format t "full-tot: ~a csn: ~a~%" full-tot (centered-square-number n))
-      (assert (evenp n))
+      ;; (assert (evenp n))
       (when (plusp n) (assert (equal full-tot (centered-square-number n))))
       (+ 
-       (+ (count-steps array steps (start-pos array))
+       (+ (count-steps array (1+ steps) (start-pos array))
           (if (plusp same-skipped)
               (* same-skipped (all-plots array))
               0)
@@ -221,7 +221,8 @@
                  (top-right array 3qn)
                  (bottom-left array 3qn)
                  (bottom-right array 3qn))
-              0))
+              0)
+          )
        (let ((*parity-test* (if (evenp steps)
                                 #'/=
                                 #'=)))
@@ -241,6 +242,25 @@
                    (bottom-right array 1qn))
                 0)))))))
 
+;; 2023 21 2: '601429135216491'
+;; That's not the right answer.
+;; (Cached until 2023-12-22 00:31:35)
+;; 601429135216491
+
+
+
+;; 2023 21 2: '601435096607487'
+;; That's not the right answer.
+;; (Cached until 2023-12-22 00:16:21)
+;; 601435096607487
+
+
+;; 2023 21 2: '601435096585557'
+;; That's not the right answer.
+;; (Cached until 2023-12-21 23:40:15)
+;; 601435096585557
+
+
 ;; 2023 21 2: '131453890353208129'
 ;; That's not the right answer.
 ;; (Cached until 2023-12-21 15:55:22)
@@ -256,11 +276,12 @@
         ((evenp n) (* n n))
         ((oddp n) (* (1- n) (1- n)))))
 
-(defun other-edges (n)
+(defun other-edges (n steps-past)
   (cond ((minusp n) (error "neg"))
-        ((zerop n) 0)
         ((oddp n) 4)
-        ((evenp n) 0)))
+        ((evenp n) (if (plusp steps-past)
+                       4
+                       0))))
 
 (defun same-edges (n)
   (cond ((minusp n) (error "neg"))
@@ -379,6 +400,11 @@
 ;; (Cached until 2023-12-21 23:06:35)
 ;; 601435096990471
 
+;; DAY21> (aoc:submit 2 *)
+;; 2023 21 2: '601435096585873'
+;; That's not the right answer.
+;; (Cached until 2023-12-21 23:24:48)
+;; 601435096585873
 
 (defun mark-parity (array)
   (let ((filter (parity-filter (start-pos array))))
@@ -440,7 +466,7 @@
         (let ((*ofs* (offset 0 2)))
           (top array 7))
         (let ((*ofs* (offset 3 3)))
-          (count-steps* array 10 '(3 3)))
+          (count-steps array 10 '(3 3)))
         (let ((*ofs* (offset 4 2)))
           (bottom array 7))
         (let ((*ofs* (offset 2 4)))
