@@ -177,9 +177,8 @@
          (skipped (max 0 (1- (truncate steps-past-edge dim))))
          (skipped-steps (* skipped dim))
          (steps-in-last (- steps steps-to-edge skipped-steps)))
-    (assert (eql steps (+ steps-to-edge skipped-steps steps-in-last)))
+    ;; (assert (eql steps (+ steps-to-edge skipped-steps steps-in-last)))
     (let* ((n (1+ skipped))
-           (mid 1)
            (csn (centered-square-number n))
            (same-edges (same-edges n))
            (other-edges (other-edges n steps-past-edge))
@@ -190,7 +189,7 @@
            (en steps-in-last)
            (1qn (- steps-in-last steps-to-edge 1))
            (3qn (+ en 1qn))
-           (full-tot (+ mid same-skipped other-skipped)))
+           (full-tot (+ same-skipped other-skipped)))
       (format t "dim: ~a~%" dim)
       (format t "skipped: ~a~%" skipped)
       (format t "steps-to-edge: ~a~%" steps-to-edge)
@@ -206,23 +205,24 @@
       ;; (assert (evenp n))
       (when (plusp n) (assert (equal full-tot (centered-square-number n))))
       (+ 
-       (+ (count-steps array (1+ steps) (start-pos array))
-          (if (plusp same-skipped)
-              (* same-skipped (all-plots array))
-              0)
-          (if (plusp same-edges)
-              (+ (top array en)
-                 (bottom array en)
-                 (left array en)
-                 (right array en))
-              0)
-          (if (plusp same-diagonals)
-              (+ (top-left array 3qn)
-                 (top-right array 3qn)
-                 (bottom-left array 3qn)
-                 (bottom-right array 3qn))
-              0)
-          )
+       (+            ;(count-steps array (1+ steps) (start-pos array))
+        (if (plusp same-skipped)
+            (* same-skipped (all-plots array))
+            0)
+        (if (plusp same-edges)
+            (+ (top array en)
+               (bottom array en)
+               (left array en)
+               (right array en))
+            0)
+        (if (plusp same-diagonals)
+            (* same-diagonals
+               (+ (top-left array 3qn)
+                  (top-right array 3qn)
+                  (bottom-left array 3qn)
+                  (bottom-right array 3qn)))
+            0)
+        )
        (let ((*parity-test* (if (evenp steps)
                                 #'/=
                                 #'=)))
@@ -236,11 +236,23 @@
             ;;        (right array en))
             ;;     0)
             (if (plusp other-diagonals)
-                (+ (top-left array 1qn)
-                   (top-right array 1qn)
-                   (bottom-left array 1qn)
-                   (bottom-right array 1qn))
+                (* other-diagonals
+                   (+ (top-left array 1qn)
+                      (top-right array 1qn)
+                      (bottom-left array 1qn)
+                      (bottom-right array 1qn)))
                 0)))))))
+
+;; 2023 21 2: '601441063162769'
+;; That's not the right answer.
+;; (Cached until 2023-12-22 01:20:57)
+;; 601441063162769
+
+;; 2023 21 2: '601435096585292'
+;; That's not the right answer.
+;; (Cached until 2023-12-22 01:02:30)
+;; 601435096585292
+
 
 ;; 2023 21 2: '601429135216491'
 ;; That's not the right answer.
@@ -267,9 +279,9 @@
 ;; 131453890353208129
 
 (defun same-skipped (n)
-  (cond ((< n 3) 0)
-        ((oddp n) (1- (* n n)))
-        ((evenp n) (1- (* (1- n) (1- n))))))
+  (cond ((zerop n) 0)
+        ((oddp n) (* n n))
+        ((evenp n) (* (1- n) (1- n)))))
 
 (defun other-skipped (n)
   (cond ((< n 2) 0)
