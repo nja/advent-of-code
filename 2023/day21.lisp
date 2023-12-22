@@ -145,7 +145,7 @@
 (defun centered-square-number (n)
   (if (< n 1)
       0
-      (/ (1+ (expt (1- (* 2 n)) 2)) 2)))
+      (+ (expt n 2) (expt (1- n) 2))))
 
 (defparameter *small* (aoc:to-array
 ".....
