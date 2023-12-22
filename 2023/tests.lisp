@@ -23,3 +23,4 @@
 (defanswer day19 383682 117954800808317)
 (defanswer day20 800830848)
 (defanswer day21 3598 601441063166538)
+(defanswer day22 428)
