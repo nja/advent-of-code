@@ -96,12 +96,12 @@
              (format t fmt (abs n))
              (princ l))))
 
-(defun print-array (array &key (row+ 0) (col+ 0))
+(defun print-array (array &key (row+ 0) (col+ 0) (map #'identity))
   (print-indexed-lines
    (loop for y below (array-dimension array 0)
          collect (with-output-to-string (s)
                    (loop for x below (array-dimension array 1)
-                         do (princ (aref array y x) s))))
+                         do (princ (funcall map (aref array y x)) s))))
    :cols (array-dimension array 1)
    :row+ row+ :col+ col+))
 
