@@ -159,7 +159,7 @@
                                       always (eql 2 (length (neighbours array n))))))))
 
 (defstruct node id verts)
-(defstruct vert id nodes)
+(defstruct vert id nodes (len 0))
 
 (defun around (array row col &optional (type t))
   (remove-if-not
@@ -217,7 +217,9 @@
                    do (let ((verts (around array row col 'vert)))
                         (setf (node-verts x) (mapcar #'vert-id verts))
                         (dolist (vert verts)
-                          (push (node-id x) (vert-nodes vert)))))
+                          (push (node-id x) (vert-nodes vert))))
+                 when (typep x 'vert)
+                   do (incf (vert-len x)))
         finally (return hash)))
 
 (defun id (x)
@@ -233,12 +235,34 @@
 
 (defparameter *graph* nil)
 
+(defun getgraph (id) (gethash id *graph*))
+(defun verts (node) (mapcar #'getgraph (node-verts node)))
+
 (defun node-neighbours (node)
-  (let ((verts (mapcar (lambda (id) (gethash id *graph*))
-                       (node-verts node))))
-    (loop with result
-          for vert in verts do
-            (loop for id in (vert-nodes vert)
-                  unless (eql id (node-id node))
-                    do (push (gethash id *graph*) result))
-          finally (return result))))
+  (loop with result
+        for vert in (verts node) do
+          (loop for id in (vert-nodes vert)
+                unless (eql id (node-id node))
+                  do (push (gethash id *graph*) result))
+        finally (return result)))
+
+(defun distance (a b)
+  (1+ (vert-len (getgraph (first (intersection (node-verts a) (node-verts b)))))))
+
+(defun graph-walk (node steps visited)
+  (let ((options (set-difference (node-neighbours node) visited)))
+    (ecase (length options)
+      (0 (if (eql 'end (node-id node))
+             steps
+             0))
+      (1 (graph-walk (first options)
+                     (+ steps (distance node (first options)))
+                     (cons node visited)))
+      ((2 3) (loop for next in options
+                   maximize (graph-walk next
+                                        (+ steps (distance node next))
+                                        (cons node visited)))))))
+
+(defun part2 (input)
+  (let ((*graph* (sweep (mark (parse* input)))))
+    (graph-walk (getgraph 'start) 0 nil)))
