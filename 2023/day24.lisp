@@ -17,11 +17,6 @@
             (apply #'ray (mapcar #'parse-integer (ppcre:all-matches-as-strings "-?\\d+" line))))
           (aoc:lines input)))
 
-(defun 2donly (rays)
-  (dolist (ray rays rays)
-    (setf (z ray) 0
-          (dz ray) 0)))
-
 (defun 2d-intersect? (a b)
   (let ((dx (- (x b) (x a)))
         (dy (- (y b) (y a)))
@@ -36,10 +31,7 @@
                   det)))
         (when (and (plusp u) (plusp v))
           (list (+ (x a) (* (dx a) u))
-                (+ (y a) (* (dy a) u))
-                ;; (+ (x b) (* (dx b) v))
-                ;; (+ (y b) (* (dy b) v))
-                ))))))
+                (+ (y a) (* (dy a) u))))))))
 
 (defun 2d-intersections (rays)
   (let (result)
@@ -56,3 +48,46 @@
 (defun part1 (input)
   (count-if (bounds-predicate 200000000000000 400000000000000)
             (2d-intersections (parse input))))
+
+(defun tick (rays)
+  (map 'vector
+       (lambda (ray)
+         (ray (+ (x ray) (dx ray))
+              (+ (y ray) (dy ray))
+              (+ (z ray) (dz ray))
+              (dx ray)
+              (dy ray)
+              (dz ray)))
+       rays))
+
+(defun distances (a b hash)
+  (loop for i below (length a)
+        for ray = (aref a i) do
+          (loop for j below (length b)
+                unless (eql i j)
+                  do (incf (gethash (simplify (distance ray (aref b j))) hash 0)))))
+
+(defun steps (rays n)
+  (dotimes (i n rays)
+    (setf rays (tick rays))))
+
+(defun distance (a b)
+  (list (- (x b) (x a))
+        (- (y b) (y a))
+        (- (z b) (z a))))
+
+(defun simplify (x)
+  (mapcar (a:rcurry #'/ (apply #'gcd x)) x))
+
+(defun survey-distances (rays n step)
+  (let ((hash (make-hash-table :test 'equal))
+        (rays (coerce rays 'vector)))
+    (dotimes (i n)
+      (distances rays (setf rays (steps rays step)) hash))
+    (remove 1 (sort (a:hash-table-alist hash) #'> :key #'cdr)
+                                  :key #'cdr)))
+
+(defun meta-survey (rays n)
+  (loop for step from 1 to 10
+        for result = (survey-distances rays n step)
+        when result return (values result step)))
