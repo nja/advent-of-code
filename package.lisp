@@ -30,6 +30,8 @@
   (:export :distance :item :previous :search*)
   (:local-nicknames (:a :alexandria) (:q :pettomato-indexed-priority-queue)))
 
+(defpackage :lalg (:use :cl))
+
 (defpackage :aoc2015.day01 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2015.day02 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2015.day03 (:use :cl) (:local-nicknames (:a :alexandria)))
