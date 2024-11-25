@@ -25,4 +25,4 @@
 (defanswer day21 3598 601441063166538)
 (defanswer day22 428 35654)
 (defanswer day23 2330 6518)
-(defanswer day24 12938)
+(defanswer day24 12938 976976197397181)

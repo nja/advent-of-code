@@ -2,13 +2,6 @@
 
 (in-package :aoc2023.day24)
 
-(defparameter *test*
-"19, 13, 30 @ -2,  1, -2
-18, 19, 22 @ -1, -1, -2
-20, 25, 34 @ -2, -2, -4
-12, 31, 28 @ -1, -2, -1
-20, 19, 15 @  1, -5, -3")
-
 (defstruct (ray :conc-name (:constructor ray (x y z dx dy dz)))
   x y z dx dy dz)
 
@@ -49,45 +42,35 @@
   (count-if (bounds-predicate 200000000000000 400000000000000)
             (2d-intersections (parse input))))
 
-(defun tick (rays)
-  (map 'vector
-       (lambda (ray)
-         (ray (+ (x ray) (dx ray))
-              (+ (y ray) (dy ray))
-              (+ (z ray) (dz ray))
-              (dx ray)
-              (dy ray)
-              (dz ray)))
-       rays))
+(defun equation-pair (h0 hn)
+  (let ((a (x h0)) (b (x hn))
+        (c (y h0)) (d (y hn))
+        (e (dx h0)) (f (dx hn))
+        (g (dy h0)) (h (dy hn))
+        (i (z h0)) (j (z hn))
+        (k (dz h0)) (l (dz hn)))
+    (values (list (list (- g h) (- f e) 0 (- d c) (- a b) 0)
+                  (list (- k l) 0 (- f e) (- j i) 0 (- a b)))
+            (list (+ (* f d)
+                     (* a g)
+                     (- (* e c))
+                     (- (* b h)))
+                  (+ (* f j)
+                     (* a k)
+                     (- (* e i))
+                     (- (* b l)))))))
 
-(defun distances (a b hash)
-  (loop for i below (length a)
-        for ray = (aref a i) do
-          (loop for j below (length b)
-                unless (eql i j)
-                  do (incf (gethash (simplify (distance ray (aref b j))) hash 0)))))
+(defun equation-system (h0 h1 h2 h3)
+  (let (coefficients constants)
+    (mapc (lambda (x)
+            (multiple-value-bind (cs ts) (equation-pair h0 x)
+              (setf coefficients (append coefficients cs)
+                    constants (append constants ts))))
+          (list h1 h2 h3))
+    (values coefficients constants)))
 
-(defun steps (rays n)
-  (dotimes (i n rays)
-    (setf rays (tick rays))))
-
-(defun distance (a b)
-  (list (- (x b) (x a))
-        (- (y b) (y a))
-        (- (z b) (z a))))
-
-(defun simplify (x)
-  (mapcar (a:rcurry #'/ (apply #'gcd x)) x))
-
-(defun survey-distances (rays n step)
-  (let ((hash (make-hash-table :test 'equal))
-        (rays (coerce rays 'vector)))
-    (dotimes (i n)
-      (distances rays (setf rays (steps rays step)) hash))
-    (remove 1 (sort (a:hash-table-alist hash) #'> :key #'cdr)
-                                  :key #'cdr)))
-
-(defun meta-survey (rays n)
-  (loop for step from 1 to 10
-        for result = (survey-distances rays n step)
-        when result return (values result step)))
+(defun part2 (input)
+  (let ((hails (subseq (parse input) 0 4)))
+    (destructuring-bind (x y z dx dy dz) (multiple-value-call #'lalg:cramers (apply #'equation-system hails))
+      (declare (ignore dx dy dz))
+      (reduce #'+ (list x y z)))))

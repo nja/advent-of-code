@@ -10,7 +10,7 @@
   t
   :components
   ((:file "package") (:file "aoc") (:file "dijkstra") (:file "leaderboard")
-   (:file "setup") (:file "web")
+   (:file "setup") (:file "web") (:file "lalg")
    (:module "2015" :components
     ((:file "day01") (:file "day02") (:file "day03") (:file "day04")
      (:file "day05") (:file "day06") (:file "day07") (:file "day08")
