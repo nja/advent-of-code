@@ -30,9 +30,7 @@
   (:export :distance :item :previous :search*)
   (:local-nicknames (:a :alexandria) (:q :pettomato-indexed-priority-queue)))
 
-(defpackage :lalg
-  (:use :cl)
-  (:export :cramers))
+(defpackage :lalg (:use :cl) (:export :cramers))
 
 (defpackage :aoc2015.day01 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2015.day02 (:use :cl) (:local-nicknames (:a :alexandria)))
@@ -293,4 +291,5 @@
 (defpackage :aoc2023.day22 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2023.day23 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2023.day24 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2023.day25 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2023.tests (:use :aoc))

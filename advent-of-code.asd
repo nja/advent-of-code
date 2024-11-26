@@ -9,8 +9,8 @@
   :serial
   t
   :components
-  ((:file "package") (:file "aoc") (:file "dijkstra") (:file "leaderboard")
-   (:file "setup") (:file "web") (:file "lalg")
+  ((:file "package") (:file "aoc") (:file "dijkstra") (:file "lalg")
+   (:file "leaderboard") (:file "setup") (:file "web")
    (:module "2015" :components
     ((:file "day01") (:file "day02") (:file "day03") (:file "day04")
      (:file "day05") (:file "day06") (:file "day07") (:file "day08")
@@ -78,7 +78,7 @@
      (:file "day13") (:file "day14") (:file "day15") (:file "day16")
      (:file "day17") (:file "day18") (:file "day19") (:file "day20")
      (:file "day21") (:file "day22") (:file "day23") (:file "day24")
-     (:file "tests"))))
+     (:file "day25") (:file "tests"))))
   :depends-on
   (#:alexandria #:arrow-macros #:cl-ppcre #:drakma #:fare-memoization #:fiasco
    #:ironclad #:jsown #:pettomato-indexed-priority-queue #:queues.simple-queue
