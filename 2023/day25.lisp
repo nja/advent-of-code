@@ -17,10 +17,26 @@ lsr: lhk
 rzs: qnr cmg lsr rsh
 frs: qnr lhk lsr")
 
-(defvar *test2*
+(defparameter *test2*
 "a b c d
 b c d
 c d")
+
+(defparameter *test3*
+"a b c d
+b c d e f
+c d
+d g
+e f g h i j k l m n o
+f g h i j k l m n o
+g h i j k l m n o
+h i j k l m n o
+i j k l m n o
+j k l m n o
+k l m n o
+l m n o
+m n o
+n o")
 
 (defun parse (input)
   (let ((connections (mapcar (lambda (line) (read-from-string (format nil "(~a)" (aoc:tr ":" " " line))))
@@ -87,9 +103,13 @@ c d")
                               (mapcar (a:curry #'replace-node c b) (edges b))))
       c)))
 
-(defun combine-symbols (&rest symbols)
-  (let ((names (sort (mapcar #'symbol-name symbols) #'string<)))
-   (intern (format nil "~{~a~^+~}" names) (symbol-package (first symbols)))))
+(defun combine-symbols (a b)
+  (flet ((wrap (x)
+           (if (find #\+ (symbol-name x))
+               (format nil "(~a)" x)
+               (symbol-name x))))
+    (intern (format nil "~a+~a" (wrap a) (wrap b))
+            (symbol-package a))))
 
 (defun replace-node (new old edge)
   (when (eq old (a edge))
