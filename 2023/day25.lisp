@@ -127,6 +127,7 @@ n o")
     (let ((c (node (combine-symbols (id a) (id b)) (+ (size a) (size b)))))
       (setf (edges c) (nunion (mapcar (a:curry #'replace-node c a) (edges a))
                               (mapcar (a:curry #'replace-node c b) (edges b))))
+      (remove-self-edges c)
       c)))
 
 (defun combine-symbols (a b)
@@ -180,10 +181,20 @@ n o")
 ;;     (reduce #'* nodes :key #'size)))
 
 (defun psample (input n)
-  (let ((inputs (make-array n :initial-element input))
+  (let ((lparallel:*kernel* (lparallel:make-kernel 32))
         (promise (lparallel:promise)))
-    (lparallel:pmap 'vector (lambda (x) (lparallel:future (sample x n promise))) inputs)
-    promise))
+    (unwind-protect
+         (progn
+           (loop repeat 32
+                 do (lparallel:future (sample input n promise)))
+           promise)
+      (lparallel.kernel:end-kernel))))
+
+;; (defun psample (input n)
+;;   (let ((inputs (make-array 32 :initial-element input))
+;;         (promise (lparallel:promise)))
+;;     (lparallel:pmap 'vector (lambda (x) (lparallel:future (sample x n promise))) inputs)
+;;     promise))
 
 (defun stats (samples)
   (let ((stats (make-hash-table)))
