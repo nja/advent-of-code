@@ -24,9 +24,9 @@ c d")
 
 (defparameter *test3*
 "a b c d
-b c d e f
+b c d
 c d
-d g
+d e
 e f g h i j k l m n o
 f g h i j k l m n o
 g h i j k l m n o
@@ -38,7 +38,8 @@ l m n o
 m n o
 n o")
 
-(defun parse (input)
+
+(defun safe-parse (input)
   (let ((connections (mapcar (lambda (line) (read-from-string (format nil "(~a)" (aoc:tr ":" " " line))))
                              (aoc:lines input)))
         (nodes (make-hash-table)))
@@ -47,13 +48,33 @@ n o")
                                             (setf (gethash id nodes) (node id))))
                            ids)))
         (let ((a (first nodes)))
-          (dolist (b (rest nodes))
-            (let ((edge (make-edge a b)))
-              (push edge (edges a))
-              (push edge (edges b)))))))
+          (dolist (b (remove a (remove-duplicates (rest nodes))))
+            (unless (find b (connected a))
+              (let ((edge (make-edge a b)))
+                (push edge (edges a))
+                (push edge (edges b))))))))
     (let ((edges (remove-duplicates (a:flatten (mapcar #'edges (a:hash-table-values nodes))))))
       (values (make-array (length edges) :initial-contents edges :fill-pointer t)
               nodes))))
+
+
+(defun parse (input)
+  (let ((connections (mapcar (lambda (line) (read-from-string (format nil "(~a)" (aoc:tr ":" " " line))))
+                             (aoc:lines input)))
+        (nodes (make-hash-table))
+        edges)
+    (dolist (ids connections)
+      (let ((nodes (mapcar (lambda (id) (or (gethash id nodes)
+                                            (setf (gethash id nodes) (node id))))
+                           ids)))
+        (let ((a (first nodes)))
+          (dolist (b (rest nodes))
+            (let ((edge (make-edge a b)))
+              (push edge edges)
+              (push edge (edges a))
+              (push edge (edges b)))))))
+    (values (make-array (length edges) :initial-contents edges :fill-pointer t)
+            nodes)))
 
 (defstruct (node :conc-name (:constructor node (id &optional (size 1))) (:print-function print-node)) id edges size)
 (defstruct (edge :conc-name (:constructor edge (a b)) (:print-function print-edge)) a b)
@@ -63,15 +84,20 @@ n o")
       (edge a b)
       (edge b a)))
 
+(defun abbrev (s)
+  (cond ((symbolp s) (abbrev (symbol-name s)))
+        ((< (length s) 30) s)
+        (t (format nil "~a..." (subseq s 0 27)))))
+
 (defun print-node (node stream depth)
   (declare (ignore depth))
   (format stream "<~a:~{~a~^,~}>[~d]"
-          (id node)
+          (abbrev (id node))
           (let (connected)
             (maphash (lambda (n c)
                        (push (if (= 1 c)
-                                 (id n)
-                                 (format nil "~a(~d)" (id n) c))
+                                 (abbrev (id n))
+                                 (format nil "~a(~d)" (abbrev (id n)) c))
                              connected))
                      (node-summary (connected node)))
             connected)
@@ -89,7 +115,7 @@ n o")
 
 (defun print-edge (edge stream depth)
   (declare (ignore depth))
-  (format stream "~a/~a" (id (a edge)) (id (b edge))))
+  (format stream "~a/~a" (abbrev (id (a edge))) (abbrev (id (b edge)))))
 
 (defun connected (node)
   (mapcan (lambda (edge) (remove node (list (a edge) (b edge))))
@@ -104,12 +130,8 @@ n o")
       c)))
 
 (defun combine-symbols (a b)
-  (flet ((wrap (x)
-           (if (find #\+ (symbol-name x))
-               (format nil "(~a)" x)
-               (symbol-name x))))
-    (intern (format nil "~a+~a" (wrap a) (wrap b))
-            (symbol-package a))))
+  (intern (format nil "~a+~a" a b)
+          (symbol-package a)))
 
 (defun replace-node (new old edge)
   (when (eq old (a edge))
@@ -144,3 +166,36 @@ n o")
            (prune-edges edges)
         finally (return (values (a:hash-table-values nodes)
                                 edges))))
+
+(defun sample (input n promise)
+  (loop for nodes = (nth-value 0 (multiple-value-call #'kargers (parse input)))
+        when (eql n (length (edges (first nodes))))
+          do (lparallel:fulfill promise (reduce #'* nodes :key #'size))
+        until (lparallel:fulfilledp promise)))
+
+;; (defun sample (input)
+;;   (multiple-value-bind (nodes edges) (multiple-value-call #'kargers (parse input))
+;;     (declare (ignore edges))
+;;     (assert (= 2 (length nodes)))
+;;     (reduce #'* nodes :key #'size)))
+
+(defun psample (input n)
+  (let ((inputs (make-array n :initial-element input))
+        (promise (lparallel:promise)))
+    (lparallel:pmap 'vector (lambda (x) (lparallel:future (sample x n promise))) inputs)
+    promise))
+
+(defun stats (samples)
+  (let ((stats (make-hash-table)))
+    (map nil (lambda (x) (incf (gethash x stats 0))) samples)
+    (sort (a:hash-table-alist stats) #'> :key #'cdr)))
+
+(defun hmm (input)
+  (loop for nodes = (nth-value 0 (multiple-value-call #'kargers (parse input)))
+        until (= 525264 (reduce #'* nodes :key #'size))
+        finally (return nodes)))
+
+(defun hmmn (input n)
+  (loop for nodes = (nth-value 0 (multiple-value-call #'kargers (parse input)))
+        until (eql n (length (edges (first nodes))))
+        finally (return nodes)))
