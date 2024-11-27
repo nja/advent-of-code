@@ -10,6 +10,15 @@
 7 A, 1 D => 1 E
 7 A, 1 E => 1 FUEL")
 
+(defparameter *test2*
+"9 ORE => 2 A
+8 ORE => 3 B
+7 ORE => 5 C
+3 A, 4 B => 1 AB
+5 B, 7 C => 1 BC
+4 C, 1 A => 1 CA
+2 AB, 3 BC, 4 CA => 1 FUEL")
+
 (defun parse (input)
   (flet ((read-plist (s)
            (reverse (read-from-string (format nil "(~a)" (aoc:tr "," "  " s))))))
@@ -40,12 +49,6 @@
            (have? bag (cddr stuff))
            bag)))
 
-(defun cost-of (lookup what)
-  (first (gethash what lookup)))
-
-(defun amount-of (lookup what)
-  (second (gethash what lookup)))
-
 (defun add-unstocked (stock needs stuff)
   (loop for (mat amount) on stuff by #'cddr
         unless (have? stock (list mat amount))
@@ -63,18 +66,29 @@
                  :costs costs
                  :mats (a:hash-table-keys costs)))
 
-(defun act (state)
-  (with-slots (stock needs mats costs spent) state
-    (dolist (mat mats)
+(defun process (state)
+  (with-slots (stock needs mats costs) state
+    (dolist (mat mats state)
       (when (gethash mat needs)
-        (let ((cost (cost-of costs mat)))
+        (destructuring-bind (cost amount) (gethash mat costs)
           (cond ((have? stock cost)
                  (take stock cost)
-                 (add stock(amount-of costs mat))
-                 (remhash mat needs))
+                 (add stock amount)
+                 (remhash mat needs)
+                 (format t "~a => ~a~%" cost amount))
                 (t
-                 (add-unstocked stock needs cost))))))
-    (incf (gethash 'ore stock 0) (gethash 'ore needs 0))
-    (incf spent (gethash 'ore needs))
-    (setf (gethash 'ore needs) 0))
+                 (add-unstocked stock needs cost))))))))
+
+(defun extract (state)
+  (with-slots (stock needs spent) state
+    (let ((n (gethash 'ore needs 0)))
+      (incf (gethash 'ore stock 0) n)
+      (incf spent n)
+      (setf (gethash 'ore needs) 0)))
+  state)
+
+(defun report (state)
+  (format t "Stock: ~a~%" (a:hash-table-plist (stock state)))
+  (format t "Needs: ~a~%" (a:hash-table-plist (needs state)))
+  (format t "Spent: ~d~%" (spent state))
   state)
