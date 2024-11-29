@@ -101,7 +101,7 @@
   (loop with state = (make-state (costs-lookup (parse input)))
         until (gethash 'fuel (stock state))
         do (extract (process state))
-        finally (return (spent state))))
+        finally (return (values (spent state) (stock state)))))
 
 (defparameter *test3*
 "157 ORE => 5 NZVS
