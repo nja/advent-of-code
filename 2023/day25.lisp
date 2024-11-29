@@ -210,3 +210,6 @@ n o")
   (loop for nodes = (nth-value 0 (multiple-value-call #'kargers (parse input)))
         until (eql n (length (edges (first nodes))))
         finally (return nodes)))
+
+(defun part1 (input)
+  (lparallel:force (psample input 3)))
