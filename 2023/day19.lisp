@@ -64,7 +64,7 @@
 (defun range-wrap (labels)
   `(lambda ()
      (labels ((a (vars) (combinations vars))
-              (r (vars) 0)
+              (r (vars) (declare (ignore vars)) 0)
               ,@labels)
        (in (vars)))))
 

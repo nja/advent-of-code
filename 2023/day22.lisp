@@ -111,8 +111,8 @@
          (*by-top* (hash-by-top bricks))
          (*by-resting-height* (hash-by-resting-height bricks)))
     (let ((answer (count-if #'could-singly-be-disintegrated-predicate bricks)))
-      (print (cond ((<= 431 answer) 'too-high)
-                   (t 'in-range)))
+      (cond ((<= 431 answer) 'too-high)
+            (t 'in-range))
       answer)))
 
 (defun intersects-horizontally? (a b)
