@@ -76,7 +76,7 @@
   (case (length (car rules))
     (4 (destructuring-bind (a b c d) (car rules)
          `(+ (,d (slice vars ',a ',b ,c))
-             (let ((vars (flip vars ',a ',b ,c)))
+             (let ((vars (slice vars ',a ',(flip b) ,c)))
                ,(range-rules-asm (cdr rules))))))
     (1 `(,(caar rules) vars))))
 
@@ -95,13 +95,12 @@
       (> (list (max lo (1+ num)) hi))
       (>= (list (max lo num) hi)))))
 
-(defun flip (vars which pred num)
-  (slice vars which (case pred
-                     (< '>=)
-                     (> '<=)
-                     (>= '<)
-                     (<= '>))
-         num))
+(defun flip (pred)
+  (case pred
+    (< '>=)
+    (> '<=)
+    (>= '<)
+    (<= '>)))
 
 (defun size (range)
   (destructuring-bind (lo hi) range
