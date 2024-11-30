@@ -8,7 +8,8 @@
              (append (multiple-value-list (ensure-package (package-designator year day)))
                      (multiple-value-list (ensure-file year day))
                      (multiple-value-list (ensure-asd-day year day))))
-    (setf *package* (find-package (package-designator year day)))))
+    (setf *package* (find-package (package-designator year day)))
+    (swank:ed-in-emacs (list (ensure-file year day) :other-window-p t))))
 
 ;;; package
 
