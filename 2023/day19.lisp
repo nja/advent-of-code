@@ -64,9 +64,9 @@
 (defun range-wrap (labels)
   `(lambda ()
      (labels ((a (vars) (combinations vars))
-              (r (vars) (declare (ignore vars)) 0)
+              (r (vars) 0)
               ,@labels)
-       (in '((1 4000) (1 4000) (1 4000) (1 4000))))))
+       (in (vars)))))
 
 (defun range-workflow-asm (workflow)
   (destructuring-bind (tag . rules) workflow
@@ -75,9 +75,9 @@
 (defun range-rules-asm (rules)
   (case (length (car rules))
     (4 (destructuring-bind (a b c d) (car rules)
-         `(let ((slice (slice vars ',a ',b ,c))
-                (vars (slice vars ',a ',(case b (> '<=) (< '>=)) ,c)))
-            (+ (,d slice) ,(range-rules-asm (cdr rules))))))
+         `(+ (,d (slice vars ',a ',b ,c))
+             (let ((vars (flip vars ',a ',b ,c)))
+               ,(range-rules-asm (cdr rules))))))
     (1 `(,(caar rules) vars))))
 
 (defun slice (vars which pred num)
@@ -94,6 +94,14 @@
       (<= (list lo (min hi num)))
       (> (list (max lo (1+ num)) hi))
       (>= (list (max lo num) hi)))))
+
+(defun flip (vars which pred num)
+  (slice vars which (case pred
+                     (< '>=)
+                     (> '<=)
+                     (>= '<)
+                     (<= '>))
+         num))
 
 (defun size (range)
   (destructuring-bind (lo hi) range
@@ -113,14 +121,17 @@
 (defun part1 (input)
   (reduce #'+ (remove nil (apply #'ratings (parse input)))))
 
+(defun part2 (input)
+  (funcall (eval (range-asm (first (parse input))))))
+
 (defparameter *parts* (second (parse (aoc:input))))
 
-(defun test ()
-  (eq 383682 (reduce #'+ (remove nil (mapcar (lambda (x) (apply #'optimized x)) *parts*)))))
+;; (defun test ()
+;;   (eq 383682 (reduce #'+ (remove nil (mapcar (lambda (x) (apply #'optimized x)) *parts*)))))
 
 
-(defun test2 (workflows)
-  (eq 383682 (reduce #'+ (remove nil (mapcar (a:curry #'apply (eval (assemble workflows))) *parts*)))))
+;; (defun test2 (workflows)
+;;   (eq 383682 (reduce #'+ (remove nil (mapcar (a:curry #'apply (eval (assemble workflows))) *parts*)))))
 
 
 (defparameter *test*
