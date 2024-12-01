@@ -11,7 +11,7 @@
 (defun input (&optional (day (default-day)) (year (default-year)))
   (unless (probe-file (input-path year day))
     (save-input year day))
-  (alexandria:read-file-into-string (input-path year day)))
+  (strip-cr (alexandria:read-file-into-string (input-path year day))))
 
 (defun answer (function)
   (destructuring-bind (year day) (scan-package-name (symbol-package function))
