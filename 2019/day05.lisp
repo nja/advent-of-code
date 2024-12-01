@@ -1,0 +1,38 @@
+;;;; day05.lisp
+
+(in-package :aoc2019.day05)
+
+(defun parse (input)
+  (map 'vector #'parse-integer (str:split "," input)))
+
+(defun run (memory &rest input)
+  (let ((ip 0) output)
+    (macrolet ((ref (i) `(aref memory ,i))
+               (rel (offset) `(aref memory (+ ip ,offset))))
+      (symbol-macrolet ((opcode (rel 0))
+                        (ia (rel 1))
+                        (ib (rel 2))
+                        (ic (rel 3)))
+        (symbol-macrolet ((pa (ref ia))
+                          (pb (ref ib))
+                          (pc (ref ic)))
+          (labels ((mode (i) (mod (truncate opcode (expt 10 (1+ i))) 10))
+                   (a () (ecase (mode 1) (0 pa) (1 ia)))
+                   (b () (ecase (mode 2) (0 pb) (1 ib)))
+                   (jmp (x) (setf ip x) 0))
+            (loop do (incf ip (ecase (mod opcode 100)
+                                (1 (setf pc (+ (a) (b))) 4)
+                                (2 (setf pc (* (a) (b))) 4)
+                                (3 (setf pa (pop input)) 2)
+                                (4 (push (a) output) 2)
+                                (5 (if (not (zerop (a))) (jmp (b)) 3))
+                                (6 (if (zerop (a)) (jmp (b)) 3))
+                                (7 (setf pc (if (< (a) (b)) 1 0)) 4)
+                                (8 (setf pc (if (= (a) (b)) 1 0)) 4)
+                                (99 (return output)))))))))))
+
+(defun part1 (input)
+  (car (run (parse input) 1)))
+
+(defun part2 (input)
+  (car (run (parse input) 5)))

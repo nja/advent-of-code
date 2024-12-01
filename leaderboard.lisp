@@ -47,7 +47,9 @@
                               collect (cond ((jsown:keyp d (i 2)) #\*)
                                             ((jsown:keyp d (i 1)) #\')
                                             (t #\.)))))
-    (list (v "local_score") (stars (v "completion_day_level")) (v "name"))))
+    (list (v "local_score")
+          (stars (v "completion_day_level"))
+          (or (v "name") (format nil "(anonymous user #~a)" (v "id"))))))
 
 (defun print-members (obj)
   (let* ((members (mapcar (a:compose #'parse-member (a:curry #'jsown:val obj))

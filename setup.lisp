@@ -3,10 +3,13 @@
 (in-package #:aoc)
 
 (defun setup (&optional (day (default-day)) (year (default-year)))
-  (apply #'values
-         (append (multiple-value-list (ensure-package (package-designator year day)))
-                 (multiple-value-list (ensure-file year day))
-                 (multiple-value-list (ensure-asd-day year day)))))
+  (multiple-value-prog1
+      (apply #'values
+             (append (multiple-value-list (ensure-package (package-designator year day)))
+                     (multiple-value-list (ensure-file year day))
+                     (multiple-value-list (ensure-asd-day year day))))
+    (setf *package* (find-package (package-designator year day)))
+    (swank:ed-in-emacs (list (ensure-file year day) :other-window-p t))))
 
 ;;; package
 
