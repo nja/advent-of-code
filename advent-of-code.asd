@@ -82,5 +82,5 @@
    (:module "2024" :components ((:file "day01") (:file "tests"))))
   :depends-on
   (#:alexandria #:arrow-macros #:cl-ppcre #:drakma #:fare-memoization #:fiasco
-   #:ironclad #:jsown #:pettomato-indexed-priority-queue #:queues.simple-queue
+   #:fset #:ironclad #:jsown #:pettomato-indexed-priority-queue #:queues.simple-queue
    #:queues.priority-queue #:str #:lparallel))

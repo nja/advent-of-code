@@ -9,7 +9,7 @@
               (destructuring-bind (inputs outputs)
                   (mapcar #'plist (str:split "=>" line))
                 (setf (gethash (car outputs) reactions)
-                      (list (apply #'bag inputs) (apply #'bag outputs)))))
+                      (list (apply #'bag inputs) (apply #'bag outputs) (second outputs)))))
             (aoc:lines input))
       reactions)))
 
@@ -31,12 +31,17 @@
                         stock
                         (fset:bag-difference needs (bag 'ore n))
                         (+ mined n))
-                  (destructuring-bind (inputs outputs) (gethash material reactions)
-                    (mine reactions
-                          (fset:bag-sum stock outputs)
-                          (fset:bag-sum needs inputs)
-                          mined))))))))
+                  (destructuring-bind (inputs outputs x) (gethash material reactions)
+                    (let ((f (ceiling n x)))
+                      (mine reactions
+                            (fset:bag-sum stock (mul outputs f))
+                            (fset:bag-sum needs (mul inputs f))
+                            mined)))))))))
+
+(defun mul (bag n)
+  (gmap:gmap :bag-pairs (lambda (x c) (values x (* n c)))
+             (:bag-pairs bag)))
+
 
 (defun part1 (input)
   (mine (reactions input) (bag) (bag 'fuel 1) 0))
-
