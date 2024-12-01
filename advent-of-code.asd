@@ -78,7 +78,8 @@
      (:file "day13") (:file "day14") (:file "day15") (:file "day16")
      (:file "day17") (:file "day18") (:file "day19") (:file "day20")
      (:file "day21") (:file "day22") (:file "day23") (:file "day24")
-     (:file "day25") (:file "tests"))))
+     (:file "day25") (:file "tests")))
+   (:module "2024" :components ((:file "day01") (:file "tests"))))
   :depends-on
   (#:alexandria #:arrow-macros #:cl-ppcre #:drakma #:fare-memoization #:fiasco
    #:ironclad #:jsown #:pettomato-indexed-priority-queue #:queues.simple-queue
