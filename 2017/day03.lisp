@@ -25,8 +25,8 @@
            (distance-b () (elt (distances i) (dist-index n base))))
       (+ (distance-a) (distance-b)))))
 
-(defun part1 (n)
-  (distance n))
+(defun part1 (input)
+  (distance (parse-integer input)))
 
 (defun ith-base (i)
   (1+ (* 2 i)))
@@ -76,8 +76,9 @@
 (defun sum (grid pos)
   (reduce #'+ (mapcar (alexandria:curry #'get-pos grid)
                       (adjacent pos))))
-(defun part2 (n)
-  (let ((grid (make-grid (truncate (log n)))))
+(defun part2 (input)
+  (let* ((n (parse-integer input))
+         (grid (make-grid (truncate (log n)))))
     (loop for pos in (apply #'nconc (laps grid))
           for sum = 1 then (sum grid pos)
           do (set-pos grid pos sum)

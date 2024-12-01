@@ -34,9 +34,8 @@
     (shortest-path (pos 1 1) (pos 31 39))))
 
 (defun reachable-locations (from max-steps)
-  (length (nth-value 1 (d:search* from #'neighbours
-                                  :max-distance max-steps
-                                  :pathsp t))))
+  (length (d:search* from #'neighbours
+                     :max-distance max-steps)))
 
 (defun part2 (input)
   (let ((*input* (parse-integer input)))

@@ -2,8 +2,6 @@
 
 (in-package #:aoc2021.day04)
 
-(defparameter *input* (aoc:input-for 2021 4))
-
 (defun parse (input)
   (destructuring-bind (draw-line &rest board-sections) (aoc:sections input)
     (list (parse-integers draw-line)

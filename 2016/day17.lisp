@@ -57,7 +57,7 @@
 
 (defun longest-path (*passcode*)
   (reduce #'max (remove-if-not (a:compose #'vault? #'d:item)
-                               (nth-value 1 (d:search* "" #'neighbours :pathsp t)))
+                               (d:search* "" #'neighbours))
           :key #'d:distance))
 
 (defun part2 (input)

@@ -2,8 +2,20 @@
 
 (in-package #:aoc)
 
-(defun leaderboard (&optional (year (nth-value 5 (get-decoded-time))))
-  (multiple-value-bind (board at) (get-leaderboard (get-config :leaderboard) year)
+(defun scan-package-name (&optional (package *package*))
+  (map 'list #'parse-integer
+       (nth-value 1 (ppcre:scan-to-strings "^AOC(\\d{4})\\.DAY(\\d{2})$"
+                                           (package-name package)))))
+
+(defun default-year ()
+  (or (first (scan-package-name)) (nth-value 5 (get-decoded-time))))
+
+(defun default-day ()
+  (a:clamp (or (second (scan-package-name)) (nth-value 3 (get-decoded-time)))
+           1 25))
+
+(defun leaderboard (&key (year (default-year)) (leaderboard :leaderboard))
+  (multiple-value-bind (board at) (get-leaderboard (get-config leaderboard) year)
     (when board
       (print-members board)
       (print-time at))))
@@ -35,7 +47,9 @@
                               collect (cond ((jsown:keyp d (i 2)) #\*)
                                             ((jsown:keyp d (i 1)) #\')
                                             (t #\.)))))
-    (list (v "local_score") (stars (v "completion_day_level")) (v "name"))))
+    (list (v "local_score")
+          (stars (v "completion_day_level"))
+          (or (v "name") (format nil "(anonymous user #~a)" (v "id"))))))
 
 (defun print-members (obj)
   (let* ((members (mapcar (a:compose #'parse-member (a:curry #'jsown:val obj))
@@ -53,3 +67,33 @@
                        rowfmt (list i)
                        scorefmt (list (first m))
                        "~{~a~^~} ~a" (rest m)))))
+
+(defun timeline (&key (day (default-day)) (year (default-year)) (leaderboard :leaderboard))
+  (multiple-value-bind (board at) (get-leaderboard (get-config leaderboard) year)
+    (when board
+      (format t "~d-~2,'0d~%" year day)
+      (let* ((ts (member-ts day (cdr board)))
+             (names (remove-duplicates (mapcar #'car ts) :from-end t))
+             (fmt (format nil "~a ~~a" (make-string (length ts) :initial-element #\.)))
+             (lines (mapcar (lambda (name) (cons name (format nil fmt name))) names)))
+        (loop for i from 0
+              for (name ts star) in ts
+              do (setf (aref (cdr (assoc name lines :test #'equal)) i)
+                       (getf '(1 #\' 2 #\*) star)))
+        (format t "~{~a~%~}" (mapcar #'cdr lines))
+        (print-time at)))))
+
+(defun member-ts (day board)
+  (flet ((members () (mapcar #'cdr (cdr board)))
+         (name (member) (jsown:val member "name"))
+         (days (member) (jsown:val member "completion_day_level"))
+         (day (days) (jsown:val-safe days (format nil "~d" day)))
+         (ts (key day) (jsown:val-safe (jsown:val-safe day key) "get_star_ts")))
+    (sort
+     (remove nil (mapcan (lambda (member)
+                           (let ((day (day (days member))))
+                             (list (list (name member) (ts "1" day) 1)
+                                   (list (name member) (ts "2" day) 2))))
+                         (members))
+             :key #'cadr)
+     #'< :key #'cadr)))

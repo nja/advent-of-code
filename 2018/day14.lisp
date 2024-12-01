@@ -5,9 +5,7 @@
 (setf *print-circle* t)
 
 (defun digits (string)
-  (map 'list #'digit-char-p string))
-
-(defparameter *input* "633601")
+  (remove nil (map 'list #'digit-char-p string)))
 
 (defstruct lab first second head tail length trailer)
 
@@ -53,10 +51,10 @@
              (when print (print-lab lab)))
     (subseq (lab-head lab) target limit)))
 
-(defun part1 ()
+(defun part1 (input)
   (parse-integer
    (map 'string #'digit-char
-        (work (list 3 7) (parse-integer *input*)))))
+        (work (list 3 7) (parse-integer input)))))
 
 (defun print-lab (lab)
   (loop repeat (lab-length lab)
@@ -91,8 +89,8 @@
                (advance lab)
             finally (return (trailer-position))))))
 
-(defun part2 ()
-  (locate (list 3 7) (digits *input*)))
+(defun part2 (input)
+  (locate (list 3 7) (digits input)))
 
 ;;; take trailer out of lab
 ;;; when two new recipes, do match, if no match, incf trailer again

@@ -56,7 +56,7 @@
   (map 'string #'hex-digit values))
 
 (defun part1 (input)
-  (password (find-matches 8 (octets input))))
+  (password (find-matches 8 (octets (remove #\Newline input)))))
 
 (defun set-matches (n input)
   (loop with password = (make-sequence 'string n :initial-element #\_)
@@ -71,4 +71,4 @@
         finally (return password)))
 
 (defun part2 (input)
-  (set-matches 8 (octets input)))
+  (set-matches 8 (octets (remove #\Newline input))))

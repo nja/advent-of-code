@@ -26,7 +26,7 @@
         finally (return (values pos spinlock))))
 
 (defun part1 (input)
-  (cadr (spin (spinlock input) 2017)))
+  (cadr (spin (spinlock (parse-integer input)) 2017)))
 
 (defun value-after-zero (step-size n)
   (declare (optimize speed)
@@ -39,4 +39,4 @@
         finally (return value)))
 
 (defun part2 (input)
-  (value-after-zero input 50000000))
+  (value-after-zero (parse-integer input) 50000000))

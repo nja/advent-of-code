@@ -10,3 +10,5 @@
 scratch.lisp
 config.txt
 cache.txt
+stash.txt
+*.input.txt

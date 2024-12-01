@@ -16,7 +16,7 @@
   (reduce #'+ (mapcar #'logcount grid)))
 
 (defun part1 (input)
-  (used-squares (grid input)))
+  (used-squares (grid (remove-if-not #'alpha-char-p input))))
 
 (defun is-used (grid i)
   (when (< -1 i (expt +size+ 2))
@@ -36,4 +36,4 @@
             collect it))
 
 (defun part2 (input)
-  (length (join (grid-connections (grid input)))))
+  (length (join (grid-connections (grid (remove-if-not #'alpha-char-p input))))))
