@@ -25,12 +25,12 @@
                   (fset:bag-difference stock spent)
                   (fset:bag-difference needs spent)
                   mined)
-            (let ((material (fset:arb needs)))
+            (multiple-value-bind (material n) (fset:arb needs)
               (if (eq material 'ore)
                   (mine reactions
                         stock
-                        (fset:less needs 'ore)
-                        (1+ mined))
+                        (fset:bag-difference needs (bag 'ore n))
+                        (+ mined n))
                   (destructuring-bind (inputs outputs) (gethash material reactions)
                     (mine reactions
                           (fset:bag-sum stock outputs)
