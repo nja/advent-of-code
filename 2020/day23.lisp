@@ -5,7 +5,7 @@
 (declaim (optimize (speed 3) (debug 0) (safety 0)))
 
 (defun parse (input)
-  (map 'list #'digit-char-p input))
+  (map 'list #'digit-char-p (remove #\Newline input)))
 
 (defun cups (head)
   (let ((tail (loop for i fixnum

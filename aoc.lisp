@@ -11,11 +11,16 @@
 (defun input (&optional (day (default-day)) (year (default-year)))
   (unless (probe-file (input-path year day))
     (save-input year day))
-  (alexandria:read-file-into-string (input-path year day)))
+  (let ((*package* (package-for year day)))
+    (strip-cr (alexandria:read-file-into-string (input-path year day)))))
+
+(defun package-for (year day)
+  (find-package (format nil "AOC~4,'0d.DAY~2,'0d" year day)))
 
 (defun answer (function)
   (destructuring-bind (year day) (scan-package-name (symbol-package function))
-    (funcall function (input day year))))
+    (let ((*package* (symbol-package function)))
+      (funcall function (input day year)))))
 
 (defmacro defanswer (day &rest answers)
   (let* ((prefix (first (str:split #\. (package-name *package*))))
@@ -43,6 +48,14 @@
 
 (defun strip-cr (string)
   (remove #\Return string))
+
+(defun to-array (input)
+  (loop with lines = (aoc:lines input)
+        with array = (make-array (list (length lines) (length (first lines))))
+        for i from 0
+        for c across (remove #\Newline input)
+        do (setf (row-major-aref array i) c)
+        finally (return array )))
 
 (defun tr (set1 set2 seq)
   (map (type-of seq)
@@ -88,12 +101,12 @@
              (format t fmt (abs n))
              (princ l))))
 
-(defun print-array (array &key (row+ 0) (col+ 0))
+(defun print-array (array &key (row+ 0) (col+ 0) (map #'identity))
   (print-indexed-lines
    (loop for y below (array-dimension array 0)
          collect (with-output-to-string (s)
                    (loop for x below (array-dimension array 1)
-                         do (princ (aref array y x) s))))
+                         do (princ (funcall map (aref array y x)) s))))
    :cols (array-dimension array 1)
    :row+ row+ :col+ col+))
 
