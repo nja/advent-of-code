@@ -39,18 +39,7 @@
 
 (defun pos (x y) (list x y))
 (defun add (a b) (mapcar #'+ a b))
-(defparameter *directions* '((1 2) (2 1) (3 4) (4 3)))
 (defun near (pos) (mapcar (a:curry #'add pos) '((0 1) (0 -1) (1 0) (-1 0))))
-
-(defparameter *map* (make-hash-table))
-
-(defun probe (droid dir)
-  (destructuring-bind (cmd rcmd) dir
-    (multiple-value-bind (status )
-        (let ((status (funcall droid cmd)))
-          (when (zerop status)
-            (funcall droid rcmd))
-          status))))
 
 (defun droid (memory)
   (lambda (input)
@@ -58,20 +47,27 @@
       (list (funcall #'run new-memory input)
             (droid new-memory)))))
 
-(defun neighbours (pos)
-  (loop with droid = (gethash pos *map*)
+(defun make-map (droid)
+  (let ((map (make-hash-table :test 'equal))
+        (origin '(0 0)))
+    (setf (gethash origin  map) droid)
+    (list map origin)))
+
+(defun neighbours (map pos)
+  (loop with droid = (gethash pos map)
         for p in (near pos)
         for c from 1
         for (status new-droid) = (funcall droid c)
         when (plusp status)
-          do (setf (gethash p *map*) new-droid)
+          do (setf (gethash p map) new-droid)
         when (eq status 2)
           collect 'oxygen
         when (eq status 1)
           collect p))
 
 (defun fewest-steps (memory)
-  (let ((*map* (make-hash-table))
-        (origin '(0 0)))
-    (setf (gethash origin *map*) (droid memory))
-    (dijkstra:distance (dijkstra:search* origin #'neighbours :donep (a:curry #'eq 'oxygen)))))
+  (destructuring-bind (map origin) (make-map (droid memory))
+    (dijkstra:distance (dijkstra:search* origin (a:curry #'neighbours map)
+                                         :donep (a:curry #'eq 'oxygen)))))
+(defun part1 (input)
+  (fewest-steps (parse input)))
