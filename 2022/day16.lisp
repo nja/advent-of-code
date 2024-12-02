@@ -20,7 +20,7 @@
         (rates (make-hash-table)))
     (flet ((find-distance (src dst)
              (flet ((neighbours (id) (valve-tunnels (gethash id valves))))
-               (d:distance (d:search* src #'neighbours :donep (a:curry #'eq dst))))))
+               (d:distance (d:search* src #'neighbours :goal dst)))))
       (dolist (valve (a:hash-table-values valves))
         (when (> (valve-rate valve) 0)
           (setf (gethash (valve-id valve) rates) (valve-rate valve))))

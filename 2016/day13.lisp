@@ -27,7 +27,7 @@
   (remove-if-not #'open? (mapcar (a:curry #'add pos) *directions*)))
 
 (defun shortest-path (from to)
-  (d:distance (d:search* from #'neighbours :donep (a:curry #'equalp to))))
+  (d:distance (d:search* from #'neighbours :goal to)))
 
 (defun part1 (input)
   (let ((*input* (parse-integer input)))
