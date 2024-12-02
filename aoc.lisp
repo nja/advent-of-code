@@ -11,7 +11,7 @@
 (defun input (&optional (day (default-day)) (year (default-year)))
   (unless (probe-file (input-path year day))
     (save-input year day))
-  (let ((*package* (package-for year day)))
+  (let ((*package* (or (package-for year day) *package*)))
     (strip-cr (alexandria:read-file-into-string (input-path year day)))))
 
 (defun package-for (year day)
