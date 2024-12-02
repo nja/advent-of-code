@@ -1,0 +1,70 @@
+;;;; day15.lisp
+
+(in-package :aoc2019.day15)
+
+(defun parse (input)
+  (adjust-array (map 'vector #'parse-integer (str:split "," input)) 2048))
+
+(defun run (memory)
+  (let ((ip 0) (base 0) output (pos '(0 0)))
+    (macrolet ((ref (i) `(aref memory ,i))
+               (rel (offset) `(aref memory (+ ip ,offset)))
+               (bas (offset) `(aref memory (+ base ,offset))))
+      (symbol-macrolet ((opcode (rel 0))
+                        (ia (rel 1))
+                        (ib (rel 2))
+                        (ic (rel 3)))
+        (symbol-macrolet ((pa (ref ia)) (ba (bas ia))
+                          (pb (ref ib)) (bb (bas ib))
+                          (pc (ref ic)) (bc (bas ic)))
+          (labels ((mode (i) (mod (truncate opcode (expt 10 (1+ i))) 10))
+                   (a () (ecase (mode 1) (0 pa) (1 ia) (2 ba)))
+                   (b () (ecase (mode 2) (0 pb) (1 ib) (2 bb)))
+                   (sa (x) (ecase (mode 1) (0 (setf pa x)) (2 (setf ba x))))
+                   (sc (x) (ecase (mode 3) (0 (setf pc x)) (2 (setf bc x))))
+                   (jmp (x) (setf ip x) 0))
+            (lambda (input)
+              (loop with inputs = (list input)
+                    with dir = (case input
+                                 (1 '(0 1))
+                                 (2 '(0 -1))
+                                 (3 '(1 0))
+                                 (4 '(-1 0)))
+                    do (incf ip (ecase (mod opcode 100)
+                                  (1 (sc (+ (a) (b))) 4)
+                                  (2 (sc (* (a) (b))) 4)
+                                  (3 (sa (or (pop inputs) (error "No input"))) 2)
+                                  (4 (push (a) output) 2)
+                                  (5 (if (not (zerop (a))) (jmp (b)) 3))
+                                  (6 (if (zerop (a)) (jmp (b)) 3))
+                                  (7 (sc (if (< (a) (b)) 1 0)) 4)
+                                  (8 (sc (if (= (a) (b)) 1 0)) 4)
+                                  (9 (incf base (a)) 2)
+                                  (99 (return output))))
+                    when (plusp output)
+                      do (setf pos (add pos dir))
+                    when output
+                      return (values (pop output) pos)))))))))
+
+(defun pos (x y) (list x y))
+(defun add (a b) (mapcar #'+ a b))
+(defparameter *directions* '((1 2) (2 1) (3 4) (4 3)))
+
+(defun probe (droid dir)
+  (destructuring-bind (cmd rcmd) dir
+    (multiple-value-bind (status )
+     (let ((status (funcall droid cmd)))
+       (when (zerop status)
+         (funcall droid rcmd))
+       status))))
+
+(defun neighbours (droid pos)
+  (loop for dir in *directions*
+        for status = (probe droid dir)
+        when (eq status 2)
+          do (break) and return 'oxygen
+        when (eq status 1)
+          collect (add pos (cddr dir))))
+
+(defun fewest-steps (droid)
+  (dijkstra:search* '(0 0) (a:curry #'neighbours droid) :donep (a:curry #'eq 'oxygen)))
