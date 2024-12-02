@@ -36,47 +36,31 @@
                                 (99 (return output))))
                   when output return it)))))))
 
-(defun pos (x y) (list x y))
-(defun add (a b) (mapcar #'+ a b))
-(defun near (pos) (mapcar (a:curry #'add pos) '((0 1) (0 -1) (1 0) (-1 0))))
-
-(defun droid (memory)
-  (lambda (input)
-    (let ((copy (copy-seq memory)))
-      (list (funcall #'run copy input)
-            (droid copy)))))
-
-(defun make-map (droid)
-  (let ((map (make-hash-table :test 'equal))
-        (origin '(0 0)))
-    (setf (gethash origin map) (list 1 droid))
-    (list map origin)))
-
-(defun neighbours (map pos)
-  (loop with droid = (second (gethash pos map))
-        for p in (near pos)
-        for c from 1
-        for (status new-droid) = (funcall droid c)
-        when (plusp status)
-          do (setf (gethash p map) (list status new-droid))
-          and collect p
-        when (eq status 2)
-          do (setf (gethash 'oxygen map) p)))
+(defun neighbours ()
+  (let (next-to-oxygen)
+    (lambda (pos)
+      (if (eq pos 'oxygen)
+          next-to-oxygen
+          (loop for mem = (copy-seq pos)
+                for c from 1 to 4
+                for status = (run mem c)
+                when (eq 1 status)
+                  collect mem
+                when (eq 2 status)
+                  do (push pos next-to-oxygen)
+                  and collect 'oxygen)))))
 
 (defun fewest-steps (memory)
-  (destructuring-bind (map origin) (make-map (droid memory))
-    (dijkstra:distance (dijkstra:search* origin (a:curry #'neighbours map)
-                                         :donep (lambda (p) (eq p (gethash 'oxygen map)))))))
+  (dijkstra:distance (dijkstra:search* memory (neighbours) :goal 'oxygen)))
+
 (defun part1 (input)
   (fewest-steps (parse input)))
 
-(defun map-area (memory)
-  (destructuring-bind (map origin) (make-map (droid memory))
-    (dijkstra:search* origin (a:curry #'neighbours map))
-    map))
-
-(defun how-many-minutes-to-fill-with-oxygen (map)
-  (reduce #'max (mapcar #'dijkstra:distance (dijkstra:search* (gethash 'oxygen map) (a:curry #'neighbours map)))))
+(defun how-many-minutes-to-fill-with-oxygen (memory)
+  (let ((neighbours (neighbours)))
+    (dijkstra:search* memory neighbours)
+    (reduce #'max (mapcar #'dijkstra:distance (dijkstra:search* 'oxygen neighbours)))))
 
 (defun part2 (input)
-  (how-many-minutes-to-fill-with-oxygen (map-area (parse input))))
+  ;; The repair droid can backtrack one step further than a map reveals?
+  (1- (how-many-minutes-to-fill-with-oxygen (parse input))))
