@@ -38,8 +38,11 @@
   (make-instance 'drakma:cookie-jar :cookies (list (session-cookie))))
 
 (defun get-aoc-webpage (path)
-  (drakma:http-request (format nil "https://adventofcode.com/~a" path)
-                       :cookie-jar (cookie-jar)))
+  (multiple-value-bind (content status)
+      (drakma:http-request (format nil "https://adventofcode.com/~a" path)
+                           :cookie-jar (cookie-jar))
+    (when (eq 200 status)
+      content)))
 
 (defun post-aoc-webpage (path parameters)
   (drakma:http-request (format nil "https://adventofcode.com/~a" path)
