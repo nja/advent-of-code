@@ -50,24 +50,34 @@
 (defun make-map (droid)
   (let ((map (make-hash-table :test 'equal))
         (origin '(0 0)))
-    (setf (gethash origin map) droid)
+    (setf (gethash origin map) (list 1 droid))
     (list map origin)))
 
 (defun neighbours (map pos)
-  (loop with droid = (gethash pos map)
+  (loop with droid = (second (gethash pos map))
         for p in (near pos)
         for c from 1
         for (status new-droid) = (funcall droid c)
         when (plusp status)
-          do (setf (gethash p map) new-droid)
+          do (setf (gethash p map) (list status new-droid))
+          and collect p
         when (eq status 2)
-          collect 'oxygen
-        when (eq status 1)
-          collect p))
+          do (setf (gethash 'oxygen map) p)))
 
 (defun fewest-steps (memory)
   (destructuring-bind (map origin) (make-map (droid memory))
     (dijkstra:distance (dijkstra:search* origin (a:curry #'neighbours map)
-                                         :donep (a:curry #'eq 'oxygen)))))
+                                         :donep (lambda (p) (eq p (gethash 'oxygen map)))))))
 (defun part1 (input)
   (fewest-steps (parse input)))
+
+(defun map-area (memory)
+  (destructuring-bind (map origin) (make-map (droid memory))
+    (dijkstra:search* origin (a:curry #'neighbours map))
+    map))
+
+(defun how-many-minutes-to-fill-with-oxygen (map)
+  (reduce #'max (mapcar #'dijkstra:distance (dijkstra:search* (gethash 'oxygen map) (a:curry #'neighbours map)))))
+
+(defun part2 (input)
+  (how-many-minutes-to-fill-with-oxygen (map-area (parse input))))
