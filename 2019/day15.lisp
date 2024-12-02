@@ -50,7 +50,7 @@
 (defun make-map (droid)
   (let ((map (make-hash-table :test 'equal))
         (origin '(0 0)))
-    (setf (gethash origin  map) droid)
+    (setf (gethash origin map) droid)
     (list map origin)))
 
 (defun neighbours (map pos)
