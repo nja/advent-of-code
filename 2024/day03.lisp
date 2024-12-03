@@ -17,9 +17,9 @@
   (loop for thing = (cond ((try-read s "mul(")
                            (or (try-read-pair s) 'junk))
                           ((try-read s "do()")
-                           'enable)
+                           '(enable))
                           ((try-read s "don't()")
-                           'disable)
+                           '(disable))
                           ((eat s)
                            'junk))
         while thing
@@ -72,11 +72,12 @@
 (defun evaluate (instructions)
   (let ((enabled 1))
     (reduce #'+ (mapcar (lambda (x)
-                          (case x
+                          (case (car x)
                             (enable (setf enabled 1) 0)
                             (disable (setf enabled 0) 0)
-                            (t (reduce #'* (cons enabled (rest x))))))
+                            (* (reduce #'* (cons enabled (rest x))))))
                         instructions))))
 
 (defun part2 (input)
   (evaluate (instructions input)))
+
