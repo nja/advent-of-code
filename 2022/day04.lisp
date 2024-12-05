@@ -3,7 +3,7 @@
 (in-package #:aoc2022.day04)
 
 (defun parse-pair (line)
-  (read-from-string (format nil "(~a)" (aoc:tr ",-" "  " line))))
+  (aoc:read-as-list (aoc:tr ",-" "  " line)))
 
 (defun fully-contained? (a b c d)
   (or (<= a c d b) (<= c a b d)))
