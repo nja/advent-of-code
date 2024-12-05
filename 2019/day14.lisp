@@ -21,7 +21,7 @@
 
 (defun parse (input)
   (flet ((read-plist (s)
-           (reverse (read-from-string (format nil "(~a)" (aoc:tr "," "  " s))))))
+           (reverse (aoc:read-as-list (aoc:tr "," "  " s)))))
     (mapcar (lambda (line)
               (mapcar #'read-plist (str:split " => " line)))
             (aoc:lines input))))
