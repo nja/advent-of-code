@@ -3,9 +3,7 @@
 (in-package #:aoc2022.day10)
 
 (defun parse (input)
-  (let ((*package* (symbol-package 'parse)))
-    (mapcar (lambda (l) (read-from-string (format nil "(~a)" l)))
-            (aoc:lines input))))
+  (mapcar #'aoc:read-as-list (aoc:lines input)))
 
 (defun interpret (instructions)
   (let ((registers (make-array (* 2 (length instructions)) :fill-pointer 0))
