@@ -6,3 +6,4 @@
 (defanswer day02 591 621)
 (defanswer day03 161085926 82045421)
 (defanswer day04 2575 2041)
+(defanswer day05 5064 5152)
