@@ -10,7 +10,7 @@
 (defanswer day06 400410 15343601)
 (defanswer day07 956 40149)
 (defanswer day08 1371 2117)
-(defanswer day09 141)
+(defanswer day09 141 736)
 (defanswer day10 360154 5103798)
 (defanswer day11 "hxbxxyzz" "hxcaabcc")
 (defanswer day12 119433 68466)
