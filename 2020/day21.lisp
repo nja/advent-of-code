@@ -5,12 +5,8 @@
 (defun parse-line (line)
   (ppcre:register-groups-bind (ingredients allergens)
       ("(.*) \\(contains (.*)\\)" line)
-    (list (read-as-list ingredients)
-          (read-as-list (aoc:tr "," " " allergens)))))
-
-(defun read-as-list (str)
-  (let ((*package* (symbol-package 'read-as-list)))
-    (read-from-string (format nil "(~a)" str))))
+    (list (aoc:read-as-list ingredients)
+          (aoc:read-as-list (aoc:tr "," " " allergens)))))
 
 (defparameter *data* nil)
 (defun ingredients () (remove-duplicates (reduce #'append (mapcar #'first *data*))))
