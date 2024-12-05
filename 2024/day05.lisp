@@ -2,19 +2,18 @@
 
 (in-package :aoc2024.day05)
 
-(defun parse-rules (input)
+(defun rules (section)
   (let ((rules (make-hash-table)))
     (flet ((add (a b) (push b (gethash a rules))))
-      (map nil (a:curry #'apply #'add) (mapcar #'aoc:read-integers (aoc:lines (first (aoc:sections input))))))
+      (mapc (a:curry #'apply #'add)
+            (mapcar #'aoc:read-integers (aoc:lines section))))
     rules))
 
-(defun parse-updates (input)
-  (mapcar (lambda (line)
-            (read-from-string (format nil "(~a)" (aoc:tr "," " " line))))
-          (aoc:lines (second (aoc:sections input)))))
+(defun updates (section)
+  (mapcar #'aoc:read-integers (aoc:lines section)))
 
 (defun parse (input)
-  (list (parse-rules input) (parse-updates input)))
+  (aoc:map-sections input #'rules #'updates))
 
 (defun right-order? (rules updates)
   (if (null updates)
@@ -41,7 +40,7 @@
   (sort update (a:curry #'is-earlier? rules)))
 
 (defun part2 (input)
-  (let* ((rules (parse-rules input))
-         (updates (parse-updates input))
-         (corrected (mapcar (a:curry #'order rules) (incorrectly-ordered rules updates))))
-    (reduce #'+ (middle-pages corrected))))
+  (destructuring-bind (rules updates) (parse input)
+    (let ((corrected (mapcar (a:curry #'order rules)
+                             (incorrectly-ordered rules updates))))
+      (reduce #'+ (middle-pages corrected)))))

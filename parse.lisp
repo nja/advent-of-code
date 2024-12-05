@@ -20,3 +20,6 @@
                                                           c
                                                           #\Space))
                                             string))))
+
+(defun map-sections (input &rest functions)
+  (mapcar #'funcall functions (aoc:sections input)))

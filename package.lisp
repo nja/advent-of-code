@@ -10,6 +10,7 @@
            :input
            :leaderboard
            :lines
+           :map-sections
            :print-array
            :print-indexed-lines
            :read-integers
