@@ -15,11 +15,14 @@
   (remove #\Return string))
 
 (defun read-integers (string)
-  (read-from-string (format nil "(~a)" (map 'string (lambda (c)
-                                                      (if (digit-char-p c)
-                                                          c
-                                                          #\Space))
-                                            string))))
+  (read-as-list (map 'string (lambda (c)
+                               (if (digit-char-p c)
+                                   c
+                                   #\Space))
+                     string)))
+
+(defun read-as-list (string)
+  (read-from-string (format nil "(~a)" string)))
 
 (defun map-sections (input &rest functions)
   (mapcar #'funcall functions (aoc:sections input)))

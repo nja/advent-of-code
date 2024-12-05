@@ -13,6 +13,7 @@
            :map-sections
            :print-array
            :print-indexed-lines
+           :read-as-list
            :read-integers
            :save-input
            :sections
