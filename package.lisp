@@ -12,6 +12,7 @@
            :lines
            :print-array
            :print-indexed-lines
+           :read-integers
            :save-input
            :sections
            :set-config

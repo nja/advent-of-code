@@ -4,10 +4,8 @@
 
 (defun parse-rules (input)
   (let ((rules (make-hash-table)))
-    (map nil (lambda (line)
-               (destructuring-bind (a b) (read-from-string (format nil "(~a)" (aoc:tr "|" " " line)))
-                 (push b (gethash a rules))))
-         (aoc:lines (first (aoc:sections input))))
+    (flet ((add (a b) (push b (gethash a rules))))
+      (map nil (a:curry #'apply #'add) (mapcar #'aoc:read-integers (aoc:lines (first (aoc:sections input))))))
     rules))
 
 (defun parse-updates (input)
