@@ -91,6 +91,10 @@
 (defpackage :aoc2016.day19 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2016.day20 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2016.day21 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2016.day22 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2016.day23 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2016.day24 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2016.day25 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2016.tests (:use :aoc))
 
 (defpackage :aoc2017.day01 (:use :cl))

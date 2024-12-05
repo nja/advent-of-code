@@ -44,9 +44,9 @@
 (defun distances (nodes)
   (when (plusp (length nodes))
     (append (remove nil (mapcar (lambda (node)
-                                  (a:when-let (to (find (ref (d:item node)) nodes :start 1))
-                                    (cons (key (aref nodes 0) to) (d:distance node))))
-                                (nth-value 1 (d:search* (find-index (aref nodes 0)) #'neighbours :pathsp t))))
+                                  (a:when-let (to (find (ref (dijkstra:item node)) nodes :start 1))
+                                    (cons (key (aref nodes 0) to) (dijkstra:distance node))))
+                                (dijkstra:search* (find-index (aref nodes 0)) #'neighbours)))
             (distances (subseq nodes 1)))))
 
 (defun key (a b)
