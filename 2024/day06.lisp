@@ -55,14 +55,14 @@
         sum (loop for col below (array-dimension array 1)
                  counting (equal c (aref array row col)))))
 
+(defun patrol (array)
+  (loop for (p d) = (list (starting-pos array) '(-1 0))
+          then (move array p d)
+        while p
+        finally (return array)))
+
 (defun part1 (input)
-  (let ((array (aoc:to-array input)))
-    (loop for (p d) = (list (starting-pos array) '(-1 0))
-            then (move array p d)
-          while p
-          finally (return array))
-    (aoc:print-array array)
-    (count-c array #\X)))
+  (count-c (patrol (aoc:to-array input)) #\X))
 
 (defun place-block (array row col)
   (let ((copy (a:copy-array array)))
@@ -79,6 +79,8 @@
 (defun part2 (input)
   (let* ((array (aoc:to-array input))
          (sp (starting-pos array)))
+    (patrol array)
     (loop for row below (array-dimension array 0)
           sum (loop for col below (array-dimension array 1)
-                    count (is-loop? (place-block array row col) sp '(-1 0))))))
+                    for x = (aref array row col)
+                    count (and (eql x #\X) (is-loop? (place-block array row col) sp '(-1 0)))))))
