@@ -32,8 +32,12 @@
         ((equal d '(0 -1)) '(-1 0))))
 
 
-(defun move (array p d &optional (mc #\X))
-  (setf (apply #'aref array p) mc)
+(defun move (array p d &optional seen)
+  (setf (apply #'aref array p) #\X)
+  (when seen
+    (if (gethash (list p d) seen)
+        (return-from move (list nil t))
+        (setf (gethash (list p d) seen) t)))
   (let ((np (add p d)))
     (cond ((not (apply #'array-in-bounds-p array np)) (list nil nil))
           ((equal #\# (apply #'aref array np))
@@ -60,6 +64,21 @@
     (aoc:print-array array)
     (count-c array #\X)))
 
-(defun loop? (array d)
-  (let ((array (a:copy-array array)))
-    ))
+(defun place-block (array row col)
+  (let ((copy (a:copy-array array)))
+    (setf (aref copy row col) #\#)
+    copy))
+
+(defun is-loop? (array op od)
+  (let ((seen (make-hash-table :test 'equalp)))
+    (loop for (p d) = (list op od)
+            then (move array p d seen)
+          while p
+          finally (return d))))
+
+(defun part2 (input)
+  (let* ((array (aoc:to-array input))
+         (sp (starting-pos array)))
+    (loop for row below (array-dimension array 0)
+          sum (loop for col below (array-dimension array 1)
+                    count (is-loop? (place-block array row col) sp '(-1 0))))))
