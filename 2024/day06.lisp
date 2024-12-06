@@ -32,12 +32,8 @@
         ((equal d '(0 -1)) '(-1 0))))
 
 
-(defun move (array p d &optional seen)
+(defun move (array p d)
   (setf (apply #'aref array p) #\X)
-  (when seen
-    (if (gethash (list p d) seen)
-        (return-from move (list nil t))
-        (setf (gethash (list p d) seen) t)))
   (let ((np (add p d)))
     (cond ((not (apply #'array-in-bounds-p array np)) (list nil nil))
           ((equal #\# (apply #'aref array np))
@@ -69,10 +65,23 @@
     (setf (aref copy row col) #\#)
     copy))
 
-(defun is-loop? (array op od)
+(defun sneak (array p d seen br bc)
+  (if (gethash (list p d) seen)
+      (return-from sneak (list nil 'loop))
+      (setf (gethash (list p d) seen) t))
+  (let ((np (add p d)))
+    (cond ((not (apply #'array-in-bounds-p array np))
+           nil)
+          ((or (and (eql br (first np))
+                    (eql bc (second np)))
+               (equal #\# (apply #'aref array np)))
+           (list p (right d)))
+          (t (list np d)))))
+
+(defun is-loop? (array op od row col)
   (let ((seen (make-hash-table :test 'equalp)))
     (loop for (p d) = (list op od)
-            then (move array p d seen)
+            then (sneak array p d seen row col)
           while p
           finally (return d))))
 
@@ -83,4 +92,4 @@
     (loop for row below (array-dimension array 0)
           sum (loop for col below (array-dimension array 1)
                     for x = (aref array row col)
-                    count (and (eql x #\X) (is-loop? (place-block array row col) sp '(-1 0)))))))
+                    count (and (eql x #\X) (is-loop? array sp '(-1 0) row col))))))
