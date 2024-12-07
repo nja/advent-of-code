@@ -20,7 +20,12 @@
   (reduce #'+ (mapcar (a:curry #'calibration-value #'calibrate) (parse input))))
 
 (defun || (a b)
-  (values (parse-integer (format nil "~a~a" a b))))
+  (flet ((digits (n)
+           (if (zerop n)
+               1
+               (1+ (truncate (log n 10))))))
+    (+ (* a (expt 10 (digits b)))
+       b)))
 
 (defun calibrate-2 (goal value terms)
   (if (null terms)
