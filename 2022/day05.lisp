@@ -13,7 +13,7 @@
 
 (defun parse-moves (section)
   (mapcar (lambda (l)
-            (read-from-string (format nil "(~a)" (ppcre:regex-replace-all "[^0-9]" l " "))))
+            (aoc:read-as-list (ppcre:regex-replace-all "[^0-9]" l " ")))
           (aoc:lines section)))
 
 (defun move (stacks n from to)

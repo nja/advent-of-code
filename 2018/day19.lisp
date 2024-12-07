@@ -3,11 +3,9 @@
 (in-package #:aoc2018.day19)
 
 (defun parse (input)
-  (let ((*package* (symbol-package 'parse)))
-    (destructuring-bind (ip-declaration . instructions) (aoc:lines input)
-      (values (mapcar (lambda (line) (read-from-string (format nil "(~a~%)" line)))
-                      instructions)
-              (parse-integer ip-declaration :start 4)))))
+  (destructuring-bind (ip-declaration . instructions) (aoc:lines input)
+    (values (mapcar #'aoc:read-as-list instructions)
+            (parse-integer ip-declaration :start 4))))
 
 (defun assemble (instructions ip-reg-ix &key escape)
   (let ((registers (list 'r0 'r1 'r2 'r3 'r4 'r5))

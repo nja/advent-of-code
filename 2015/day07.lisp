@@ -4,7 +4,7 @@
 
 (defun parse (input)
   (let ((*package* (symbol-package 'parse)))
-    (mapcar (lambda (line) (remove '-> (read-from-string (format nil "(~a)" line))))
+    (mapcar (lambda (line) (remove '-> (aoc:read-as-list line)))
             (aoc:lines input))))
 
 (defun circuit (instructions)

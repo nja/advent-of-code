@@ -12,14 +12,10 @@
   (mapcar #'parse-rule (aoc:lines (section input 0))))
 
 (defun parse-rule (line)
-  (destructuring-bind (id . rest) (parse-as-list (aoc:tr ":|" " ?" line))
+  (destructuring-bind (id . rest) (aoc:read-as-list (aoc:tr ":|" " ?" line))
     (cons id (if (member '? rest)
                  (alt (mapcar #'seq (split '? rest)))
                  (seq rest)))))
-
-(defun parse-as-list (str)
-  (let ((*package* (symbol-package '?)))
-    (read-from-string (format nil "(~a)" str))))
 
 (defun seq (rest) (cons :sequence rest))
 (defun alt (rest) (cons :alternation rest))

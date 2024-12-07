@@ -25,4 +25,4 @@
                         " #  # #     ##   ##  #    #### #  # #      "))
 (defanswer day12 7758 354540398381256)
 (defanswer day13 324 15957)
-(defanswer day14 532506)
+(defanswer day14 532506 2595245)

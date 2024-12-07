@@ -4,8 +4,7 @@
 
 (defun parse (input)
   (let ((*package* (symbol-package 'parse)))
-    (map 'vector (lambda (line) (read-from-string (format nil "(~a~%)" line)))
-         (aoc:lines input))))
+    (map 'vector #'aoc:read-as-list (aoc:lines input))))
 
 (defun interpret (instructions a)
   (let ((registers (list 'a a 'b 0 'c 0 'd 0))

@@ -37,18 +37,6 @@
                  answers
                  '("PART1" "PART2")))))
 
-(defun lines (string)
-  (ppcre:split "\\n" string))
-
-(defun sections (string)
-  (ppcre:split "\\n\\n" string))
-
-(defun trim-lf (string)
-  (string-right-trim '(#\Linefeed) string))
-
-(defun strip-cr (string)
-  (remove #\Return string))
-
 (defun to-array (input)
   (loop with lines = (aoc:lines input)
         with array = (make-array (list (length lines) (length (first lines))))

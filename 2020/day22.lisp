@@ -3,7 +3,7 @@
 (in-package #:aoc2020.day22)
 
 (defun parse (input)
-  (mapcar (compose #'player #'read-from-string (curry #'format nil "(~a)"))
+  (mapcar (compose #'player #'aoc:read-as-list)
           (cdr (ppcre:split "\\s*Player \\d:\\s*" input))))
 
 (defun player (cards)

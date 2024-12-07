@@ -4,12 +4,8 @@
 
 (defstruct (monkey) id items operation divisor destinations inspections)
 
-(defun read-as-list (string)
-  (let ((*package* (symbol-package 'read-as-list)))
-    (read-from-string (format nil "(~a)" string))))
-
 (defun integers (line)
-  (read-as-list (ppcre:regex-replace-all "\\D+" line " ")))
+  (aoc:read-as-list (ppcre:regex-replace-all "\\D+" line " ")))
 
 (defun parse-monkey (section)
   (with-input-from-string (in section)
@@ -17,7 +13,7 @@
              (read-line in)))
       (make-monkey :id (first (integers (line)))
                    :items (reverse (integers (line #\:)))
-                   :operation (apply #'operation (read-as-list (line #\=)))
+                   :operation (apply #'operation (aoc:read-as-list (line #\=)))
                    :divisor (first (integers (line)))
                    :destinations (append (integers (line)) (integers (line)))
                    :inspections 0))))
