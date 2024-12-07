@@ -27,4 +27,5 @@
 (defanswer day13 324 15957)
 (defanswer day14 532506 2595245)
 (defanswer day15 212 358)
-
+(defanswer day16 "28430146" "12064286")
+(defanswer day17 4864)

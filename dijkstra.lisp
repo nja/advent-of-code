@@ -25,12 +25,12 @@
              (eql (distance x) (distance y))
              (funcall compare-items (item x) (item y))))))
 
-(defun search* (start neighbours &key donep distancef comparef max-distance)
+(defun search* (start neighbours &key donep (goal nil goalp) distancef comparef max-distance)
   (let ((queue (make-queue comparef))
         (entries (make-hash-table :test 'equalp)))
     (flet ((%donep (node)
-             (when donep
-               (funcall donep (item node))))
+             (or (and goalp (equalp goal (item node)))
+                 (and donep (funcall donep (item node)))))
            (%distance (x y)
              (if distancef
                  (funcall distancef x y)
