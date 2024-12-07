@@ -28,6 +28,53 @@
 (defparameter *memory* nil)
 (defun memory () (a:copy-array *memory*))
 
+(defun make-map (input)
+  (aoc:to-array (nth-value 1 (run (parse input)))))
+
+(defclass robot () (x y dx dy map))
+
+(defun act (robot m)
+  (cond ((integerp m)
+         (forward robot m))
+        ((eql 'R m)
+         (right robot))
+        ((eql 'L m)
+         (left robot))))
+
+(defun forward (robot n)
+  (with-slots (x y dx dy) robot
+    (loop repeat n
+          do (incf x dx)
+             (incf y dy)
+          while (safe? robot)
+          finally (return (safe? robot)))))
+
+(defun safe? (robot)
+  (with-slots (x y dx dy map) robot
+    (and (array-in-bounds-p map y x)
+         (eql #\# (aref map y x)))))
+
+(defun right (robot)
+  (with-slots (x y dx dy) robot
+    (let ((ndx (- dy))
+          (ndy dx))
+      (setf dx ndx
+            dy ndy))))
+
+(defun left (robot)
+  (with-slots (x y dx dy) robot
+    (let ((ndx dy)
+          (ndy (- dx)))
+      (setf dx ndx
+            dy ndy))))
+
+(defun trial (robot main a b c)
+  (flet ((routine (r)
+           (loop for a in r
+                 always (act robot a))))
+    (loop for r in main
+          always (routine (case r (a a) (b b) (c c))))))
+
 (defun run (memory &optional input)
   (let ((ip 0)
         (base 0)
