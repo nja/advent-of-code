@@ -25,7 +25,13 @@
 (defun part1 (input)
   (intersections (run (parse input))))
 
-(defun run (memory &optional input)
+(defparameter *memory* nil)
+(defun memory () (a:copy-array *memory*))
+
+(defun run (logic)
+  (run* (memory) (apply #'input logic)))
+
+(defun run* (memory &optional input)
   (let ((ip 0)
         (base 0)
         (output (make-array 1024 :element-type 'character :adjustable t :fill-pointer 0))
@@ -49,7 +55,9 @@
             (loop do (incf ip (ecase (mod opcode 100)
                                 (1 (sc (+ (a) (b))) 4)
                                 (2 (sc (* (a) (b))) 4)
-                                (3 (sa (char-code (vector-pop input))) 2)
+                                (3 (sa (prog1 (char-code (vector-pop input))
+                                         (when (zerop (fill-pointer input))
+                                           (setf (fill-pointer output) 0)))) 2)
                                 (4 (if (< (a) #x100)
                                        (vector-push-extend (code-char (a)) output)
                                        (setf status (a))) 2)
@@ -58,13 +66,13 @@
                                 (7 (sc (if (< (a) (b)) 1 0)) 4)
                                 (8 (sc (if (= (a) (b)) 1 0)) 4)
                                 (9 (incf base (a)) 2)
-                                (99 (return (values output status))))))))))))
+                                (99 (return (values status output))))))))))))
 
 (defun wake-up (memory)
   (prog1 memory
     (setf (aref memory 0) 2)))
 
-(defun input (main a b c feed)
+(defun input (main a b c)
   (let ((buffer (make-array #xff :element-type 'character :fill-pointer 0)))
     (flet ((buffer (x)
              (let ((i (fill-pointer buffer)))
@@ -74,27 +82,42 @@
                  (buffer a)
                  (buffer b)
                  (buffer c)
-                 (buffer (list feed)))
+                 (buffer '(n)))
         (nreverse buffer)))))
-
-(defun 2d-map (camera-output)
-  (let* ((cols (reduce #'max (mapcar #'length (aoc:lines camera-output))))
-         (rows (length (aoc:lines camera-output)))
-         (map (make-array (list rows cols) :initial-element #\Space)))
-    (loop with row = 0
-          for col = 0 then (if (eql c #\Newline) 0 (1+ col))
-          for c across camera-output
-          do (cond ((eq c #\Newline)
-                    (incf row))
-                   (t
-                    (setf (aref map row col) c)))
-          finally (return map))))
-
-(defun part2 (input)
-  (wake-up (parse input)))
-
 
 (defun crash? (output)
   (find #\X output))
+
+(defun neighbours (results-and-logic)
+  (destructuring-bind (status output logic) results-and-logic
+    (declare (ignore status))
+    (when (not (crash? output))
+      (mapcar (lambda (logic)
+                (multiple-value-bind (status output) (run logic)
+                  (list status output logic)))
+              (extend logic)))))
+
+(defun extend (logic)
+  (let (results)
+    (flet ((collect (main a b c) (push (list main a b c) logic)))
+      (destructuring-bind (main a b c) logic
+        (dolist (main (extend-main main))
+          (collect main a b c))
+        (dolist (a (extend-movement a))
+          (collect main a b c))
+        (dolist (b (extend-movement b))
+          (collect main a b c))
+        (dolist (c (extend-movement c))
+          (collect main a b c))))
+    results))
+
+(defun extend-movement (moves)
+  )
+
+(defun extend-main (routines)
+  )
+
+(defun part2 (input)
+  (wake-up (parse input)))
 
 ;;; (runf (input '(a b c) '(R 8 R 8) '(r 4 r 4) '(1 2 3 4 5 6 7 8 9) 'y))
