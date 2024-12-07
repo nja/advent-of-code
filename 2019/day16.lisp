@@ -30,6 +30,10 @@
                   sum v)
             10)))
 
+(defun phases (input n)
+  (dotimes (i n input)
+    (setf input (phase1 input))))
+
 (defun unparse (offset n seq)
   (map 'string #'digit-char (subseq seq offset (+ offset n))))
 
