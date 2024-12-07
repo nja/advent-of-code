@@ -4,7 +4,7 @@
 
 (defun parse (input)
   (mapcar (lambda (line)
-            (pairs (read-from-string (format nil "(~a)" (aoc:tr "->," "   " line)))))
+            (pairs (aoc:read-as-list (aoc:tr "->," "   " line))))
           (aoc:lines input)))
 
 (deftype unsigned-coord () '(unsigned-byte 24))
