@@ -28,10 +28,7 @@
 (defparameter *memory* nil)
 (defun memory () (a:copy-array *memory*))
 
-(defun run (logic)
-  (run* (memory) (apply #'input logic)))
-
-(defun run* (memory &optional input)
+(defun run (memory &optional input)
   (let ((ip 0)
         (base 0)
         (output (make-array 1024 :element-type 'character :adjustable t :fill-pointer 0))
@@ -91,13 +88,17 @@
 (defun neighbours (results-and-logic)
   (destructuring-bind (status output logic) results-and-logic
     (declare (ignore status))
-    (when (not (crash? output))
-      (mapcar (lambda (logic)
-                (if (member nil logic)
-                    (list nil nil logic)
-                    (multiple-value-bind (status output) (run logic)
-                      (list status output logic))))
-              (extend logic)))))
+    (a:when-let (input (apply #'input logic))
+      (when (not (crash? output))
+        (mapcar (lambda (logic)
+                  (if (runnable? logic)
+                      (multiple-value-bind (status output) (run (memory) input)
+                        (list status output logic))
+                      (list nil nil logic)))
+                (extend logic))))))
+
+(defun runnable? (logic)
+  (not (member nil logic)))
 
 (defun extend (logic)
   (let (results)
@@ -123,6 +124,8 @@
         collect (append routines r)))
 
 (defun part2 (input)
-  (wake-up (parse input)))
+  (let ((*memory* (wake-up (parse input))))
+    (dijkstra:search* '(nil nil (nil nil nil nil)) #'neighbours
+                      :donep (lambda (x) (numberp (first x))))))
 
 ;;; (runf (input '(a b c) '(R 8 R 8) '(r 4 r 4) '(1 2 3 4 5 6 7 8 9) 'y))
