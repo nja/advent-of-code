@@ -3,11 +3,10 @@
 (in-package :aoc2015.day23)
 
 (defun parse (input)
-  (let ((*package* (symbol-package 'parse)))
-    (mapcar (lambda (line) (read-from-string (format nil "(~a~%)" (remove #\, line))))
-            (aoc:lines input))))
+  (mapcar (lambda (line) (aoc:read-as-list (remove #\, line)))
+          (aoc:lines input)))
 
-(defun assemble (instructions a)
+(defun assemble (instructions)
   (let ((tags (loop for i below (length instructions) collect i))
         (disasm (make-array 0 :element-type 'character :fill-pointer 0 :adjustable t)))
     (labels ((disasm (tag instruction op)
@@ -29,8 +28,8 @@
                      op)))))
       (let ((ops (mapcar #'asm tags instructions)))
         (values
-         `(lambda ()
-            (let ((a ,a) (b 0))
+         `(lambda (a)
+            (let ((b 0))
               (declare (fixnum a b) (optimize (speed 3) (safety 0) (debug 0) (space 0)))
               (tagbody ,@(mapcan #'list tags ops)
                end)
@@ -38,7 +37,7 @@
          disasm)))))
 
 (defun part1 (input)
-  (funcall (eval (assemble (parse input) 0))))
+  (funcall (eval (assemble (parse input))) 0))
 
 (defun part2 (input)
-  (funcall (eval (assemble (parse input) 1))))
+  (funcall (eval (assemble (parse input))) 1))

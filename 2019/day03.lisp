@@ -3,13 +3,12 @@
 (in-package :aoc2019.day03)
 
 (defun parse (input)
-  (let ((*package* (symbol-package 'parse)))
-    (mapcar (lambda (line)
-              (mapcar (lambda (x)
-                        (mapcar #'read-from-string
-                                (list (subseq x 0 1) (subseq x 1))))
-                      (str:split "," line)))
-            (aoc:lines input))))
+  (mapcar (lambda (line)
+            (mapcar (lambda (x)
+                      (mapcar #'read-from-string
+                              (list (subseq x 0 1) (subseq x 1))))
+                    (str:split "," line)))
+          (aoc:lines input)))
 
 (defun d (x)
   (getf '(U (0 -1) D (0 1) R (1 0) L (-1 0)) x))

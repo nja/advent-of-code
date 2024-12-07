@@ -2,9 +2,6 @@
 
 (in-package #:aoc2018.day08)
 
-(defun parse (input)
-  (read-from-string (format nil "(~a)" input)))
-
 (defun make-node (children meta tail) (append (list children meta) tail))
 (defun children (node) (car node))
 (defun meta (node) (cadr node))
@@ -36,7 +33,7 @@
      (apply #'+ (meta node))))
 
 (defun part1 (input)
-  (sum-metas (parse-node (parse input))))
+  (sum-metas (parse-node (aoc:read-as-list input))))
 
 (defun value (node)
   (if (children node)
@@ -45,4 +42,4 @@
       (apply #'+ (meta node))))
 
 (defun part2 (input)
-  (value (parse-node (parse input))))
+  (value (parse-node (aoc:read-as-list input))))

@@ -3,11 +3,9 @@
 (in-package #:aoc2018.day21)
 
 (defun parse (input)
-  (let ((*package* (symbol-package 'parse)))
-    (destructuring-bind (ip-declaration . instructions) (aoc:lines input)
-      (values (mapcar (lambda (line) (read-from-string (format nil "(~a~%)" line)))
-                      instructions)
-              (parse-integer ip-declaration :start 4)))))
+  (destructuring-bind (ip-declaration . instructions) (aoc:lines input)
+    (values (mapcar #'aoc:read-as-list instructions)
+            (parse-integer ip-declaration :start 4))))
 
 (defmacro test (p) `(if ,p 1 0))
 

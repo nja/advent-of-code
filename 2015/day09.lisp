@@ -7,7 +7,7 @@
         (distances (make-hash-table :test 'equal))
         nodes)
     (dolist (line (aoc:lines input))
-      (destructuring-bind (a to b = c) (read-from-string (format nil "(~a)" line))
+      (destructuring-bind (a to b = c) (aoc:read-as-list line)
         (declare (ignore to =))
         (setf (gethash (key a b) distances) c
               (gethash (key a) distances) 0

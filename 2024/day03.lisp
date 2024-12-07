@@ -3,14 +3,10 @@
 (in-package :aoc2024.day03)
 
 (defun parse (input)
-  (let ((expressions (ppcre:all-matches-as-strings "mul\\(\\d+,\\d+\\)" input)))
-    (mapcar (lambda (expr)
-              (read-from-string (aoc:tr "mul," "    " expr)))
-            expressions)))
+  (mapcar #'aoc:read-integers (ppcre:all-matches-as-strings "mul\\(\\d+,\\d+\\)" input)))
 
 (defun part1 (input)
   (reduce #'+ (mapcar (lambda (x) (apply #'* x)) (parse input))))
-
 
 (defun instructions (s)
   (setf s (wrap s))
@@ -80,4 +76,3 @@
 
 (defun part2 (input)
   (evaluate (instructions input)))
-

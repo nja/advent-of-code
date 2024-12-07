@@ -10,8 +10,11 @@
            :input
            :leaderboard
            :lines
+           :map-sections
            :print-array
            :print-indexed-lines
+           :read-as-list
+           :read-integers
            :save-input
            :sections
            :set-config
@@ -88,6 +91,10 @@
 (defpackage :aoc2016.day19 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2016.day20 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2016.day21 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2016.day22 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2016.day23 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2016.day24 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2016.day25 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2016.tests (:use :aoc))
 
 (defpackage :aoc2017.day01 (:use :cl))
@@ -301,4 +308,8 @@
 (defpackage :aoc2024.day01 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2024.day02 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2024.day03 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2024.day04 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2024.day05 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2024.day06 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2024.day07 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2024.tests (:use :aoc))

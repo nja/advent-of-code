@@ -3,10 +3,9 @@
 (in-package :aoc2015.day16)
 
 (defun parse (input)
-  (let ((*package* (symbol-package 'parse)))
-    (mapcar (lambda (line)
-              (read-from-string (format nil "(~a)" (aoc:tr ":," "  " line))))
-            (aoc:lines input))))
+  (mapcar (lambda (line)
+            (aoc:read-as-list (aoc:tr ":," "  " line)))
+          (aoc:lines input)))
 
 (defparameter *tape* (parse
 "children: 3

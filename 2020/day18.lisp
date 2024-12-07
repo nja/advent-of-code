@@ -2,9 +2,6 @@
 
 (in-package #:aoc2020.day18)
 
-(defun read-homework (str)
-  (read-from-string (format nil "(~a)" str)))
-
 (defun eval-homework (x)
   (cond ((atom x) x)
         ((null (cdr x)) (car x))
@@ -17,7 +14,7 @@
                              rest))))))))
 
 (defun sum-homework (eval lines)
-  (reduce #'+ (mapcar (compose eval #'read-homework) lines)))
+  (reduce #'+ (mapcar (compose eval #'aoc:read-as-list) lines)))
 
 (defun part1 (input)
   (sum-homework #'eval-homework (aoc:lines input)))

@@ -34,3 +34,7 @@
 (defanswer day19 1842613 1424135)
 (defanswer day20 32259706 113)
 (defanswer day21 "ghfacdbe" "fhgcdaeb")
+(defanswer day22 1045 265)
+(defanswer day23 14065 479010625)
+(defanswer day24 428 680)
+(defanswer day25 175)

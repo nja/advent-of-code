@@ -84,4 +84,4 @@
        (zerop (y (data state)))))
 
 (defun part2 (input)
-  (d:distance (d:search* (init-state (parse input)) #'neighbours :donep #'done?)))
+  (dijkstra:distance (dijkstra:search* (init-state (parse input)) #'neighbours :donep #'done?)))
