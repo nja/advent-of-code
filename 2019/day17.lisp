@@ -93,13 +93,16 @@
     (declare (ignore status))
     (when (not (crash? output))
       (mapcar (lambda (logic)
-                (multiple-value-bind (status output) (run logic)
-                  (list status output logic)))
+                (if (member nil logic)
+                    (list nil nil logic)
+                    (multiple-value-bind (status output) (run logic)
+                      (list status output logic))))
               (extend logic)))))
 
 (defun extend (logic)
   (let (results)
-    (flet ((collect (main a b c) (push (list main a b c) logic)))
+    (flet ((collect (main a b c)
+             (push (list main a b c) results)))
       (destructuring-bind (main a b c) logic
         (dolist (main (extend-main main))
           (collect main a b c))
@@ -112,10 +115,12 @@
     results))
 
 (defun extend-movement (moves)
-  )
+  (loop for m in '((r) (l) (1) (2) (3) (4) (5) (6) (7) (8) (9) (10))
+        collect (append moves m)))
 
 (defun extend-main (routines)
-  )
+  (loop for r in '((a) (b) (c))
+        collect (append routines r)))
 
 (defun part2 (input)
   (wake-up (parse input)))
