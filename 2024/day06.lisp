@@ -2,28 +2,42 @@
 
 (in-package :aoc2024.day06)
 
-(defparameter *test*
-"....#.....
-.........#
-..........
-..#.......
-.......#..
-..........
-.#..^.....
-........#.
-#.........
-......#...")
-
 (defun pos (x y) (list x y))
 (defun add (a b) (mapcar #'+ a b))
-;(defun turn (d) (getf d '((1 0) (0 1) (-1 0) (0 -1) (1 0))))
+(defun sub (a b) (mapcar #'- a b))
 
-(defun left (d)
-  (cond ((equal d '(1 0)) '(0 1))
-        ((equal d '(0 1)) '(-1 0))
-        ((equal d '(-1 0)) '(0 -1))
-        ((equal d '(0 -1)) '(1 0))))
+(defclass guard ()
+  ((position :initarg :position)
+   (dir :initarg :dir)
+   (map :initarg :map)
+   (visited :initarg :visited)
+   (obstacle :initarg :obstacle :initform nil)
+   (steps :initform 0 :reader steps)))
 
+(defun guard (array &optional starting-pos dir obstacle)
+  (make-instance 'guard
+                 :position (or starting-pos (starting-pos array))
+                 :dir (or dir '(-1 0))
+                 :map array
+                 :visited (make-array (array-dimensions array) :initial-element nil)
+                 :obstacle obstacle))
+
+(defun move (guard)
+  (with-slots (position dir array visited) guard
+    (when position
+      (push dir (apply #'aref visited position))
+      (multiple-value-bind (np what) (ahead-of guard)
+        (cond ((null np)
+               (setf position np))
+              ((eql what #\#)
+               (turn guard)
+               position)
+              (t
+               (setf position np)))))))
+
+(defun turn (guard)
+  (with-slots (dir) guard
+    (setf dir (right dir))))
 
 (defun right (d)
   (cond ((equal d '(-1 0)) '(0 1))
@@ -31,14 +45,12 @@
         ((equal d '(1 0)) '(0 -1))
         ((equal d '(0 -1)) '(-1 0))))
 
-
-(defun move (array p d)
-  (setf (apply #'aref array p) #\X)
-  (let ((np (add p d)))
-    (cond ((not (apply #'array-in-bounds-p array np)) (list nil nil))
-          ((equal #\# (apply #'aref array np))
-           (list p (right d)))
-          (t (list np d)))))
+(defun ahead-of (guard)
+  (with-slots (map position dir) guard
+    (let ((np (add position dir)))
+      (if (apply #'array-in-bounds-p map np)
+          (values np (apply #'aref map np))
+          (values nil nil)))))
 
 (defun starting-pos (array)
   (loop for row below (array-dimension array 0)
@@ -46,50 +58,45 @@
                  when (equal #\^ (aref array row col))
                    do (return-from starting-pos (list row col)))))
 
-(defun count-c (array c)
-  (loop for row below (array-dimension array 0)
-        sum (loop for col below (array-dimension array 1)
-                 counting (equal c (aref array row col)))))
+(defun patrol (guard)
+  (loop while (move guard)
+        finally (return guard)))
 
-(defun patrol (array)
-  (loop for (p d) = (list (starting-pos array) '(-1 0))
-          then (move array p d)
-        while p
-        finally (return array)))
+(defun count-visited (guard)
+  (with-slots (visited) guard
+    (loop for i below (array-total-size visited)
+          count (row-major-aref visited i))))
 
 (defun part1 (input)
-  (count-c (patrol (aoc:to-array input)) #\X))
+  (count-visited (patrol (guard (aoc:to-array input)))))
 
-(defun place-block (array row col)
-  (let ((copy (a:copy-array array)))
-    (setf (aref copy row col) #\#)
-    copy))
+(defun count-loop-obstructions (map visited)
+  (loop for row below (array-dimension visited 0)
+        sum (loop for col below (array-dimension visited 1)
+                  for pos = (pos row col)
+                  for dir = (car (last (aref visited row col)))
+                  count (and dir (loop? (guard map (sub pos dir) dir pos))))))
 
-(defun sneak (array p d seen br bc)
-  (if (gethash (list p d) seen)
-      (return-from sneak (list nil 'loop))
-      (setf (gethash (list p d) seen) t))
-  (let ((np (add p d)))
-    (cond ((not (apply #'array-in-bounds-p array np))
-           nil)
-          ((or (and (eql br (first np))
-                    (eql bc (second np)))
-               (equal #\# (apply #'aref array np)))
-           (list p (right d)))
-          (t (list np d)))))
+(defun loop? (guard)
+  (loop for x = (move2 guard)
+        while x
+        when (eq x 'loop) return t))
 
-(defun is-loop? (array op od row col)
-  (let ((seen (make-hash-table :test 'equalp)))
-    (loop for (p d) = (list op od)
-            then (sneak array p d seen row col)
-          while p
-          finally (return d))))
+(defun move2 (guard)
+  (with-slots (position dir array visited obstacle) guard
+    (when position
+      (multiple-value-bind (np what) (ahead-of guard)
+        (cond ((null np)
+               (setf position np))
+              ((or (eql what #\#) (equal np obstacle))
+               (if (find dir (apply #'aref visited position))
+                   (return-from move2 'loop)
+                   (push dir (apply #'aref visited position)))
+               (turn guard)
+               position)
+              (t
+               (setf position np)))))))
 
 (defun part2 (input)
-  (let* ((array (aoc:to-array input))
-         (sp (starting-pos array)))
-    (patrol array)
-    (loop for row below (array-dimension array 0)
-          sum (loop for col below (array-dimension array 1)
-                    for x = (aref array row col)
-                    count (and (eql x #\X) (is-loop? array sp '(-1 0) row col))))))
+  (with-slots (map visited) (patrol (guard (aoc:to-array input)))
+    (count-loop-obstructions map visited)))
