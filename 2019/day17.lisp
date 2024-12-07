@@ -31,7 +31,15 @@
 (defun make-map (input)
   (aoc:to-array (nth-value 1 (run (parse input)))))
 
-(defclass robot () (x y dx dy map))
+(defclass robot ()
+  ((x :initarg :x)
+   (y :initarg y)
+   (dx :initarg dx)
+   (dy :initarg :dy)
+   (map :initarg :map)))
+
+(defun robot (map)
+  (let ((r (make-instance 'robot)))))
 
 (defun act (robot m)
   (cond ((integerp m)
