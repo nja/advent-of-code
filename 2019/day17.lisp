@@ -92,8 +92,9 @@
       (when (not (crash? output))
         (mapcar (lambda (logic)
                   (if (runnable? logic)
-                      (multiple-value-bind (status output) (run (memory) input)
-                        (list status output logic))
+                      (progn (print logic)
+                             (multiple-value-bind (status output) (run (memory) (a:copy-array input))
+                               (list status output logic)))
                       (list nil nil logic)))
                 (extend logic))))))
 
@@ -116,8 +117,26 @@
     results))
 
 (defun extend-movement (moves)
-  (loop for m in '((r) (l) (1) (2) (3) (4) (5) (6) (7) (8) (9) (10))
-        collect (append moves m)))
+  (if (null moves)
+      '((R) (L) (1))
+      (loop for n in (turns moves)
+            collect (append moves n))))
+
+(defun turns (moves)
+  (loop with r = 0 and l = 0 and i
+        for x in moves
+        do (case x
+             (r (incf r) (setf l 0 i nil))
+             (l (incf l) (setf r 0 i nil))
+             (t (setf i x r 0 l 0)))
+        finally (case x
+                  (r (if (< r 2)
+                         '((r) (1))
+                         '((1))))
+                  (l (if (< l 2)
+                         '((l) (1))
+                         '((1))))
+                  (t '((1))))))
 
 (defun extend-main (routines)
   (loop for r in '((a) (b) (c))
@@ -125,7 +144,8 @@
 
 (defun part2 (input)
   (let ((*memory* (wake-up (parse input))))
-    (dijkstra:search* '(nil nil (nil nil nil nil)) #'neighbours
-                      :donep (lambda (x) (numberp (first x))))))
+    (dijkstra:item (dijkstra:search* '(nil nil ((A) () (R) (L))) #'neighbours
+                                     :donep (lambda (x) (and (numberp (first x))
+                                                             (> (first x) 30000)))))))
 
 ;;; (runf (input '(a b c) '(R 8 R 8) '(r 4 r 4) '(1 2 3 4 5 6 7 8 9) 'y))
