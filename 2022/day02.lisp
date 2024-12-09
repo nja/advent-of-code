@@ -5,8 +5,7 @@
 (defparameter *parser* nil)
 
 (defun parse (line)
-  (sublis *parser* (let ((*package* (symbol-package 'parse)))
-                     (read-from-string (format nil "(~a)" line)))))
+  (sublis *parser* (aoc:read-as-list line)))
 
 (defun winner (x)
   (getf (a:circular-list 'rock 'paper 'scissors) x))

@@ -25,7 +25,7 @@
       (things))))
 
 (defun parse* (input)
-  (read-from-string (format nil "(~a)" (aoc:tr "[,]" "( )" input))))
+  (aoc:read-as-list (aoc:tr "[,]" "( )" input)))
 
 (defun compare (l r)
   (cond ((and (integerp l) (integerp r))
