@@ -36,22 +36,15 @@
   (checksum (compact (parse input))))
 
 (defun defrag (array files)
-  (loop with skip = (skip array)
-        with /dev/null = (make-array 10 :initial-element nil)
+  (loop with /dev/null = (make-array 10 :initial-element nil)
         for (id start len) in files
         for end = (+ start len)
-        for space = (find-space array len (funcall skip) start)
+        for skip = (position nil array :start (or skip 0))
+        for space = (find-space array len skip start)
         when space
           do (replace array array :start1 space :start2 start :end2 end)
              (replace array /dev/null :start1 start :end1 end)
         finally (return array)))
-
-(defun skip (array)
-  (let ((skip 0))
-    (lambda ()
-      (loop for i from skip
-            when (null (aref array i))
-              return (setf skip i)))))
 
 (defun find-space (array size start end)
   (loop while (< start end)
