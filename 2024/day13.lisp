@@ -2,23 +2,6 @@
 
 (in-package :aoc2024.day13)
 
-(defparameter *test*
-"Button A: X+94, Y+34
-Button B: X+22, Y+67
-Prize: X=8400, Y=5400
-
-Button A: X+26, Y+66
-Button B: X+67, Y+21
-Prize: X=12748, Y=12176
-
-Button A: X+17, Y+86
-Button B: X+84, Y+37
-Prize: X=7870, Y=6450
-
-Button A: X+69, Y+23
-Button B: X+27, Y+71
-Prize: X=18641, Y=10279")
-
 (defun parse (input)
   (mapcar (lambda (s) (mapcar #'aoc:read-integers (aoc:lines s))) (aoc:sections input)))
 
@@ -31,14 +14,12 @@ Prize: X=18641, Y=10279")
               for y from starty by ay
               for bs = (presses x y bx by px py)
               while (and (<= x px) (<= y py))
-;              while (<= as 100)
               when bs
                 minimize (+ (* as 3) bs))))))
 
 (defun presses (x y bx by px py)
   (loop for presses from 0
         while (and (<= x px) (<= y py))
-;        while (<= presses 100)
         when (and (= x px) (= y py))
           return presses
         do (incf x bx)
@@ -46,12 +27,6 @@ Prize: X=18641, Y=10279")
 
 (defun part1 (input)
   (reduce #'+ (mapcar (a:curry #'apply #'minimize-tokens) (parse input))))
-
-(defun slopes (machine)
-  (sort (list (apply #'/ (first machine))
-              (apply #'/ (second machine))
-              1/2)
-        #'<))
 
 (defun diagonal-presses (a b)
   (destructuring-bind (ax ay) a
@@ -89,8 +64,7 @@ Prize: X=18641, Y=10279")
                                 (b)
                                 (a))))))))))
 
-
-(defparameter *bignum* (- 10000000000000 200000))
+(defparameter *bignum* (- 10000000000000 20000))
 
 (defun skip (machine)
   (destructuring-bind (a b prize) machine
@@ -105,7 +79,6 @@ Prize: X=18641, Y=10279")
           (multiple-value-bind (skips rest) (truncate *bignum* skipx)
             (values (* skips ap) (* skips bp) (* skipx skips))))))))
 
-
 (defun part2 (input)
   (reduce #'+(mapcar (lambda (m)
              (multiple-value-bind (ap bp start) (skip m)
@@ -117,6 +90,3 @@ Prize: X=18641, Y=10279")
                            (+ (* 3 ap) bp mt))))
                    0)))
            (parse input))))
-
-;;; 146914147121359 too high
-;;;  50119455609690 too low
