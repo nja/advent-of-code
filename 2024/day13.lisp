@@ -5,13 +5,13 @@
 (defun parse (input)
   (mapcar (lambda (s) (mapcar #'aoc:read-integers (aoc:lines s))) (aoc:sections input)))
 
-(defun minimize-tokens (a b prize &key (startx 0) (starty 0))
+(defun minimize-tokens (a b prize &key (start 0))
   (destructuring-bind (ax ay) a
     (destructuring-bind (bx by) b
       (destructuring-bind (px py) prize
         (loop for as from 0
-              for x from startx by ax
-              for y from starty by ay
+              for x from start by ax
+              for y from start by ay
               for bs = (presses x y bx by px py)
               while (and (<= x px) (<= y py))
               when bs
@@ -71,20 +71,17 @@
     (declare (ignore prize))
     (multiple-value-bind (ap bp) (diagonal-presses a b)
       (when (and ap bp)
-        (let ((skipx (+ (* ap (first a))
-                        (* bp (first b))))
-              (skipy (+ (* ap (second a))
-                        (* bp (second b)))))
-          (assert (equal skipx skipy))
-          (multiple-value-bind (skips rest) (truncate *bignum* skipx)
-            (values (* skips ap) (* skips bp) (* skipx skips))))))))
+        (let* ((skipx (+ (* ap (first a))
+                         (* bp (first b))))
+               (skips (truncate *bignum* skipx)))
+          (values (* skips ap) (* skips bp) (* skipx skips)))))))
 
 (defun part2 (input)
   (reduce #'+(mapcar (lambda (m)
              (multiple-value-bind (ap bp start) (skip m)
                (if (and ap bp start)
                    (destructuring-bind (a b prize) m
-                     (let ((mt (minimize-tokens a b (mapcar (a:curry #'+ 10000000000000) prize) :startx start :starty start)))
+                     (let ((mt (minimize-tokens a b (mapcar (a:curry #'+ 10000000000000) prize) :start start)))
                        (if (zerop mt)
                            0
                            (+ (* 3 ap) bp mt))))
