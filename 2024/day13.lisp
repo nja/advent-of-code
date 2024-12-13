@@ -77,13 +77,13 @@
           (values (* skips ap) (* skips bp) (* skipx skips)))))))
 
 (defun part2 (input)
-  (reduce #'+(mapcar (lambda (m)
-             (multiple-value-bind (ap bp start) (skip m)
-               (if (and ap bp start)
-                   (destructuring-bind (a b prize) m
-                     (let ((mt (minimize-tokens a b (mapcar (a:curry #'+ 10000000000000) prize) :start start)))
-                       (if (zerop mt)
-                           0
-                           (+ (* 3 ap) bp mt))))
-                   0)))
-           (parse input))))
+  (reduce #'+ (mapcar (lambda (m)
+                        (multiple-value-bind (ap bp start) (skip m)
+                          (if (and ap bp start)
+                              (destructuring-bind (a b prize) m
+                                (let ((mt (minimize-tokens a b (mapcar (a:curry #'+ 10000000000000) prize) :start start)))
+                                  (if (zerop mt)
+                                      0
+                                      (+ (* 3 ap) bp mt))))
+                              0)))
+                      (parse input))))
