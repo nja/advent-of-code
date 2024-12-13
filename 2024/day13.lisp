@@ -22,15 +22,6 @@ Prize: X=18641, Y=10279")
 (defun parse (input)
   (mapcar (lambda (s) (mapcar #'aoc:read-integers (aoc:lines s))) (aoc:sections input)))
 
-(defun tokens (a b prize)
-  )
-
-(defun presses (a b p)
-  (let ((max (max a b))
-        (min (min a b)))
-    (/ (rem p max)
-       min)))
-
 (defun minimize-tokens (a b prize)
   (destructuring-bind (ax ay) a
     (destructuring-bind (bx by) b
@@ -56,11 +47,107 @@ Prize: X=18641, Y=10279")
 (defun part1 (input)
   (reduce #'+ (mapcar (a:curry #'apply #'minimize-tokens) (parse input))))
 
-(defun coefficients (a b)
-  (loop with array = (make-array (list (length a) 2))
-        for an in a
-        for bn in b
-        for i from 0
-        do (setf (aref array 0 i) an
-                 (aref array 1 i) bn)
-        finally (return array)))
+(defun close-in (a b prize)
+  (destructuring-bind (ax ay) a
+    (destructuring-bind (bx by) b
+      (destructuring-bind (px py) prize
+        (loop for as from 0 by 1
+              for x from 0 by ax
+              for y from 0 by ay
+              when (and (zerop (rem (- px x) bx))
+                        (zerop (rem (- py y) by)))
+              for bs = (presses x y bx by px py)
+              while (and (<= x px) (<= y py))
+              when bs
+                minimize (+ (* as 3) bs))))))
+
+(defun factor (ar br)
+  (/ (* (numerator ar) (denominator br))
+     (* (numerator br) (denominator ar))))
+
+(defun shortcut-presses (a b)
+  (destructuring-bind (ax ay) a
+    (destructuring-bind (bx by) b
+      (let ((f (factor (apply #'/ a) (apply #'/ b))))
+        (values (truncate 10000000000000 (numerator f))
+                (truncate 10000000000000 (denominator f)))))))
+
+(defun part2 (input)
+  (mapcar (lambda (machine)
+            (ration (first machine) (second machine)))
+          (parse input)))
+
+(defun hmm (machines)
+  (some (lambda (machine)
+          (destructuring-bind (a b prize) machine
+            (and (> (first a) (first b))
+                 (> (second a) (second b)))))
+        machines))
+
+(defun diagonal-presses (a b)
+  (loop for d from 0 by (lcm (first a) (first b) (second a) (second b))
+        for p = (minimize-tokens a b (list d d))
+        when (plusp p)
+          return p))
+
+
+(defun diagonal-presses (a b prize)
+  (destructuring-bind (ax ay) a
+    (destructuring-bind (bx by) b
+      (destructuring-bind (px py) prize
+        (loop for as from 0
+              for x from 0 by ax
+              for y from 0 by ay
+              for bs = (diags x y bx by)
+              while (and (<= x px) (<= y py))
+;              while (<= as 100)
+              when bs
+                minimize (+ (* as 3) bs))))))
+
+(defun argh (x1 y1 x2 y2)
+  (loop for a from 2
+        for num = (* a (- x1 y1))
+        when (zerop (rem num (- y2 x2)))
+          return (values a (/ num (- y2 x2)))))
+
+(defun slopes (machine)
+  (sort (list (apply #'/ (first machine))
+              (apply #'/ (second machine))
+              1/2)
+        #'<))
+
+(defun diagonal-presses (a b)
+  (destructuring-bind (ax ay) a
+    (destructuring-bind (bx by) b
+      (let* ((as (/ ay ax))
+             (bs (/ by bx))
+             (+ (max as bs))
+             (- (min as bs))
+             (ap 0)
+             (bp 1)
+             (x bx)
+             (y by))
+        (flet ((a ()
+                 (print 'a)
+                 (incf ap)
+                 (incf x ax)
+                 (incf y ay))
+               (b ()
+                 (print 'b)
+                 (incf bp)
+                 (incf x bx)
+                 (incf y by)))
+          (when (<= - 1 +)
+            (loop for s = (/ y x)
+                  when (= s 1)
+                    return (values ap bp)
+                  when (< s 1)
+                    do (if (eq bs +)
+                           (b)
+                           (a))
+                  when (> s 1)
+                    do (if (eq bs -)
+                           (b)
+                           (a))
+                  
+                     )))))))
