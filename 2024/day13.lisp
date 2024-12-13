@@ -47,11 +47,6 @@ Prize: X=18641, Y=10279")
 (defun part1 (input)
   (reduce #'+ (mapcar (a:curry #'apply #'minimize-tokens) (parse input))))
 
-(defun part2 (input)
-  (mapcar (lambda (m)
-            (multiple-value-list (diagonal-presses (first m) (second m))))
-          (parse input)))
-
 (defun slopes (machine)
   (sort (list (apply #'/ (first machine))
               (apply #'/ (second machine))
@@ -94,3 +89,34 @@ Prize: X=18641, Y=10279")
                                 (b)
                                 (a))))))))))
 
+
+(defparameter *bignum* (- 10000000000000 200000))
+
+(defun skip (machine)
+  (destructuring-bind (a b prize) machine
+    (declare (ignore prize))
+    (multiple-value-bind (ap bp) (diagonal-presses a b)
+      (when (and ap bp)
+        (let ((skipx (+ (* ap (first a))
+                        (* bp (first b))))
+              (skipy (+ (* ap (second a))
+                        (* bp (second b)))))
+          (assert (equal skipx skipy))
+          (multiple-value-bind (skips rest) (truncate *bignum* skipx)
+            (values (* skips ap) (* skips bp) (* skipx skips))))))))
+
+
+(defun part2 (input)
+  (reduce #'+(mapcar (lambda (m)
+             (multiple-value-bind (ap bp start) (skip m)
+               (if (and ap bp start)
+                   (destructuring-bind (a b prize) m
+                     (let ((mt (minimize-tokens a b (mapcar (a:curry #'+ 10000000000000) prize) :startx start :starty start)))
+                       (if (zerop mt)
+                           0
+                           (+ (* 3 ap) bp mt))))
+                   0)))
+           (parse input))))
+
+;;; 146914147121359 too high
+;;;  50119455609690 too low
