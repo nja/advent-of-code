@@ -33,13 +33,26 @@
 
 (defclass robot ()
   ((x :initarg :x)
-   (y :initarg y)
-   (dx :initarg dx)
+   (y :initarg :y)
+   (dx :initarg :dx)
    (dy :initarg :dy)
    (map :initarg :map)))
 
 (defun robot (map)
-  (let ((r (make-instance 'robot)))))
+  (destructuring-bind (x y) (start-position map)
+    (make-instance 'robot :x x :y y
+                          :dx 0 :dy -1
+                          :map map)))
+
+(defun done? (robot)
+  (with-slots (x y) robot
+    (and robot (eql x 34) (eql y 26))))
+
+(defun start-position (map)
+  (loop for row below (array-dimension map 0)
+        do (loop for col below (array-dimension map 1)
+                 when (eql #\^ (aref map row col))
+                   do (return-from start-position (list col row)))))
 
 (defun act (robot m)
   (cond ((integerp m)
@@ -47,6 +60,9 @@
         ((eql 'R m)
          (right robot))
         ((eql 'L m)
+         (left robot))
+        ((eql 'LL m)
+         (left robot)
          (left robot))))
 
 (defun forward (robot n)
@@ -60,7 +76,7 @@
 (defun safe? (robot)
   (with-slots (x y dx dy map) robot
     (and (array-in-bounds-p map y x)
-         (eql #\# (aref map y x)))))
+         (find (aref map y x) "^#"))))
 
 (defun right (robot)
   (with-slots (x y dx dy) robot
@@ -80,8 +96,16 @@
   (flet ((routine (r)
            (loop for a in r
                  always (act robot a))))
-    (loop for r in main
-          always (routine (case r (a a) (b b) (c c))))))
+    (and (loop for r in main
+               always (routine (case r (a a) (b b) (c c))))
+         robot)))
+
+(defun print-robot (robot)
+  (with-slots (x y dx dy map) robot
+    (let ((map (a:copy-array map)))
+      (setf (aref map y x) 'R)
+      (aoc:print-array map))
+    (format t "~& X: ~2d  Y: ~2d~%dX: ~2d dY: ~2d~%" x y dx dy)))
 
 (defun run (memory &optional input)
   (let ((ip 0)
@@ -126,9 +150,13 @@
 
 (defun input (main a b c)
   (let ((buffer (make-array #xff :element-type 'character :fill-pointer 0)))
-    (flet ((buffer (x)
+    (flet ((buffer (inputs)
              (let ((i (fill-pointer buffer)))
-               (format buffer "~{~a~^,~}~%" x)
+               (format buffer "~{~a~^,~}~%" (mapcar (lambda (x)
+                                                      (case x
+                                                        (LL "L,L")
+                                                        (t x)))
+                                                    inputs))
                (< (- (fill-pointer buffer) i) 22))))
       (when (and (buffer main)
                  (buffer a)
@@ -140,58 +168,38 @@
 (defun crash? (output)
   (find #\X output))
 
-(defun neighbours (results-and-logic)
-  (destructuring-bind (status output logic) results-and-logic
+(defun neighbours (map status-and-logic)
+  (destructuring-bind (status (main a b c)) status-and-logic
     (declare (ignore status))
-    (a:when-let (input (apply #'input logic))
-      (when (not (crash? output))
-        (mapcar (lambda (logic)
-                  (if (runnable? logic)
-                      (progn (print logic)
-                             (multiple-value-bind (status output) (run (memory) (a:copy-array input))
-                               (list status output logic)))
-                      (list nil nil logic)))
-                (extend logic))))))
+    (when (and (input main a b c)
+               (trial (robot map) main a b c))
+      (extend main a b c))))
 
-(defun runnable? (logic)
-  (not (member nil logic)))
-
-(defun extend (logic)
+(defun extend (main a b c)
   (let (results)
     (flet ((collect (main a b c)
              (push (list main a b c) results)))
-      (destructuring-bind (main a b c) logic
-        (dolist (main (extend-main main))
-          (collect main a b c))
-        (dolist (a (extend-movement a))
-          (collect main a b c))
-        (dolist (b (extend-movement b))
-          (collect main a b c))
-        (dolist (c (extend-movement c))
-          (collect main a b c))))
+      (dolist (main (extend-main main))
+        (collect main a b c))
+      (case (car (last main))
+        (a (dolist (a (extend-movement a))
+             (collect main a b c)))
+        (b (dolist (b (extend-movement b))
+             (collect main a b c)))
+        (c (dolist (c (extend-movement c))
+             (collect main a b c)))))
     results))
 
 (defun extend-movement (moves)
   (if (null moves)
-      '((R) (L) (1))
-      (loop for n in (turns moves)
-            collect (append moves n))))
-
-(defun turns (moves)
-  (loop with r = 0 and l = 0 and i
-        for x in moves
-        do (case x
-             (r (incf r) (setf l 0 i nil))
-             (l (incf l) (setf r 0 i nil))
-             (t (setf i x r 0 l 0)))
-        finally (case x
-                  (r (if (< r 2)
-                         '((r) (1))
-                         '((1))))
-                  (l (if (< l 2)
-                         '((l) (1))
-                         '((1))))
-                  (t '((1))))))
+      '((R) (L) (LL) (1))
+      (let ((last (car (last moves))))
+        (if (integerp last)
+            (list (append moves '(R))
+                  (append moves '(L))
+                  (append moves '(LL))
+                  (append (butlast moves) (list (1+ last))))
+            (list (append moves '(1)))))))
 
 (defun extend-main (routines)
   (loop for r in '((a) (b) (c))
