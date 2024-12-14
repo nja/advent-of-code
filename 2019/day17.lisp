@@ -36,17 +36,14 @@
    (y :initarg :y)
    (dx :initarg :dx)
    (dy :initarg :dy)
-   (map :initarg :map)))
+   (map :initarg :map)
+   (status :initform 'alive)))
 
 (defun robot (map)
   (destructuring-bind (x y) (start-position map)
     (make-instance 'robot :x x :y y
                           :dx 0 :dy -1
                           :map map)))
-
-(defun done? (robot)
-  (with-slots (x y) robot
-    (and robot (eql x 34) (eql y 26))))
 
 (defun start-position (map)
   (loop for row below (array-dimension map 0)
@@ -55,15 +52,17 @@
                    do (return-from start-position (list col row)))))
 
 (defun act (robot m)
-  (cond ((integerp m)
-         (forward robot m))
-        ((eql 'R m)
-         (right robot))
-        ((eql 'L m)
-         (left robot))
-        ((eql 'LL m)
-         (left robot)
-         (left robot))))
+  (if (eq 'done (slot-value robot 'status))
+      'done
+      (cond ((integerp m)
+             (forward robot m))
+            ((eql 'R m)
+             (right robot))
+            ((eql 'L m)
+             (left robot))
+            ((eql 'LL m)
+             (left robot)
+             (left robot)))))
 
 (defun forward (robot n)
   (with-slots (x y dx dy) robot
@@ -74,9 +73,14 @@
           finally (return (safe? robot)))))
 
 (defun safe? (robot)
-  (with-slots (x y dx dy map) robot
-    (and (array-in-bounds-p map y x)
-         (find (aref map y x) "^#"))))
+  (with-slots (x y dx dy map status) robot
+    (let ((safe? (and (array-in-bounds-p map y x)
+                      (find (aref map y x) "^#"))))
+      (cond ((and (eql  x 34) (eql y 26))
+             (setf status 'done))
+            ((and (not safe?) (eq status 'alive))
+             (setf status nil)))
+      safe?)))
 
 (defun right (robot)
   (with-slots (x y dx dy) robot
@@ -98,7 +102,7 @@
                  always (act robot a))))
     (and (loop for r in main
                always (routine (case r (a a) (b b) (c c))))
-         robot)))
+         (slot-value robot 'status))))
 
 (defun print-robot (robot)
   (with-slots (x y dx dy map) robot
@@ -169,11 +173,11 @@
   (find #\X output))
 
 (defun neighbours (map status-and-logic)
-  (destructuring-bind (status (main a b c)) status-and-logic
+  (destructuring-bind (status main a b c) status-and-logic
     (declare (ignore status))
-    (when (and (input main a b c)
-               (trial (robot map) main a b c))
-      (extend main a b c))))
+    (a:when-let (status (and (input main a b c)
+                             (trial (robot map) main a b c)))
+      (mapcar (a:curry #'cons status) (extend main a b c)))))
 
 (defun extend (main a b c)
   (let (results)
@@ -181,34 +185,36 @@
              (push (list main a b c) results)))
       (dolist (main (extend-main main))
         (collect main a b c))
-      (case (car (last main))
-        (a (dolist (a (extend-movement a))
-             (collect main a b c)))
-        (b (dolist (b (extend-movement b))
-             (collect main a b c)))
-        (c (dolist (c (extend-movement c))
-             (collect main a b c)))))
+      (dolist (a (extend-movement a))
+        (collect main a b c))
+      (dolist (b (extend-movement b))
+        (collect main a b c))
+      (dolist (c (extend-movement c))
+        (collect main a b c)))
     results))
 
 (defun extend-movement (moves)
   (if (null moves)
-      '((R) (L) (LL) (1))
+      '((R) (L) (LL) (1) (2) (3) (4) (5) (6) (7) (8) (9) (10) (11) (12) (13) (14) (15))
       (let ((last (car (last moves))))
         (if (integerp last)
             (list (append moves '(R))
                   (append moves '(L))
-                  (append moves '(LL))
-                  (append (butlast moves) (list (1+ last))))
-            (list (append moves '(1)))))))
+                  (append moves '(LL)))
+            (loop for n in '((1) (2) (3) (4) (5) (6) (7) (8) (9) (10) (11) (12) (13) (14) (15))
+                  collect (append moves n))))))
+
+(defun range (n)
+  (loop for i from 1 repeat n collect (list i)))
 
 (defun extend-main (routines)
   (loop for r in '((a) (b) (c))
         collect (append routines r)))
 
 (defun part2 (input)
-  (let ((*memory* (wake-up (parse input))))
-    (dijkstra:item (dijkstra:search* '(nil nil ((A) () (R) (L))) #'neighbours
-                                     :donep (lambda (x) (and (numberp (first x))
-                                                             (> (first x) 30000)))))))
+  (let ((*memory* (wake-up (parse input)))
+        (map (make-map input)))
+    (dijkstra:item (dijkstra:search* '(nil nil nil nil nil) (a:curry #'neighbours map)
+                                     :donep (lambda (x) (eql 'done (car x)))))))
 
 ;;; (runf (input '(a b c) '(R 8 R 8) '(r 4 r 4) '(1 2 3 4 5 6 7 8 9) 'y))
