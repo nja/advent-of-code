@@ -85,4 +85,4 @@
   :depends-on
   (#:alexandria #:arrow-macros #:cl-ppcre #:drakma #:fare-memoization #:fiasco
    #:fset #:ironclad #:jsown #:pettomato-indexed-priority-queue
-   #:queues.simple-queue #:queues.priority-queue #:str #:lparallel))
+   #:queues.simple-queue #:queues.priority-queue #:str #:lparallel #:swank))
