@@ -25,7 +25,7 @@
              (eql (fscore x) (fscore y))
              (funcall compare-items (item x) (item y))))))
 
-(defun search (start neighbours goalp &key scoref distancef comparef max-distance)
+(defun search (start neighbours goalp &key scoref distancef comparef max-distance currentf)
   (let ((queue (make-queue comparef))
         (entries (make-hash-table :test 'equalp)))
     (flet ((%donep (node)
@@ -37,7 +37,7 @@
            (%score (item)
              (if scoref
                  (funcall scoref item)
-                 1))
+                 0))
            (get-entry (item &optional fscore gscore)
              (or (gethash item entries)
                  (setf (gethash item entries)
@@ -45,22 +45,26 @@
                                          (make-search-node :item item
                                                            :fscore fscore
                                                            :gscore gscore))))))
-      (q:queue-insert queue (get-entry start 0 (%score start) 0))
+      (q:queue-insert queue (get-entry start (%score start) 0))
       (loop until (q:queue-empty-p queue)
-            for entry = (q:queue-pop queue)
-            for current = (node entry)
+            for current = (node (q:queue-pop queue))
+            when currentf
+              do (funcall currentf (item current))
             when (%donep current)
               return current
             until (and max-distance (>= (gscore current) max-distance))
-            do (loop for neighbour-item in (funcall neighbours (item current))
-                     for neighbour-entry = (get-entry neighbour-item)
-                     for neighbour-node = (node neighbour-entry)
-                     for neighbour-score = (or (gscore neighbour-node)
-                                               (setf (gscore neighbour-node)
-                                                     (%score neighbour-item)))
-                     for alt = (+ (gscore current) (%distance (item current) neighbour-item))
-                     when (< alt neighbour-score)
-                       do (setf (gscore neighbour-node) alt
-                                (fscore neighbour-node) (+ alt neighbour-score)
-                                (previous neighbour-node) current)
-                          (requeue queue neighbour-entry))))))
+            do (loop for neighbour in (funcall neighbours (item current))
+                     for entry = (get-entry neighbour)
+                     for node = (node entry)
+                     for score = (gscore node)
+                     for alt = (+ (gscore current) (%distance (item current) neighbour))
+                     when (compare alt score)
+                       do (setf (gscore node) alt
+                                (fscore node) (+ alt (or score (%score neighbour)))
+                                (previous node) current)
+                          (requeue queue entry))))))
+
+(defun requeue (queue entry)
+  (if (and (index entry) (q:queue-find queue entry))
+      (q:queue-update queue entry)
+      (q:queue-insert queue entry)))

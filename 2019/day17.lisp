@@ -23,10 +23,7 @@
   (map 'list (lambda (x) (declare (ignore x)) (prog1 start (incf start))) sequence))
 
 (defun part1 (input)
-  (intersections (run (parse input))))
-
-(defparameter *memory* nil)
-(defun memory () (a:copy-array *memory*))
+  (intersections (nth-value 1 (run (parse input)))))
 
 (defun make-map (input)
   (aoc:to-array (nth-value 1 (run (parse input)))))
@@ -51,52 +48,58 @@
                  when (eql #\^ (aref map row col))
                    do (return-from start-position (list col row)))))
 
+(defun can-move-forward? (robot)
+  (with-slots (x y dx dy map) robot
+    (walkable? map (+ x dx) (+ y dy))))
+
+(defun can-turn-right? (robot)
+  (with-slots (x y dx dy map) robot
+    (walkable? map (- x dy) y)))
+
+(defun can-turn-left? (robot)
+  (with-slots (x y dx dy map) robot
+    (walkable? map x (- y dx))))
+
+(defun walkable? (map x y)
+  (and (array-in-bounds-p map y x)
+       (eql #\# (aref map y x))))
+
 (defun act (robot m)
-  (if (eq 'done (slot-value robot 'status))
-      'done
-      (cond ((integerp m)
-             (forward robot m))
-            ((eql 'R m)
-             (right robot))
-            ((eql 'L m)
-             (left robot))
-            ((eql 'LL m)
-             (left robot)
-             (left robot)))))
+  (cond ((and (integerp m) (can-move-forward? robot))
+         (forward robot m))
+        ((and (eql 'R m) (not (can-move-forward? robot)))
+         (right robot))
+        ((and (eql 'L m) (not (can-move-forward? robot)))
+         (left robot))))
 
 (defun forward (robot n)
   (with-slots (x y dx dy) robot
     (loop repeat n
+          always (can-move-forward? robot)
           do (incf x dx)
-             (incf y dy)
-          while (safe? robot)
-          finally (return (safe? robot)))))
+             (incf y dy))))
 
 (defun safe? (robot)
   (with-slots (x y dx dy map status) robot
     (let ((safe? (and (array-in-bounds-p map y x)
                       (find (aref map y x) "^#"))))
-      (cond ((and (eql  x 34) (eql y 26))
-             (setf status 'done))
-            ((and (not safe?) (eq status 'alive))
+      (cond ((and (not safe?) (eq status 'alive))
              (setf status nil))
             (safe?
-             (setf status 'alive)))
+             (setf status (list x y))))
       safe?)))
 
 (defun right (robot)
-  (with-slots (x y dx dy) robot
-    (let ((ndx (- dy))
-          (ndy dx))
-      (setf dx ndx
-            dy ndy))))
+  (with-slots (dx dy) robot
+    (rotatef dx dy)
+    (setf dx (- dx))
+    (can-move-forward? robot)))
 
 (defun left (robot)
-  (with-slots (x y dx dy) robot
-    (let ((ndx dy)
-          (ndy (- dx)))
-      (setf dx ndx
-            dy ndy))))
+  (with-slots (dx dy) robot
+    (rotatef dx dy)
+    (setf dy (- dy))
+    (can-move-forward? robot)))
 
 (defun routines-defined? (main a b c)
   (and (or a b c)
@@ -110,14 +113,9 @@
                  always (act robot a))))
     (and (loop for r in main
                always (routine (case r (a a) (b b) (c c))))
-         (slot-value robot 'status))))
-
-(defun print-robot (robot)
-  (with-slots (x y dx dy map) robot
-    (let ((map (a:copy-array map)))
-      (setf (aref map y x) 'R)
-      (aoc:print-array map))
-    (format t "~& X: ~2d  Y: ~2d~%dX: ~2d dY: ~2d~%" x y dx dy)))
+         (with-slots (x y) robot
+           (or (and (eql x 34) (eql y 26) 'done)
+               (list y x))))))
 
 (defun run (memory &optional input)
   (let ((ip 0)
@@ -164,11 +162,7 @@
   (let ((buffer (make-array #xff :element-type 'character :fill-pointer 0)))
     (flet ((buffer (inputs)
              (let ((i (fill-pointer buffer)))
-               (format buffer "~{~a~^,~}~%" (mapcar (lambda (x)
-                                                      (case x
-                                                        (LL "L,L")
-                                                        (t x)))
-                                                    inputs))
+               (format buffer "~{~a~^,~}~%" inputs)
                (< (- (fill-pointer buffer) i) 22))))
       (when (and (buffer main)
                  (buffer a)
@@ -188,7 +182,7 @@
                             (input main a b c)
                             (trial (robot map) main a b c))
           when status
-            collect (print (list status main a b c)))))
+            collect (list status main a b c))))
 
 (defun extend (main a b c)
   (let (results)
@@ -214,8 +208,7 @@
               (collect main a b c)))
           (when (member 'c main)
             (dolist (c (extend-movement c))
-              (collect main a b c)))          )
-        ))
+              (collect main a b c))))))
     results))
 
 (defun extend-movement (moves)
@@ -239,10 +232,25 @@
   (loop for r in '((a) (b) (c))
         collect (append routines r)))
 
-(defun part2 (input)
-  (let ((*memory* (wake-up (parse input)))
-        (map (make-map input)))
-    (dijkstra:item (dijkstra:search '(fresh (a) nil nil nil) (a:curry #'neighbours map)
-                                     :donep (lambda (x) (eql 'done (car x)))))))
+(defun score (n)
+  (if (eq 'done (first n))
+      0
+      (* 2 (reduce #'+ (mapcar (a:compose #'abs #'-) (first n) '(26 34))))))
 
-;;; (runf (input '(a b c) '(R 8 R 8) '(r 4 r 4) '(1 2 3 4 5 6 7 8 9) 'y))
+(defun mn (map p)
+  (loop for d in '((1 0) (0 1) (-1 0) (0 -1))
+        for n = (add p d)
+        for (row col) = n
+        when (and (array-in-bounds-p map row col)
+                  (eql #\# (aref map row col)))
+          collect n))
+
+(defun add (a b)
+  (mapcar #'+ a b))
+
+(defun part2 (input)
+  (let ((path (rest (astar::item (astar:search '((2 44) (a) nil nil nil)
+                                               (a:curry #'neighbours (make-map input))
+                                               (lambda (x) (eql 'done (car x)))
+                                               :scoref #'score)))))
+    (run (wake-up (parse input)) (apply #'input path))))
