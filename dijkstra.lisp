@@ -57,7 +57,7 @@
                            do (setf (distance neighbour-node) alt
                                     (previous neighbour-node) current)
                               (requeue queue neighbour-entry)))
-          (unless donep
+          (unless (or donep goalp)
             (mapcar #'node (a:hash-table-values entries)))))))
 
 (defun requeue (queue entry)

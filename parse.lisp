@@ -16,7 +16,7 @@
 
 (defun read-integers (string)
   (read-as-list (map 'string (lambda (c)
-                               (if (digit-char-p c)
+                               (if (or (digit-char-p c) (find c "-"))
                                    c
                                    #\Space))
                      string)))
