@@ -31,8 +31,8 @@
     (case (apply #'aref map src)
       (#\. t)
       (#\[ (and (swap? map dst m)
-                (swap? map (add dst '(0 1)) m)))
-      (#\] (swap? map (add src '(0 -1)) m)))))
+                (swap? map (add dst (direction #\>)) m)))
+      (#\] (swap? map (add src (direction #\<)) m)))))
 
 (defun add (a b)
   (mapcar #'+ a b))
