@@ -60,10 +60,8 @@
   (let ((distances (make-hash-table :test 'equal)))
     (dolist (end (ends map))
       (dolist (node (search* map end))
-        (let ((key (reverse-node (dijkstra:item node)))
-              (val (dijkstra:distance node)))
-          (setf (gethash key distances)
-                (min val (gethash key distances val))))))
+        (setf (gethash (reverse-node (dijkstra:item node)) distances)
+              (dijkstra:distance node))))
     distances))
 
 (defun reverse-node (node)
