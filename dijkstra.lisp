@@ -52,7 +52,7 @@
                          for neighbour-entry = (get-entry neighbour-item)
                          for neighbour-node = (node neighbour-entry)
                          for alt = (+ (distance current)
-                                      (%distance current (item neighbour-node)))
+                                      (%distance (item current) (item neighbour-node)))
                          when (compare alt (distance neighbour-node))
                            do (setf (distance neighbour-node) alt
                                     (previous neighbour-node) current)
