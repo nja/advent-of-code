@@ -48,14 +48,6 @@
 (defun part1 (input)
   (dijkstra:distance (search* (aoc:to-array input) #\S #\E)))
 
-(defun ends (map)
-  (let ((nodes (search* map #\S)))
-    (mapcar (a:compose #'reverse-node #'dijkstra:item)
-            (remove-if-not (let ((donep (donep map #\E)))
-                             (lambda (n)
-                               (funcall donep (dijkstra:item n))))
-                           nodes))))
-
 (defun distances (map start)
   (let ((distances (make-hash-table :test 'equal)))
     (dolist (node (search* map start))
@@ -70,7 +62,7 @@
   (let ((tiles (make-hash-table :test 'equal))
         (optimal (dijkstra:distance (search* map #\S #\E)))
         (start (distances map #\S))
-        (end (distances map (first (ends map)))))
+        (end (distances map (reverse-node (start map #\E)))))
     (dolist (key (a:hash-table-keys start) (hash-table-count tiles))
       (a:when-let (end (gethash (reverse-node key) end))
         (when (= optimal (+ (gethash key start) end))
