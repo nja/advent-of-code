@@ -18,3 +18,4 @@
 (defanswer day14 229839456 7138)
 (defanswer day15 1492518 1512860)
 (defanswer day16 104516 545)
+(defanswer day17 "4,0,4,7,1,2,7,1,6" 202322348616234)

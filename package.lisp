@@ -321,4 +321,5 @@
 (defpackage :aoc2024.day14 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2024.day15 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2024.day16 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2024.day17 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2024.tests (:use :aoc))
