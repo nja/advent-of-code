@@ -33,7 +33,7 @@
     (dijkstra:distance (dijkstra:search* (list 0 0) (a:curry #'neighbours map 1024) :donep (donep map)))))
 
 (defun last-passable-second (map)
-  (fork (a:curry #'passable? map) 0 (reduce #'* (array-dimensions map))))
+  (fork (a:curry #'passable? map) 0 (array-total-size map)))
 
 (defun passable? (map s)
   (not (null (dijkstra:search* (list 0 0) (a:curry #'neighbours map s) :donep (donep map)))))
