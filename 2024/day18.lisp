@@ -11,7 +11,6 @@
         for i from 0
         for (x y) in coordinates
         do (setf (aref map y x) i)
-           (list x y '= i)
         finally (return map)))
 
 (defun neighbours (map s pos)
