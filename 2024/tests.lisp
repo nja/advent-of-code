@@ -21,3 +21,4 @@
 (defanswer day17 "4,0,4,7,1,2,7,1,6" 202322348616234)
 (defanswer day18 370 "65,6")
 (defanswer day19 322 715514563508258)
+(defanswer day20 1360 1005476)
