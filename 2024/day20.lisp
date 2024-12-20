@@ -77,7 +77,7 @@
 (defun distances (map start)
   (let ((distances (make-hash-table :test 'equal)))
     (dolist (node (search* map start nil))
-      (setf (gethash (subseq (dijkstra:item node) 0 2) distances)
+      (setf (gethash (dijkstra:item node) distances)
             (dijkstra:distance node)))
     distances))
 
