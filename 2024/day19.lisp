@@ -7,7 +7,7 @@
     (list (ppcre:split ", " (first sections))
           (aoc:lines (second sections)))))
 
-(defparameter *memo* nil)
+(defparameter *memo* (make-hash-table :test 'equal))
 
 (defun possible-designs (towels design)
   (multiple-value-bind (value present) (gethash design *memo*)
@@ -21,12 +21,11 @@
                                      (possible-designs towels (subseq design (length towel))))
                                 0)))))))
 
+(defun design-counts (towels designs)
+  (mapcar (a:curry #'possible-designs towels) designs))
+
 (defun part1 (input)
-  (let ((*memo* (make-hash-table :test 'equal)))
-    (destructuring-bind (towels designs) (parse input)
-      (count-if #'plusp (mapcar (a:curry #'possible-designs towels) designs)))))
+  (count-if #'plusp (apply #'design-counts (parse input))))
 
 (defun part2 (input)
-  (let ((*memo* (make-hash-table :test 'equal)))
-    (destructuring-bind (towels designs) (parse input)
-      (reduce #'+ (mapcar (a:curry #'possible-designs towels) designs)))))
+  (reduce #'+ (apply #'design-counts (parse input))))
