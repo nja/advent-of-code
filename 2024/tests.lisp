@@ -22,3 +22,6 @@
 (defanswer day18 370 "65,6")
 (defanswer day19 322 715514563508258)
 (defanswer day20 1360 1005476)
+(defanswer day24 65740327379952 "bgs,pqc,rjm,swt,wsv,z07,z13,z31")
+(defanswer day25 3338)
+
