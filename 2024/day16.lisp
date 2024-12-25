@@ -6,7 +6,7 @@
   (destructuring-bind (x y dx dy) n
     (let (results)
       (labels ((walkable? (x y)
-                 (find (and (array-in-bounds-p map y x) (aref map y x)) ".ES"))
+                 (and (array-in-bounds-p map y x) (not (eql #\# (aref map y x)))))
                (collect (x y dx dy)
                  (push (list x y dx dy) results)))
         (when (walkable? (+ x dx) (+ y dy))
@@ -42,15 +42,15 @@
     (lambda (n)
       (and (eql x (first n)) (eql y (second n))))))
 
-(defun search* (map from &optional to)
-  (dijkstra:search* (start map from) (a:curry #'neighbours map) :donep (when to (donep map to)) :distancef #'distance))
+(defun search* (map from &optional to max-distance)
+  (dijkstra:search* (start map from) (a:curry #'neighbours map) :donep (when to (donep map to)) :distancef #'distance :max-distance max-distance))
 
 (defun part1 (input)
   (dijkstra:distance (search* (aoc:to-array input) #\S #\E)))
 
-(defun distances (map start)
+(defun distances (map start &optional max-distance)
   (let ((distances (make-hash-table :test 'equal)))
-    (dolist (node (search* map start))
+    (dolist (node (search* map start nil max-distance))
       (setf (gethash (dijkstra:item node) distances)
             (dijkstra:distance node)))
     distances))
