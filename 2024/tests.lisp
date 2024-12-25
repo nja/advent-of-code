@@ -24,4 +24,3 @@
 (defanswer day20 1360 1005476)
 (defanswer day24 65740327379952 "bgs,pqc,rjm,swt,wsv,z07,z13,z31")
 (defanswer day25 3338)
-

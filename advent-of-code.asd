@@ -85,7 +85,7 @@
      (:file "day09") (:file "day10") (:file "day11") (:file "day12")
      (:file "day13") (:file "day14") (:file "day15") (:file "day16")
      (:file "day17") (:file "day18") (:file "day19") (:file "day20")
-     (:file "day24") (:file "tests"))))
+     (:file "day24") (:file "day25") (:file "tests"))))
   :depends-on
   (#:alexandria #:arrow-macros #:cl-ppcre #:drakma #:fare-memoization #:fiasco
    #:fset #:ironclad #:jsown #:pettomato-indexed-priority-queue
