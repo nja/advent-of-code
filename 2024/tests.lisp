@@ -24,5 +24,6 @@
 (defanswer day20 1360 1005476)
 (defanswer day21 237342 294585598101704)
 (defanswer day22 19458130434 2130)
+(defanswer day23 1337 "aw,fk,gv,hi,hp,ip,jy,kc,lk,og,pj,re,sr")
 (defanswer day24 65740327379952 "bgs,pqc,rjm,swt,wsv,z07,z13,z31")
 (defanswer day25 3338)
