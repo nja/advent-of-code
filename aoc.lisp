@@ -38,6 +38,8 @@
                  '("PART1" "PART2")))))
 
 (defun to-array (input)
+  (when (listp input)
+    (setf input (str:join #\Newline input)))
   (loop with lines = (aoc:lines input)
         with array = (make-array (list (length lines) (length (first lines))))
         for i from 0

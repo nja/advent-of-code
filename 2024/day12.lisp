@@ -6,7 +6,7 @@
   (loop with regions = (make-array (array-dimensions plots))
         for row below (array-dimension plots 0)
         do (loop for col below (array-dimension plots 1)
-                 for plant = (aref array row col)
+                 for plant = (aref regions row col)
                  for region = (or (aref regions row col) (list (list row col))))))
 
 (defun range (n)
@@ -111,18 +111,3 @@
 (defun part2 (input)
   (let ((map (aoc:to-array input)))
    (reduce #'+ (mapcar (a:curry #'price2 map) (regions map)))))
-
-;;; 1431316
-(defparameter *test*
-  "AAAA
-BBCD
-BBCC
-EEEC")
-
-(defparameter *test2*
-"AAAAAA
-AAABBA
-AAABBA
-ABBAAA
-ABBAAA
-AAAAAA")
