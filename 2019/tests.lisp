@@ -30,3 +30,4 @@
 (defanswer day16 "28430146" "12064286")
 (defanswer day17 4864 840248)
 (defanswer day18 3586 1974)
+(defanswer day19 158)
