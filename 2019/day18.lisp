@@ -42,12 +42,30 @@
     (lambda (node)
       (eql keys (elt node 0)))))
 
+(defparameter *distances* nil)
+
+(defun distance (current neigbour)
+  (gethash (dkey (first current) (first neigbour)) *distances*))
+
+(defun dkey (a b)
+  (cons (min a b) (max a b)))
+
+(defun possible-keys (array node)
+  (loop with keys = (first node)
+        for snode in (dijkstra:search* node (a:curry #'neighbours array))
+        for (nkeys row col) = (dijkstra:item snode)
+        for distance = (dijkstra:distance snode)
+        for x = (aref array row col)
+        when (and (lower-case-p x) (not (has-key? keys x)))
+          do (setf (gethash (dkey nkeys keys) *distances*) distance)
+          and collect (list keys row col)))
+
 (defun neighbours (array node)
   (loop with (keys row col) = node
         for (dr dc) in '((1 0) (-1 0) (0 1) (0 -1))
         for nr = (+ row dr)
         for nc = (+ col dc)
-        for x = (sref array nr nc)
+        for x = (aref array nr nc)
         if (or (find x ".@")
                (and (upper-case-p x) (has-key? keys x)))
           collect (list keys nr nc)
@@ -59,10 +77,12 @@
        (aref array row col)))
 
 (defun part1 (input)
-  (let ((array (aoc:to-array input)))
+  (let ((array (aoc:to-array input))
+        (*distances* (make-hash-table :test 'equal)))
     (dijkstra:distance (dijkstra:search* (start-position array)
-                                         (a:curry #'neighbours array)
-                                         :donep (donep array)))))
+                                         (a:curry #'possible-keys array)
+                                         :donep (donep array)
+                                         :distancef #'distance))))
 
 (defun update (array)
   (destructuring-bind (row col) (rest (start-position array))
@@ -92,9 +112,6 @@
   (loop for (dr dc) in '((1 0) (-1 0) (0 1) (0 -1))
         for x = (sref array (+ row dr) (+ col dc))
         thereis (and (upper-case-p x) (not (has-key? keys x)))))
-
-(defun key-indexes (array)
-  (loop ))
 
 (defun part2 (input)
   (let ((array (update (aoc:to-array input))))
