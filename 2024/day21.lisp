@@ -13,10 +13,10 @@
   (aoc:to-array lines))
 
 (defun numerical-robot ()
-  (make-instance 'numerical-robot :keypad (make-keypad "789" "456" "123" " 0A")))
+  (make-instance 'robot :keypad (make-keypad "789" "456" "123" " 0A")))
 
 (defun directional-robot ()
-  (make-instance 'directional-robot :keypad (make-keypad " ^A" "<V>")))
+  (make-instance 'robot :keypad (make-keypad " ^A" "<V>")))
 
 (defun as-char (x)
   (typecase x
