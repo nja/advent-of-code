@@ -35,10 +35,45 @@
                                 (9 (incf base (a)) 2)
                                 (99 (return output)))))))))))
 
+(defun affected? (memory x y)
+  (plusp (first (run (copy-seq memory) x y))))
+
 (defun count-affected (memory n)
   (loop for x below n
         sum (loop for y below n
-                  count (plusp (first (run (copy-seq memory) x y))))))
+                  count (affected? memory x y))))
 
 (defun part1 (input)
   (count-affected (parse input) 50))
+
+(defun first-corner (memory y)
+  (loop for x from (truncate y 4)
+        repeat y
+        when (affected? memory x y)
+          return (list x y)))
+
+(defun next-corner (memory x y)
+  (loop with ny = (1+ y)
+        for nx from x
+        when (affected? memory nx ny)
+          return (list nx ny)))
+
+(defun corners (s x y)
+  (decf s)
+  (list (list x (- y s))
+        (list (+ x s) (- y s))))
+
+(defun fits? (memory corners)
+  (every (lambda (corner) (apply #'affected? memory corner))
+         corners))
+
+(defun closest-fitting-corner (memory size)
+  (loop for corner = (first-corner memory size)
+          then (apply #'next-corner memory corner)
+        for corners = (apply #'corners size corner)
+        when (fits? memory corners)
+          return (first corners)))
+
+(defun part2 (input)
+  (destructuring-bind (x y) (closest-fitting-corner (parse input) 100)
+    (+ (* x 10000) y)))
