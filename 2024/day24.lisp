@@ -119,17 +119,10 @@
   (when (eql 8 (length symbols))
     (string-downcase (format nil "~{~a~^,~}" (sort symbols #'string<)))))
 
-(defparameter *gates* (apply-answers))
-
 (defparameter *answers* '(((X07 AND Y07 -> Z07) (KPV XOR RVC -> SWT))
                           ((DWQ XOR PGQ -> PQC) (SKT OR WPP -> Z13))
                           ((Y24 XOR X24 -> WSV) (X24 AND Y24 -> RJM))
                           ((KQK AND DJR -> Z31) (DJR XOR KQK -> BGS))))
-
-(defun swap (a b)
-  (prog1 (push (list a b) *answers*)
-    (setf *gates* (apply-answers))))
-
 (defun apply-answers ()
   (sublis (loop for (a b) in *answers*
                 for af = (copy-tree a)
@@ -139,6 +132,12 @@
                 collect (cons b bf))
           (nth-value 1 (parse (aoc:input)))
           :test 'equal))
+
+(defparameter *gates* (apply-answers))
+
+(defun swap (a b)
+  (prog1 (push (list a b) *answers*)
+    (setf *gates* (apply-answers))))
 
 (defun part2 (input)
   (declare (ignore input))
