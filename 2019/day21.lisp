@@ -43,8 +43,7 @@
                                 (99 (return (values status output))))))))))))
 
 (defun input (string)
-  (let ((input (make-array (length string) :fill-pointer t :initial-contents string)))
-    (nreverse input)))
+  (nreverse (make-array (length string) :fill-pointer t :initial-contents string)))
 
 (defun part1 (input)
   (run (parse input) (input
@@ -55,15 +54,14 @@ OR T J
 WALK
 ")))
 
-(defun memory () (parse (aoc:input)))
-
-(defparameter *test*
-)
-
-(defun test ()
-  (format t "~a" *test*)
-  (run (memory) (input *test*)))
-
-;;;@
-;;;#####
-;;; ABCD
+(defun part2 (input)
+  (run (parse input) (input
+"NOT C J
+NOT B T
+OR T J
+AND D J
+AND H J
+NOT A T
+OR T J
+RUN
+")))

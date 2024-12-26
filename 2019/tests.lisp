@@ -32,3 +32,4 @@
 (defanswer day18 3586 1974)
 (defanswer day19 158 6191165)
 (defanswer day20 560 6642)
+(defanswer day21 19361023 1141457530)
