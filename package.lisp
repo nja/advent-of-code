@@ -30,7 +30,7 @@
 
 (defpackage :astar
   (:use :cl)
-  (:export :search)
+  (:export :search :item :distance :previous)
   (:local-nicknames (:a :alexandria) (:q :pettomato-indexed-priority-queue))
   (:shadow :search))
 
