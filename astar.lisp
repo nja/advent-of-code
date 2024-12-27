@@ -25,6 +25,9 @@
              (eql (fscore x) (fscore y))
              (funcall compare-items (item x) (item y))))))
 
+(defun distance (search-node)
+  (gscore search-node))
+
 (defun search (start neighbours goalp &key scoref distancef comparef max-distance currentf)
   (let ((queue (make-queue comparef))
         (entries (make-hash-table :test 'equalp)))
