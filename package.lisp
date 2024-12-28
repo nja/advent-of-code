@@ -41,7 +41,7 @@
 
 (defpackage :lalg (:use :cl) (:export :cramers))
 
-(defpackage :maths (:use :cl) (:export :invmod :exptmod))
+(defpackage :maths (:use :cl) (:export :exptmod :invmod))
 
 (defpackage :aoc2015.day01 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2015.day02 (:use :cl) (:local-nicknames (:a :alexandria)))
@@ -195,6 +195,7 @@
 (defpackage :aoc2019.day20 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2019.day21 (:use :cl) (:local-nicknames (:a :alexandria)))
 (defpackage :aoc2019.day22 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2019.day23 (:use :cl) (:local-nicknames (:a :alexandria) (:q :queues)))
 (fiasco:define-test-package :aoc2019.tests (:use :aoc))
 
 (defpackage :aoc2020.day01 (:use :cl) (:import-from :alexandria :curry))
