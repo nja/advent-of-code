@@ -141,9 +141,9 @@
 
 (defun bruteforce (memory inventory)
   (loop for d from 0 to (expt 2 (length inventory))
-        for (output cmds) = (multiple-value-list (replay memory (append (drops inventory d) (list "south"))))
+        for output = (replay memory (append (drops inventory d) (list "south")))
         unless (str:contains? "== Security Checkpoint ==" output)
-          return (values output cmds)))
+          return output))
 
 (defun part1 (input)
   (multiple-value-bind (output memory) (replay (parse input) *replay*)
