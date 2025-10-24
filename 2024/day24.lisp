@@ -141,4 +141,4 @@
 
 (defun part2 (input)
   (declare (ignore input))
-  (answer (mapcan (lambda (pair) (mapcar #'a:lastcar pair)) *answers2*)))
+  (answer (mapcan (lambda (pair) (mapcar #'a:lastcar pair)) *answers*)))
