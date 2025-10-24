@@ -46,16 +46,16 @@
   (nreverse (make-array (length string) :fill-pointer t :initial-contents string)))
 
 (defun part1 (input)
-  (run (parse input) (input
+  (run (parse input) (input (aoc:strip-cr
 "NOT C J
 AND D J
 NOT A T
 OR T J
 WALK
-")))
+"))))
 
 (defun part2 (input)
-  (run (parse input) (input
+  (run (parse input) (input (aoc:strip-cr
 "NOT C J
 NOT B T
 OR T J
@@ -64,4 +64,4 @@ AND H J
 NOT A T
 OR T J
 RUN
-")))
+"))))
