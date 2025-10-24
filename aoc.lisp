@@ -29,6 +29,8 @@
     `(fiasco:deftest ,(a:symbolicate suffix)
          ()
        ,@(mapcar (lambda (answer part)
+                   (when (stringp answer)
+                     (setf answer (strip-cr answer)))
                    `(fiasco:is ,(append (if (and (consp answer)
                                                  (not (eq 'quote (car answer))))
                                             answer
