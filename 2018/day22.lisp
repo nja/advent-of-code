@@ -74,10 +74,9 @@
     (2 '(torch neither))))
 
 (defun distance (a b)
-  (let ((a (d:item a)))
-    (if (eq (state-tool a) (state-tool b))
-        1
-        7)))
+  (if (eq (state-tool a) (state-tool b))
+      1
+      7))
 
 (defun search* (from to)
   (d:search* from #'neighbours :distancef #'distance :donep (a:curry #'equalp to)))
