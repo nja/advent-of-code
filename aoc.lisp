@@ -20,7 +20,13 @@
 (defun answer (function)
   (destructuring-bind (year day) (scan-package-name (symbol-package function))
     (let ((*package* (symbol-package function)))
-      (funcall function (input day year)))))
+      (let ((answer (funcall function (input day year))))
+        (ensure-no-cr answer)))))
+
+(defun ensure-no-cr (x)
+  (if (stringp x)
+      (strip-cr x)
+      x))
 
 (defmacro defanswer (day &rest answers)
   (let* ((prefix (first (str:split #\. (package-name *package*))))
@@ -29,12 +35,10 @@
     `(fiasco:deftest ,(a:symbolicate suffix)
          ()
        ,@(mapcar (lambda (answer part)
-                   (when (stringp answer)
-                     (setf answer (strip-cr answer)))
                    `(fiasco:is ,(append (if (and (consp answer)
                                                  (not (eq 'quote (car answer))))
                                             answer
-                                            `(equal ,answer))
+                                            `(equal ,(ensure-no-cr answer)))
                                         `((answer ',(find-symbol part package))))))
                  answers
                  '("PART1" "PART2")))))
