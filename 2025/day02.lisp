@@ -6,56 +6,33 @@
   (mapcar #'aoc:read-as-list (mapcar (a:curry #'aoc:tr "-" " ") (str:split #\, input))))
 
 (defun invalidp (n)
-  (let* ((s (format nil "~d" n))
-         (l (length s))
-         (h (truncate l 2)))
-    (and (evenp l)
-         (loop for i from 0
-               for j from h
-               while (< j l)
-               always (char= (aref s i) (aref s j))))))
+  (let ((s (format nil "~d" n)))
+    (and (evenp (length s))
+         (repeats s (/ (length s) 2)))))
 
-(defun sum-invalids (first last)
+(defun repeats (string len)
+  (labels ((rec (i)
+             (if (= i (length string))
+                 t
+                 (and (string= string string :end1 len :start2 i :end2 (+ i len))
+                      (rec (+ i len))))))
+    (when (integerp (/ (length string) len))
+      (rec 0))))
+
+(defun sum (first last predicate)
   (loop for x from first to last
-        when (invalidp x)
+        when (funcall predicate x)
           sum x))
 
 (defun part1 (input)
   (loop for (first last) in (ranges input)
-        sum (sum-invalids first last)))
-
-(defun split (s n)
-  (labels ((rec (s l r)
-             (if (zerop (length s))
-                 r
-                 (rec (subseq s l) l (cons (subseq s 0 l) r)))))
-    (when (integerp (/ (length s) n))
-      (rec s (/ (length s) n) nil))))
-
-(defun samesp (s n)
-  (let ((parts (split s n)))
-    (and parts (< 1 (length parts)) (loop for x in (rest parts)
-                                          always (string= x (first parts))))))
+        sum (sum first last #'invalidp)))
 
 (defun invalidp* (n)
   (let ((s (format nil "~d" n)))
-    (loop for i from 1 upto (length s)
-            thereis (samesp s i))))
-
-(defun sum-invalids* (first last)
-  (loop for x from first to last
-        when (invalidp* x)
-          sum x))
+    (loop for i from 1 upto (truncate (length s) 2)
+            thereis (repeats s i))))
 
 (defun part2 (input)
   (loop for (first last) in (ranges input)
-        sum (sum-invalids* first last)))
-
-
-;; 2025 02 1: '24043483400'
-;; That's the right answer!
-;; (Cached until 2025-12-02 05:12:14)
-;; 24043483400
-
-(defparameter *test1*
-  "11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124")
+        sum (sum first last #'invalidp*)))
