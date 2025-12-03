@@ -2,12 +2,6 @@
 
 (in-package :aoc2025.day03)
 
-(defparameter *test*
-"987654321111111
-811111111111119
-234234234234278
-818181911112111")
-
 (defun banks (input)
   (mapcar (lambda (digits) (map 'vector #'digit-char-p digits))
           (aoc:lines input)))
@@ -28,5 +22,11 @@
 (defun part1 (input)
   (reduce #'+ (mapcar #'joltage (banks input))))
 
-;;; 17443
+(defun joltage* (bank n)
+  (loop for left from (1- n) downto 0
+        for (x i) = (multiple-value-list (find-max bank (if i (1+ i) 0) (- (length bank) left)))
+        for sum = (+ (* (or sum 0) 10) x)
+        finally (return sum)))
 
+(defun part2 (input)
+  (reduce #'+ (mapcar (a:rcurry #'joltage* 12) (banks input))))
