@@ -3,19 +3,16 @@
 (in-package :aoc2025.day06)
 
 (defun parse (input)
-  (reverse (mapcar #'aoc:read-as-list (aoc:lines input))))
+  (transpose (reverse (mapcar #'aoc:read-as-list (aoc:lines input)))))
 
-(defun calc (lists)
-  (let ((ops (first lists)))
-    (reduce (lambda (x y)
-              (loop for op in ops
-                    for a in x
-                    for b in y
-                    collect (funcall op a b)))
-            (rest lists))))
+(defun transpose (lists)
+  (apply #'mapcar #'list lists))
+
+(defun calc (list)
+  (reduce (symbol-function (first list)) (rest list)))
 
 (defun part1 (input)
-  (reduce #'+ (calc (parse input))))
+  (reduce #'+ (mapcar #'calc (parse input))))
 
 (defun problems (input)
   (mapcar (lambda (x) (cons (op x) (columns x)))
@@ -46,8 +43,5 @@
           when (every (lambda (line) (char= #\Space (aref line i))) lines)
             collect i)))
 
-(defun calc* (list)
-  (reduce (symbol-function (first list)) (rest list)))
-
 (defun part2 (input)
-  (reduce #'+ (mapcar #'calc* (problems input))))
+  (reduce #'+ (mapcar #'calc (problems input))))
