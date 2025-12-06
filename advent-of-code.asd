@@ -92,7 +92,7 @@
      (:file "day25") (:file "tests")))
    (:module "2025" :components
     ((:file "day01") (:file "day02") (:file "day03") (:file "day04")
-     (:file "day05") (:file "tests"))))
+     (:file "day05") (:file "day06") (:file "tests"))))
   :depends-on
   (#:alexandria #:arrow-macros #:cl-ppcre #:drakma #:fare-memoization #:fiasco
    #:fset #:ironclad #:jsown #:pettomato-indexed-priority-queue
