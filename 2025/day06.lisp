@@ -24,7 +24,7 @@
                 collect (mapcar (lambda (s) (aref s i)) strings))))
 
 (defun op (strings)
-  (read-from-string (car (last strings))))
+  (read-from-string (a:lastcar strings)))
 
 (defun collect (input)
   (let ((lines (aoc:lines input))
