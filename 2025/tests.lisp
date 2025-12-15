@@ -13,3 +13,4 @@
 (defanswer day09 4771532800 1544362560)
 (defanswer day10 491 20617)
 (defanswer day11 699 388893655378800)
+(defanswer day12 517)

@@ -363,4 +363,5 @@
   (:use :cl)
   (:local-nicknames (:a :alexandria) (:lp :linear-programming)))
 (defpackage :aoc2025.day11 (:use :cl) (:local-nicknames (:a :alexandria)))
+(defpackage :aoc2025.day12 (:use :cl) (:local-nicknames (:a :alexandria)))
 (fiasco:define-test-package :aoc2025.tests (:use :aoc))
